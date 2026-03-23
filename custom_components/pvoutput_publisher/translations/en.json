@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "PVOutput Pusher Configuration",
+        "title": "PVOutput Publisher Configuration",
         "description": "Enter your global PVOutput API Key.",
         "data": {
           "api_key": "API Key"
@@ -32,7 +32,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Manage PVOutput Pusher",
+        "title": "Manage PVOutput Publisher",
         "description": "Choose an action to manage your PVOutput connection.",
         "menu_options": {
           "add_system": "Add a new system",
