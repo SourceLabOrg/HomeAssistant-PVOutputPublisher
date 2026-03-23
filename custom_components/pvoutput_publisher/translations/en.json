@@ -12,9 +12,13 @@
         "title": "Configure System",
         "description": "Select the sensor tracking this system's power generation.",
         "data": {
+          "name": "System Name",
           "system_id": "System ID",
           "entity_id": "Solar Sensor Entity",
           "frequency": "Update Frequency"
+        },
+        "data_description": {
+          "name": "A friendly name for your own reference."
         }
       },
       "systems_manager": {
@@ -48,9 +52,13 @@
       "add_system": {
         "title": "Configure System",
         "data": {
+          "name": "System Name",
           "system_id": "System ID",
           "entity_id": "Solar Sensor Entity",
           "frequency": "Update Frequency"
+        },
+        "data_description": {
+          "name": "A friendly name for your own reference."
         }
       }
     }

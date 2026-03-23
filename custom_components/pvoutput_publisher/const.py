@@ -2,6 +2,7 @@ DOMAIN = "pvoutput_publisher"
 
 CONF_API_KEY = "api_key"
 CONF_SYSTEMS = "systems"
+CONF_NAME = "name"
 CONF_SYSTEM_ID = "system_id"
 CONF_ENTITY_ID = "entity_id"
 CONF_FREQUENCY = "frequency"
