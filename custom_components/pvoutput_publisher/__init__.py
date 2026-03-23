@@ -25,7 +25,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     for system in systems:
         system_id = system[CONF_SYSTEM_ID]
         entity_id = system[CONF_ENTITY_ID]
-        frequency = system[CONF_FREQUENCY]
+        frequency = int(system[CONF_FREQUENCY])
 
         async def push_data(now: datetime, sys_id=system_id, ent_id=entity_id):
             state = hass.states.get(ent_id)

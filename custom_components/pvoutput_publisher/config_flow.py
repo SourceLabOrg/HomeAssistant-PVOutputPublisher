@@ -10,26 +10,28 @@ from .const import (
 
 def _get_system_schema(existing_data=None):
     """Helper to generate the schema, pre-filling data if editing."""
+    # The dictionary keys are now strings to perfectly match frontend HTML serialization
+    frequency_options = {
+        "5": "5 minutes", "10": "10 minutes", "15": "15 minutes",
+        "30": "30 minutes", "60": "1 hour", "180": "3 hours"
+    }
+
     if existing_data:
+        # We wrap the existing frequency in str() to guarantee a match
         return vol.Schema({
             vol.Required(CONF_SYSTEM_ID, default=existing_data.get(CONF_SYSTEM_ID)): str,
             vol.Required(CONF_ENTITY_ID, default=existing_data.get(CONF_ENTITY_ID)): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor", device_class="power")
             ),
-            vol.Required(CONF_FREQUENCY, default=existing_data.get(CONF_FREQUENCY, 5)): vol.In({
-                5: "5 minutes", 10: "10 minutes", 15: "15 minutes",
-                30: "30 minutes", 60: "1 hour", 180: "3 hours"
-            })
+            vol.Required(CONF_FREQUENCY, default=str(existing_data.get(CONF_FREQUENCY, "5"))): vol.In(frequency_options)
         })
+
     return vol.Schema({
         vol.Required(CONF_SYSTEM_ID): str,
         vol.Required(CONF_ENTITY_ID): selector.EntitySelector(
             selector.EntitySelectorConfig(domain="sensor", device_class="power")
         ),
-        vol.Required(CONF_FREQUENCY, default=5): vol.In({
-            5: "5 minutes", 10: "10 minutes", 15: "15 minutes",
-            30: "30 minutes", 60: "1 hour", 180: "3 hours"
-        })
+        vol.Required(CONF_FREQUENCY, default="5"): vol.In(frequency_options)
     })
 
 class PVOutputPusherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
