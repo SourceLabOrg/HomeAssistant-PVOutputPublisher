@@ -30,7 +30,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     for system in systems:
         system_id = system[CONF_SYSTEM_ID]
-        system_name system[CONF_NAME]
+        system_name = system[CONF_NAME]
         generation_ent_id = system[CONF_ENTITY_ID]
         consumption_ent_id = system.get(CONF_CONSUMPTION_ENTITY_ID)
         temperature_ent_id = system.get(CONF_TEMPERATURE_ENTITY_ID)
