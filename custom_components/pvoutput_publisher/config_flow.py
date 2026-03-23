@@ -1,7 +1,6 @@
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.helpers import selector
-import homeassistant.helpers.config_validation as cv
 from homeassistant.core import callback
 
 from .const import (
@@ -9,12 +8,37 @@ from .const import (
     CONF_ENTITY_ID, CONF_FREQUENCY, DEFAULT_FREQUENCY
 )
 
+def _get_system_schema(existing_data=None):
+    """Helper to generate the schema, pre-filling data if editing."""
+    if existing_data:
+        return vol.Schema({
+            vol.Required(CONF_SYSTEM_ID, default=existing_data.get(CONF_SYSTEM_ID)): str,
+            vol.Required(CONF_ENTITY_ID, default=existing_data.get(CONF_ENTITY_ID)): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor", device_class="power")
+            ),
+            vol.Required(CONF_FREQUENCY, default=existing_data.get(CONF_FREQUENCY, 5)): vol.In({
+                5: "5 minutes", 10: "10 minutes", 15: "15 minutes",
+                30: "30 minutes", 60: "1 hour", 180: "3 hours"
+            })
+        })
+    return vol.Schema({
+        vol.Required(CONF_SYSTEM_ID): str,
+        vol.Required(CONF_ENTITY_ID): selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class="power")
+        ),
+        vol.Required(CONF_FREQUENCY, default=5): vol.In({
+            5: "5 minutes", 10: "10 minutes", 15: "15 minutes",
+            30: "30 minutes", 60: "1 hour", 180: "3 hours"
+        })
+    })
+
 class PVOutputPusherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
     def __init__(self):
         self._api_key = None
         self._systems = []
+        self._editing_index = None
 
     async def async_step_user(self, user_input=None):
         """Step 1: Get the API Key."""
@@ -24,67 +48,74 @@ class PVOutputPusherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema({
-                vol.Required(CONF_API_KEY): str,
-            })
+            data_schema=vol.Schema({vol.Required(CONF_API_KEY): str})
         )
 
     async def async_step_add_system(self, user_input=None):
-        """Step 2: Add a System ID and map it to a sensor."""
+        """Step 2: Add or Edit a system."""
         if user_input is not None:
-            self._systems.append({
-                CONF_SYSTEM_ID: user_input[CONF_SYSTEM_ID],
-                CONF_ENTITY_ID: user_input[CONF_ENTITY_ID],
-                CONF_FREQUENCY: user_input[CONF_FREQUENCY]
-            })
-            return await self.async_step_add_another()
+            if self._editing_index is not None:
+                self._systems[self._editing_index] = user_input
+                self._editing_index = None # Reset after editing
+            else:
+                self._systems.append(user_input)
 
+            return await self.async_step_systems_manager()
+
+        existing_data = self._systems[self._editing_index] if self._editing_index is not None else None
         return self.async_show_form(
             step_id="add_system",
-            data_schema=vol.Schema({
-                vol.Required(CONF_SYSTEM_ID): str,
-                vol.Required(CONF_ENTITY_ID): selector.EntitySelector(
-                    selector.EntitySelectorConfig(
-                        domain="sensor",
-                        device_class="power"
-                    )
-                ),
-                vol.Required(CONF_FREQUENCY, default=5): vol.In({
-                    5: "5 minutes",
-                    10: "10 minutes",
-                    15: "15 minutes",
-                    30: "30 minutes",
-                    60: "1 hour",
-                    180: "3 hours"
-                })
-            })
+            data_schema=_get_system_schema(existing_data)
         )
 
-    async def async_step_add_another(self, user_input=None):
-        """Step 3: Ask to loop back or finish."""
+    async def async_step_systems_manager(self, user_input=None):
+        """Step 3: Show a list of all systems to manage them."""
         if user_input is not None:
-            if user_input["add_another"]:
-                return await self.async_step_add_system()
+            action = user_input["action"]
 
-            return self.async_create_entry(
-                title="PVOutput Publisher",
-                data={
-                    CONF_API_KEY: self._api_key,
-                    CONF_SYSTEMS: self._systems
-                }
-            )
+            if action == "finish":
+                return self.async_create_entry(
+                    title="PVOutput Publisher",
+                    data={CONF_API_KEY: self._api_key, CONF_SYSTEMS: self._systems}
+                )
+            elif action == "add_new":
+                self._editing_index = None
+                return await self.async_step_add_system()
+            elif action.startswith("edit_"):
+                self._editing_index = int(action.split("_")[1])
+                return await self.async_step_add_system()
+            elif action.startswith("remove_"):
+                idx = int(action.split("_")[1])
+                self._systems.pop(idx)
+                # Loop back to manager after removing
+                return await self.async_step_systems_manager()
+
+        # Build dynamic list options based on current systems
+        options = [
+            selector.SelectOptionDict(value="finish", label="✅ Finish Setup"),
+            selector.SelectOptionDict(value="add_new", label="➕ Add New System")
+        ]
+
+        for idx, sys in enumerate(self._systems):
+            options.append(selector.SelectOptionDict(
+                value=f"edit_{idx}", label=f"✏️ Edit: {sys[CONF_SYSTEM_ID]} ({sys[CONF_ENTITY_ID]})"
+            ))
+            options.append(selector.SelectOptionDict(
+                value=f"remove_{idx}", label=f"❌ Remove: {sys[CONF_SYSTEM_ID]}"
+            ))
 
         return self.async_show_form(
-            step_id="add_another",
+            step_id="systems_manager",
             data_schema=vol.Schema({
-                vol.Required("add_another", default=False): bool
+                vol.Required("action", default="finish"): selector.SelectSelector(
+                    selector.SelectSelectorConfig(options=options, mode=selector.SelectSelectorMode.LIST)
+                )
             })
         )
 
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
-        """Tell Home Assistant we have an Options Flow."""
         return PVOutputPusherOptionsFlowHandler(config_entry)
 
 
@@ -95,19 +126,33 @@ class PVOutputPusherOptionsFlowHandler(config_entries.OptionsFlow):
         self.config_entry = config_entry
         self._systems = list(config_entry.data.get(CONF_SYSTEMS, []))
         self._api_key = config_entry.data.get(CONF_API_KEY)
+        self._editing_index = None
 
     async def async_step_init(self, user_input=None):
-        """Step 1: Show a menu of configuration options."""
-        return self.async_show_menu(
-            step_id="init",
-            menu_options=["add_system", "remove_system", "edit_api"]
+        """Initial Options step routes straight to the manager menu."""
+        return await self.async_step_systems_manager()
+
+    async def async_step_add_system(self, user_input=None):
+        """Add or Edit a system within Options."""
+        if user_input is not None:
+            if self._editing_index is not None:
+                self._systems[self._editing_index] = user_input
+                self._editing_index = None
+            else:
+                self._systems.append(user_input)
+            return await self.async_step_systems_manager()
+
+        existing_data = self._systems[self._editing_index] if self._editing_index is not None else None
+        return self.async_show_form(
+            step_id="add_system",
+            data_schema=_get_system_schema(existing_data)
         )
 
     async def async_step_edit_api(self, user_input=None):
-        """Option A: Edit the global API key."""
+        """Edit the global API key."""
         if user_input is not None:
             self._api_key = user_input[CONF_API_KEY]
-            return await self._update_entry()
+            return await self.async_step_systems_manager()
 
         return self.async_show_form(
             step_id="edit_api",
@@ -116,57 +161,50 @@ class PVOutputPusherOptionsFlowHandler(config_entries.OptionsFlow):
             })
         )
 
-    async def async_step_add_system(self, user_input=None):
-        """Option B: Add a new system to the list."""
+    async def async_step_systems_manager(self, user_input=None):
+        """Manage existing systems or add new ones."""
         if user_input is not None:
-            self._systems.append({
-                CONF_SYSTEM_ID: user_input[CONF_SYSTEM_ID],
-                CONF_ENTITY_ID: user_input[CONF_ENTITY_ID],
-                CONF_FREQUENCY: user_input[CONF_FREQUENCY]
-            })
-            return await self._update_entry()
+            action = user_input["action"]
+
+            if action == "finish":
+                # Save data and close options flow
+                self.hass.config_entries.async_update_entry(
+                    self.config_entry,
+                    data={CONF_API_KEY: self._api_key, CONF_SYSTEMS: self._systems}
+                )
+                return self.async_create_entry(title="", data={})
+            elif action == "edit_api":
+                return await self.async_step_edit_api()
+            elif action == "add_new":
+                self._editing_index = None
+                return await self.async_step_add_system()
+            elif action.startswith("edit_"):
+                self._editing_index = int(action.split("_")[1])
+                return await self.async_step_add_system()
+            elif action.startswith("remove_"):
+                idx = int(action.split("_")[1])
+                self._systems.pop(idx)
+                return await self.async_step_systems_manager()
+
+        options = [
+            selector.SelectOptionDict(value="finish", label="✅ Save and Close"),
+            selector.SelectOptionDict(value="edit_api", label="🔑 Edit API Key"),
+            selector.SelectOptionDict(value="add_new", label="➕ Add New System")
+        ]
+
+        for idx, sys in enumerate(self._systems):
+            options.append(selector.SelectOptionDict(
+                value=f"edit_{idx}", label=f"✏️ Edit: {sys[CONF_SYSTEM_ID]} ({sys[CONF_ENTITY_ID]})"
+            ))
+            options.append(selector.SelectOptionDict(
+                value=f"remove_{idx}", label=f"❌ Remove: {sys[CONF_SYSTEM_ID]}"
+            ))
 
         return self.async_show_form(
-            step_id="add_system",
+            step_id="systems_manager",
             data_schema=vol.Schema({
-                vol.Required(CONF_SYSTEM_ID): str,
-                vol.Required(CONF_ENTITY_ID): selector.EntitySelector(
-                    selector.EntitySelectorConfig(
-                        domain="sensor",
-                        device_class="power"
-                    )
-                ),
-                vol.Required(CONF_FREQUENCY, default=5): vol.In({
-                    5: "5 minutes",
-                    10: "10 minutes",
-                    15: "15 minutes",
-                    30: "30 minutes",
-                    60: "1 hour",
-                    180: "3 hours"
-                })
+                vol.Required("action", default="finish"): selector.SelectSelector(
+                    selector.SelectSelectorConfig(options=options, mode=selector.SelectSelectorMode.LIST)
+                )
             })
         )
-
-    async def async_step_remove_system(self, user_input=None):
-        """Option C: Remove an existing system via a multi-select dropdown."""
-        if user_input is not None:
-            selected = user_input.get("systems_to_remove", [])
-            self._systems = [s for s in self._systems if s[CONF_SYSTEM_ID] not in selected]
-            return await self._update_entry()
-
-        systems_list = {s[CONF_SYSTEM_ID]: f"System {s[CONF_SYSTEM_ID]} ({s[CONF_ENTITY_ID]})" for s in self._systems}
-
-        return self.async_show_form(
-            step_id="remove_system",
-            data_schema=vol.Schema({
-                vol.Optional("systems_to_remove"): cv.multi_select(systems_list)
-            })
-        )
-
-    async def _update_entry(self):
-        """Save the new data and tell Home Assistant we are done."""
-        self.hass.config_entries.async_update_entry(
-            self.config_entry,
-            data={CONF_API_KEY: self._api_key, CONF_SYSTEMS: self._systems}
-        )
-        return self.async_create_entry(title="", data={})

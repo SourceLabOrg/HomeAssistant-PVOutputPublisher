@@ -9,18 +9,19 @@
         }
       },
       "add_system": {
-        "title": "Add PVOutput System",
-        "description": "Configure the System ID and the Home Assistant sensor tracking it.",
+        "title": "Configure System",
+        "description": "Select the sensor tracking this system's power generation.",
         "data": {
           "system_id": "System ID",
           "entity_id": "Solar Sensor Entity",
-          "frequency": "Update Frequency (Minutes)"
+          "frequency": "Update Frequency"
         }
       },
-      "add_another": {
-        "title": "Add Another System?",
+      "systems_manager": {
+        "title": "Manage Systems",
+        "description": "Select an action below to manage your arrays.",
         "data": {
-          "add_another": "Yes, add another system"
+          "action": "Action"
         }
       }
     },
@@ -31,13 +32,11 @@
   },
   "options": {
     "step": {
-      "init": {
+      "systems_manager": {
         "title": "Manage PVOutput Publisher",
-        "description": "Choose an action to manage your PVOutput connection.",
-        "menu_options": {
-          "add_system": "Add a new system",
-          "remove_system": "Remove an existing system",
-          "edit_api": "Edit global API Key"
+        "description": "Select an action below to update your settings.",
+        "data": {
+          "action": "Action"
         }
       },
       "edit_api": {
@@ -47,17 +46,11 @@
         }
       },
       "add_system": {
-        "title": "Add System",
+        "title": "Configure System",
         "data": {
           "system_id": "System ID",
           "entity_id": "Solar Sensor Entity",
-          "frequency": "Update Frequency (Minutes)"
-        }
-      },
-      "remove_system": {
-        "title": "Remove System",
-        "data": {
-          "systems_to_remove": "Select systems to remove"
+          "frequency": "Update Frequency"
         }
       }
     }
