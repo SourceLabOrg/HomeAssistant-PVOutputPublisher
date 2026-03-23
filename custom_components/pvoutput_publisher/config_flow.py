@@ -44,9 +44,19 @@ class PVOutputPusherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema({
                 vol.Required(CONF_SYSTEM_ID): str,
                 vol.Required(CONF_ENTITY_ID): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="sensor")
+                    selector.EntitySelectorConfig(
+                        domain="sensor",
+                        device_class="power"
+                    )
                 ),
-                vol.Required(CONF_FREQUENCY, default=DEFAULT_FREQUENCY): vol.All(vol.Coerce(int), vol.Range(min=1, max=60))
+                vol.Required(CONF_FREQUENCY, default=5): vol.In({
+                    5: "5 minutes",
+                    10: "10 minutes",
+                    15: "15 minutes",
+                    30: "30 minutes",
+                    60: "1 hour",
+                    180: "3 hours"
+                })
             })
         )
 
@@ -121,9 +131,19 @@ class PVOutputPusherOptionsFlowHandler(config_entries.OptionsFlow):
             data_schema=vol.Schema({
                 vol.Required(CONF_SYSTEM_ID): str,
                 vol.Required(CONF_ENTITY_ID): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="sensor")
+                    selector.EntitySelectorConfig(
+                        domain="sensor",
+                        device_class="power"
+                    )
                 ),
-                vol.Required(CONF_FREQUENCY, default=DEFAULT_FREQUENCY): vol.All(vol.Coerce(int), vol.Range(min=1, max=60))
+                vol.Required(CONF_FREQUENCY, default=5): vol.In({
+                    5: "5 minutes",
+                    10: "10 minutes",
+                    15: "15 minutes",
+                    30: "30 minutes",
+                    60: "1 hour",
+                    180: "3 hours"
+                })
             })
         )
 

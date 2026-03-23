@@ -14,7 +14,7 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up PVOutput Pusher from a config entry."""
+    """Set up PVOutput Publisher from a config entry."""
     hass.data.setdefault(DOMAIN, {})
     api_key = entry.data[CONF_API_KEY]
     systems = entry.data.get(CONF_SYSTEMS, [])
@@ -34,12 +34,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 return
 
             try:
-                # PVOutput expects an integer. We cast to float first to handle
-                # sensors that report decimals (e.g., '1234.5')
-                value = int(float(state.state))
+                # PVOutput expects an integer. We cast to float first.
+                value = float(state.state)
             except ValueError:
                 _LOGGER.error("Entity %s has non-numeric state: %s", ent_id, state.state)
                 return
+
+            # Dynamically check for Kilowatts and convert to Watts
+            unit = state.attributes.get("unit_of_measurement", "").lower()
+            if unit in ["kw", "kilowatt", "kilowatts"]:
+                value = value * 1000
+
+            # Convert to final integer for PVOutput
+            value = int(value)
 
             # Format strictly for PVOutput requirements
             d = now.strftime('%Y%m%d')
