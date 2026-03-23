@@ -47,8 +47,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
             gen_unit = gen_state.attributes.get("unit_of_measurement", "").lower()
 
-            d = now.strftime('%Y%m%d')
-            t = now.strftime('%H:%M')
+            # Get the strictly localized time from Home Assistant
+            local_time = dt_util.now()
+            d = local_time.strftime('%Y%m%d')
+            t = local_time.strftime('%H:%M')
+
             payload = f"d={d}&t={t}"
 
             # 1. Add Generation Data (v1 / v2)
