@@ -1,7 +1,7 @@
 {
   "domain": "pvoutput_publisher",
   "name": "PVOutput Publisher",
-  "codeowners": ["@sourcelaborg"],
+  "codeowners": ["@sourcelaborg", "@crim"],
   "config_flow": true,
   "dependencies": [],
   "documentation": "https://github.com/SourceLabOrg/HomeAssistant-PVOutputPublisher",
