@@ -11,7 +11,7 @@ from homeassistant.helpers.dispatcher import async_dispatcher_send
 import homeassistant.util.dt as dt_util
 
 from .const import (
-    DOMAIN, CONF_API_KEY, CONF_SYSTEMS, CONF_SYSTEM_ID,
+    DOMAIN, CONF_API_KEY, CONF_SYSTEMS, CONF_SYSTEM_ID, CONF_NAME,
     CONF_ENTITY_ID, CONF_CONSUMPTION_ENTITY_ID, CONF_TEMPERATURE_ENTITY_ID,
     CONF_FREQUENCY, PVOUTPUT_API_URL
 )
