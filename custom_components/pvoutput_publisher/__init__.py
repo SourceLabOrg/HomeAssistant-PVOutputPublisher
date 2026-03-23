@@ -12,16 +12,15 @@ import homeassistant.util.dt as dt_util
 
 from .const import (
     DOMAIN, CONF_API_KEY, CONF_SYSTEMS, CONF_SYSTEM_ID,
-    CONF_ENTITY_ID, CONF_FREQUENCY, PVOUTPUT_API_URL
+    CONF_ENTITY_ID, CONF_CONSUMPTION_ENTITY_ID, CONF_TEMPERATURE_ENTITY_ID,
+    CONF_FREQUENCY, PVOUTPUT_API_URL
 )
 
 _LOGGER = logging.getLogger(__name__)
 
-# Define the platforms this integration supports
 PLATFORMS = [Platform.SENSOR]
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up PVOutput Publisher from a config entry."""
     hass.data.setdefault(DOMAIN, {})
     api_key = entry.data[CONF_API_KEY]
     systems = entry.data.get(CONF_SYSTEMS, [])
@@ -31,39 +30,75 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     for system in systems:
         system_id = system[CONF_SYSTEM_ID]
-        entity_id = system[CONF_ENTITY_ID]
+        generation_ent_id = system[CONF_ENTITY_ID]
+        consumption_ent_id = system.get(CONF_CONSUMPTION_ENTITY_ID)
+        temperature_ent_id = system.get(CONF_TEMPERATURE_ENTITY_ID)
         frequency = int(system[CONF_FREQUENCY])
 
-        async def push_data(now: datetime, sys_id=system_id, ent_id=entity_id):
-            state = hass.states.get(ent_id)
-            if not state or state.state in ['unknown', 'unavailable']:
+        async def push_data(now: datetime, sys_id=system_id, gen_id=generation_ent_id, con_id=consumption_ent_id, temp_id=temperature_ent_id):
+            gen_state = hass.states.get(gen_id)
+            if not gen_state or gen_state.state in ['unknown', 'unavailable']:
                 return
 
             try:
-                value = float(state.state)
+                gen_value = float(gen_state.state)
             except ValueError:
                 return
 
-            unit = state.attributes.get("unit_of_measurement", "").lower()
+            gen_unit = gen_state.attributes.get("unit_of_measurement", "").lower()
 
-            # Default payload structure (Date and Time)
             d = now.strftime('%Y%m%d')
             t = now.strftime('%H:%M')
             payload = f"d={d}&t={t}"
 
-            # If it is an ENERGY sensor (Cumulative Daily Total) -> Send as v1
-            if unit in ["wh", "kwh", "mwh"]:
-                if unit == "kwh":
-                    value = value * 1000
-                elif unit == "mwh":
-                    value = value * 1000000
-                payload += f"&v1={int(value)}"
-
-            # If it is a POWER sensor (Instantaneous Snapshot) -> Send as v2
+            # 1. Add Generation Data (v1 / v2)
+            if gen_unit in ["wh", "kwh", "mwh"]:
+                if gen_unit == "kwh":
+                    gen_value *= 1000
+                elif gen_unit == "mwh":
+                    gen_value *= 1000000
+                payload += f"&v1={int(gen_value)}"
             else:
-                if unit in ["kw", "kilowatt", "kilowatts"]:
-                    value = value * 1000
-                payload += f"&v2={int(value)}"
+                if gen_unit in ["kw", "kilowatt", "kilowatts"]:
+                    gen_value *= 1000
+                payload += f"&v2={int(gen_value)}"
+
+            # 2. Add Optional Consumption Data (v3 / v4)
+            if con_id:
+                con_state = hass.states.get(con_id)
+                if con_state and con_state.state not in ['unknown', 'unavailable']:
+                    try:
+                        con_value = float(con_state.state)
+                        con_unit = con_state.attributes.get("unit_of_measurement", "").lower()
+
+                        if con_unit in ["wh", "kwh", "mwh"]:
+                            if con_unit == "kwh":
+                                con_value *= 1000
+                            elif con_unit == "mwh":
+                                con_value *= 1000000
+                            payload += f"&v3={int(con_value)}"
+                        else:
+                            if con_unit in ["kw", "kilowatt", "kilowatts"]:
+                                con_value *= 1000
+                            payload += f"&v4={int(con_value)}"
+                    except ValueError:
+                        pass # Silently ignore invalid consumption state and continue
+
+            # 3. Add Optional Temperature Data (v5)
+            if temp_id:
+                temp_state = hass.states.get(temp_id)
+                if temp_state and temp_state.state not in ['unknown', 'unavailable']:
+                    try:
+                        temp_value = float(temp_state.state)
+                        temp_unit = temp_state.attributes.get("unit_of_measurement", "").lower()
+
+                        # PVOutput strictly expects Celsius
+                        if temp_unit in ["°f", "f"]:
+                            temp_value = (temp_value - 32) * 5.0 / 9.0
+
+                        payload += f"&v5={temp_value:.1f}"
+                    except ValueError:
+                        pass # Silently ignore invalid temp state and continue
 
             headers = {
                 "X-Pvoutput-Apikey": api_key,
@@ -74,13 +109,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             try:
                 async with session.post(PVOUTPUT_API_URL, headers=headers, data=payload) as resp:
                     if resp.status == 200:
-                        # Success! Send a signal to the sensor to update its timestamp
                         async_dispatcher_send(hass, f"{DOMAIN}_update_{sys_id}", dt_util.utcnow())
                     else:
                         text = await resp.text()
                         _LOGGER.error("PVOutput API error (%s): %s", resp.status, text)
-
-            # Graceful error handling for network drops
             except aiohttp.ClientError as e:
                 _LOGGER.warning("Network error connecting to PVOutput. Retrying next cycle. (%s)", e)
             except Exception as e:
@@ -92,14 +124,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data[DOMAIN][entry.entry_id] = remove_listeners
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
 
-    # Forward the setup to the sensor platform (loads sensor.py)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Unload a config entry."""
-    # Unload the sensor platform first
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
     if unload_ok:
@@ -110,5 +139,4 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return unload_ok
 
 async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Reload the config entry when options change."""
     await hass.config_entries.async_reload(entry.entry_id)

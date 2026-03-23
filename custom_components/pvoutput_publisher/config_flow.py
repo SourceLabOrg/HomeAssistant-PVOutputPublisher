@@ -5,34 +5,60 @@ from homeassistant.core import callback
 
 from .const import (
     DOMAIN, CONF_API_KEY, CONF_SYSTEMS, CONF_NAME, CONF_SYSTEM_ID,
-    CONF_ENTITY_ID, CONF_FREQUENCY, DEFAULT_FREQUENCY
+    CONF_ENTITY_ID, CONF_CONSUMPTION_ENTITY_ID, CONF_TEMPERATURE_ENTITY_ID,
+    CONF_FREQUENCY, DEFAULT_FREQUENCY
 )
 
 def _get_system_schema(existing_data=None):
-    """Helper to generate the schema, pre-filling data if editing."""
     frequency_options = {
         "5": "5 minutes", "10": "10 minutes", "15": "15 minutes",
         "30": "30 minutes", "60": "1 hour", "180": "3 hours"
     }
 
-    if existing_data:
-        return vol.Schema({
-            vol.Required(CONF_NAME, default=existing_data.get(CONF_NAME, existing_data.get(CONF_SYSTEM_ID))): str,
-            vol.Required(CONF_SYSTEM_ID, default=existing_data.get(CONF_SYSTEM_ID)): str,
-            vol.Required(CONF_ENTITY_ID, default=existing_data.get(CONF_ENTITY_ID)): selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="sensor", device_class=["power", "energy"])
-            ),
-            vol.Required(CONF_FREQUENCY, default=str(existing_data.get(CONF_FREQUENCY, "5"))): vol.In(frequency_options)
-        })
+    schema = {}
 
-    return vol.Schema({
-        vol.Required(CONF_NAME): str,
-        vol.Required(CONF_SYSTEM_ID): str,
-        vol.Required(CONF_ENTITY_ID, default=existing_data.get(CONF_ENTITY_ID)): selector.EntitySelector(
+    if existing_data:
+        schema[vol.Required(CONF_NAME, default=existing_data.get(CONF_NAME, existing_data.get(CONF_SYSTEM_ID)))] = str
+        schema[vol.Required(CONF_SYSTEM_ID, default=existing_data.get(CONF_SYSTEM_ID))] = str
+        schema[vol.Required(CONF_ENTITY_ID, default=existing_data.get(CONF_ENTITY_ID))] = selector.EntitySelector(
             selector.EntitySelectorConfig(domain="sensor", device_class=["power", "energy"])
-        ),
-        vol.Required(CONF_FREQUENCY, default="5"): vol.In(frequency_options)
-    })
+        )
+
+        if existing_data.get(CONF_CONSUMPTION_ENTITY_ID):
+            schema[vol.Optional(CONF_CONSUMPTION_ENTITY_ID, default=existing_data.get(CONF_CONSUMPTION_ENTITY_ID))] = selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor", device_class=["power", "energy"])
+            )
+        else:
+            schema[vol.Optional(CONF_CONSUMPTION_ENTITY_ID)] = selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor", device_class=["power", "energy"])
+            )
+
+        if existing_data.get(CONF_TEMPERATURE_ENTITY_ID):
+            schema[vol.Optional(CONF_TEMPERATURE_ENTITY_ID, default=existing_data.get(CONF_TEMPERATURE_ENTITY_ID))] = selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
+            )
+        else:
+            schema[vol.Optional(CONF_TEMPERATURE_ENTITY_ID)] = selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
+            )
+
+        schema[vol.Required(CONF_FREQUENCY, default=str(existing_data.get(CONF_FREQUENCY, "5")))] = vol.In(frequency_options)
+
+    else:
+        schema[vol.Required(CONF_NAME)] = str
+        schema[vol.Required(CONF_SYSTEM_ID)] = str
+        schema[vol.Required(CONF_ENTITY_ID)] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class=["power", "energy"])
+        )
+        schema[vol.Optional(CONF_CONSUMPTION_ENTITY_ID)] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class=["power", "energy"])
+        )
+        schema[vol.Optional(CONF_TEMPERATURE_ENTITY_ID)] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
+        )
+        schema[vol.Required(CONF_FREQUENCY, default="5")] = vol.In(frequency_options)
+
+    return vol.Schema(schema)
 
 class PVOutputPusherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
@@ -94,7 +120,6 @@ class PVOutputPusherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         ]
 
         for idx, sys in enumerate(self._systems):
-            # Fallback to system_id if name isn't set yet on existing configs
             display_name = sys.get(CONF_NAME, sys.get(CONF_SYSTEM_ID))
             options.append(selector.SelectOptionDict(
                 value=f"edit_{idx}", label=f"Edit: {display_name}"

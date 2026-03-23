@@ -10,15 +10,19 @@
       },
       "add_system": {
         "title": "Configure System",
-        "description": "Select the sensor tracking this system's power generation.",
+        "description": "Select the sensors tracking this system.",
         "data": {
           "name": "System Name",
           "system_id": "System ID",
-          "entity_id": "Solar Sensor Entity",
+          "entity_id": "Solar Generation Sensor",
+          "consumption_entity_id": "Power/Energy Consumption Sensor",
+          "temperature_entity_id": "Temperature Sensor",
           "frequency": "Update Frequency"
         },
         "data_description": {
-          "name": "A friendly name for your own reference."
+          "name": "A friendly name for your own reference.",
+          "consumption_entity_id": "(Optional) Tracks your home's energy usage.",
+          "temperature_entity_id": "(Optional) Tracks outside temperature."
         }
       },
       "systems_manager": {
@@ -54,11 +58,15 @@
         "data": {
           "name": "System Name",
           "system_id": "System ID",
-          "entity_id": "Solar Sensor Entity",
+          "entity_id": "Solar Generation Sensor",
+          "consumption_entity_id": "Power/Energy Consumption Sensor",
+          "temperature_entity_id": "Temperature Sensor",
           "frequency": "Update Frequency"
         },
         "data_description": {
-          "name": "A friendly name for your own reference."
+          "name": "A friendly name for your own reference.",
+          "consumption_entity_id": "(Optional) Tracks your home's energy usage.",
+          "temperature_entity_id": "(Optional) Tracks outside temperature."
         }
       }
     }
