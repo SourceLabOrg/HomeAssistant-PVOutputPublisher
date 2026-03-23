@@ -30,6 +30,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     for system in systems:
         system_id = system[CONF_SYSTEM_ID]
+        system_name system[CONF_NAME]
         generation_ent_id = system[CONF_ENTITY_ID]
         consumption_ent_id = system.get(CONF_CONSUMPTION_ENTITY_ID)
         temperature_ent_id = system.get(CONF_TEMPERATURE_ENTITY_ID)
@@ -112,14 +113,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             try:
                 async with session.post(PVOUTPUT_API_URL, headers=headers, data=payload) as resp:
                     if resp.status == 200:
+                        _LOGGER.debug("Successfully pushed to PVOutput for %s (%s): %s", system_name, sys_id, payload)
                         async_dispatcher_send(hass, f"{DOMAIN}_update_{sys_id}", dt_util.utcnow())
                     else:
                         text = await resp.text()
-                        _LOGGER.error("PVOutput API error (%s): %s", resp.status, text)
+                        _LOGGER.error("PVOutput API error for %s (%s): (%s) %s", system_name, sys_id, resp.status, text)
             except aiohttp.ClientError as e:
-                _LOGGER.warning("Network error connecting to PVOutput. Retrying next cycle. (%s)", e)
+                _LOGGER.warning("Network error connecting to PVOutput. Retrying next cycle. System %s (%s): (%s)", system_name, sys_id, e)
             except Exception as e:
-                _LOGGER.error("Unexpected error connecting to PVOutput: %s", e)
+                _LOGGER.error("Unexpected error connecting to PVOutput System %s (%s): %s", system_name, sys_id, e)
 
         listener = async_track_time_interval(hass, push_data, timedelta(minutes=frequency))
         remove_listeners.append(listener)
