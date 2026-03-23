@@ -20,7 +20,7 @@ def _get_system_schema(existing_data=None):
             vol.Required(CONF_NAME, default=existing_data.get(CONF_NAME, existing_data.get(CONF_SYSTEM_ID))): str,
             vol.Required(CONF_SYSTEM_ID, default=existing_data.get(CONF_SYSTEM_ID)): str,
             vol.Required(CONF_ENTITY_ID, default=existing_data.get(CONF_ENTITY_ID)): selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="sensor", device_class="power")
+                selector.EntitySelectorConfig(domain="sensor", device_class=["power", "energy"])
             ),
             vol.Required(CONF_FREQUENCY, default=str(existing_data.get(CONF_FREQUENCY, "5"))): vol.In(frequency_options)
         })
@@ -28,8 +28,8 @@ def _get_system_schema(existing_data=None):
     return vol.Schema({
         vol.Required(CONF_NAME): str,
         vol.Required(CONF_SYSTEM_ID): str,
-        vol.Required(CONF_ENTITY_ID): selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class="power")
+        vol.Required(CONF_ENTITY_ID, default=existing_data.get(CONF_ENTITY_ID)): selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class=["power", "energy"])
         ),
         vol.Required(CONF_FREQUENCY, default="5"): vol.In(frequency_options)
     })
