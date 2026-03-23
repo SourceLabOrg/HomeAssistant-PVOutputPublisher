@@ -1,0 +1,74 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "PVOutput Publisher の設定",
+        "description": "グローバル PVOutput API キーを入力してください。",
+        "data": {
+          "api_key": "API キー"
+        }
+      },
+      "add_system": {
+        "title": "システムの設定",
+        "description": "このシステムをトラッキングするセンサーを選択してください。",
+        "data": {
+          "name": "システム名",
+          "system_id": "システム ID",
+          "entity_id": "太陽光発電センサー",
+          "consumption_entity_id": "電力/エネルギー消費センサー",
+          "temperature_entity_id": "温度センサー",
+          "frequency": "更新頻度"
+        },
+        "data_description": {
+          "name": "管理用のわかりやすい名前。",
+          "consumption_entity_id": "(オプション) 自宅のエネルギー使用量を記録します。",
+          "temperature_entity_id": "(オプション) 外気温を記録します。"
+        }
+      },
+      "systems_manager": {
+        "title": "システムの管理",
+        "description": "以下からアクションを選択してアレイを管理します。",
+        "data": {
+          "action": "アクション"
+        }
+      }
+    },
+    "error": {},
+    "abort": {
+      "already_configured": "このインテグレーションはすでに設定されています。"
+    }
+  },
+  "options": {
+    "step": {
+      "systems_manager": {
+        "title": "PVOutput Publisher の管理",
+        "description": "以下からアクションを選択して設定を更新してください。",
+        "data": {
+          "action": "アクション"
+        }
+      },
+      "edit_api": {
+        "title": "API キーの編集",
+        "data": {
+          "api_key": "API キー"
+        }
+      },
+      "add_system": {
+        "title": "システムの設定",
+        "data": {
+          "name": "システム名",
+          "system_id": "システム ID",
+          "entity_id": "太陽光発電センサー",
+          "consumption_entity_id": "電力/エネルギー消費センサー",
+          "temperature_entity_id": "温度センサー",
+          "frequency": "更新頻度"
+        },
+        "data_description": {
+          "name": "管理用のわかりやすい名前。",
+          "consumption_entity_id": "(オプション) 自宅のエネルギー使用量を記録します。",
+          "temperature_entity_id": "(オプション) 外気温を記録します。"
+        }
+      }
+    }
+  }
+}

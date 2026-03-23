@@ -1,0 +1,74 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configuración de PVOutput Publisher",
+        "description": "Introduzca su clave API global de PVOutput.",
+        "data": {
+          "api_key": "Clave API"
+        }
+      },
+      "add_system": {
+        "title": "Configurar Sistema",
+        "description": "Seleccione los sensores para este sistema.",
+        "data": {
+          "name": "Nombre del Sistema",
+          "system_id": "ID del Sistema",
+          "entity_id": "Sensor de Generación Solar",
+          "consumption_entity_id": "Sensor de Consumo Eléctrico",
+          "temperature_entity_id": "Sensor de Temperatura",
+          "frequency": "Frecuencia de Actualización"
+        },
+        "data_description": {
+          "name": "Un nombre descriptivo para su propia referencia.",
+          "consumption_entity_id": "(Opcional) Registra el uso de energía de su hogar.",
+          "temperature_entity_id": "(Opcional) Registra la temperatura exterior."
+        }
+      },
+      "systems_manager": {
+        "title": "Gestionar Sistemas",
+        "description": "Seleccione una acción para gestionar sus sistemas.",
+        "data": {
+          "action": "Acción"
+        }
+      }
+    },
+    "error": {},
+    "abort": {
+      "already_configured": "Esta integración ya está configurada."
+    }
+  },
+  "options": {
+    "step": {
+      "systems_manager": {
+        "title": "Gestionar PVOutput Publisher",
+        "description": "Seleccione una acción para actualizar su configuración.",
+        "data": {
+          "action": "Acción"
+        }
+      },
+      "edit_api": {
+        "title": "Editar Clave API",
+        "data": {
+          "api_key": "Clave API"
+        }
+      },
+      "add_system": {
+        "title": "Configurar Sistema",
+        "data": {
+          "name": "Nombre del Sistema",
+          "system_id": "ID del Sistema",
+          "entity_id": "Sensor de Generación Solar",
+          "consumption_entity_id": "Sensor de Consumo Eléctrico",
+          "temperature_entity_id": "Sensor de Temperatura",
+          "frequency": "Frecuencia de Actualización"
+        },
+        "data_description": {
+          "name": "Un nombre descriptivo para su propia referencia.",
+          "consumption_entity_id": "(Opcional) Registra el uso de energía de su hogar.",
+          "temperature_entity_id": "(Opcional) Registra la temperatura exterior."
+        }
+      }
+    }
+  }
+}

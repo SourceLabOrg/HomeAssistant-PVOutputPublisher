@@ -1,0 +1,74 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "PVOutput Publisher Konfiguration",
+        "description": "Geben Sie Ihren globalen PVOutput API-Schlüssel ein.",
+        "data": {
+          "api_key": "API-Schlüssel"
+        }
+      },
+      "add_system": {
+        "title": "System Konfigurieren",
+        "description": "Wählen Sie die Sensoren für dieses System aus.",
+        "data": {
+          "name": "Systemname",
+          "system_id": "System-ID",
+          "entity_id": "Solarerzeugungs-Sensor",
+          "consumption_entity_id": "Stromverbrauch-Sensor",
+          "temperature_entity_id": "Temperatursensor",
+          "frequency": "Aktualisierungsintervall"
+        },
+        "data_description": {
+          "name": "Ein benutzerfreundlicher Name für Ihre Übersicht.",
+          "consumption_entity_id": "(Optional) Erfasst den Energieverbrauch Ihres Hauses.",
+          "temperature_entity_id": "(Optional) Erfasst die Außentemperatur."
+        }
+      },
+      "systems_manager": {
+        "title": "Systeme Verwalten",
+        "description": "Wählen Sie eine Aktion zur Verwaltung Ihrer Anlagen aus.",
+        "data": {
+          "action": "Aktion"
+        }
+      }
+    },
+    "error": {},
+    "abort": {
+      "already_configured": "Diese Integration ist bereits konfiguriert."
+    }
+  },
+  "options": {
+    "step": {
+      "systems_manager": {
+        "title": "PVOutput Publisher Verwalten",
+        "description": "Wählen Sie eine Aktion zur Aktualisierung Ihrer Einstellungen aus.",
+        "data": {
+          "action": "Aktion"
+        }
+      },
+      "edit_api": {
+        "title": "API-Schlüssel Bearbeiten",
+        "data": {
+          "api_key": "API-Schlüssel"
+        }
+      },
+      "add_system": {
+        "title": "System Konfigurieren",
+        "data": {
+          "name": "Systemname",
+          "system_id": "System-ID",
+          "entity_id": "Solarerzeugungs-Sensor",
+          "consumption_entity_id": "Stromverbrauch-Sensor",
+          "temperature_entity_id": "Temperatursensor",
+          "frequency": "Aktualisierungsintervall"
+        },
+        "data_description": {
+          "name": "Ein benutzerfreundlicher Name für Ihre Übersicht.",
+          "consumption_entity_id": "(Optional) Erfasst den Energieverbrauch Ihres Hauses.",
+          "temperature_entity_id": "(Optional) Erfasst die Außentemperatur."
+        }
+      }
+    }
+  }
+}
