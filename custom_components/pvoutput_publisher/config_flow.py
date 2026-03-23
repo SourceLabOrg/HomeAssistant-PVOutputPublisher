@@ -123,7 +123,6 @@ class PVOutputPusherOptionsFlowHandler(config_entries.OptionsFlow):
     """Handle the Options Flow (the 'Configure' button)."""
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        self.config_entry = config_entry
         self._systems = list(config_entry.data.get(CONF_SYSTEMS, []))
         self._api_key = config_entry.data.get(CONF_API_KEY)
         self._editing_index = None
