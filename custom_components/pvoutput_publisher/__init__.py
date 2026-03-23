@@ -11,7 +11,7 @@ from homeassistant.helpers.dispatcher import async_dispatcher_send
 import homeassistant.util.dt as dt_util
 
 from .const import (
-    DOMAIN, CONF_API_KEY, CONF_SYSTEMS, CONF_SYSTEM_ID, CONF_NAME,
+    DOMAIN, CONF_API_KEY, CONF_SYSTEMS, CONF_NAME, CONF_SYSTEM_ID,
     CONF_ENTITY_ID, CONF_CONSUMPTION_ENTITY_ID, CONF_TEMPERATURE_ENTITY_ID,
     CONF_FREQUENCY, PVOUTPUT_API_URL
 )
@@ -30,13 +30,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     for system in systems:
         system_id = system[CONF_SYSTEM_ID]
-        system_name = system[CONF_NAME]
         generation_ent_id = system[CONF_ENTITY_ID]
         consumption_ent_id = system.get(CONF_CONSUMPTION_ENTITY_ID)
         temperature_ent_id = system.get(CONF_TEMPERATURE_ENTITY_ID)
         frequency = int(system[CONF_FREQUENCY])
+        sys_name = system.get(CONF_NAME, system_id)
 
-        async def push_data(now: datetime, sys_id=system_id, gen_id=generation_ent_id, con_id=consumption_ent_id, temp_id=temperature_ent_id):
+        # We pass loop variables as default arguments to avoid Python closure late-binding bugs
+        async def push_data(now: datetime, sys_id=system_id, gen_id=generation_ent_id, con_id=consumption_ent_id, temp_id=temperature_ent_id, name=sys_name):
             gen_state = hass.states.get(gen_id)
             if not gen_state or gen_state.state in ['unknown', 'unavailable']:
                 return
@@ -47,25 +48,39 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 return
 
             gen_unit = gen_state.attributes.get("unit_of_measurement", "").lower()
+            gen_state_class = gen_state.attributes.get("state_class", "").lower()
 
-            # Get the strictly localized time from Home Assistant
+            # Localized time
             local_time = dt_util.now()
             d = local_time.strftime('%Y%m%d')
             t = local_time.strftime('%H:%M')
-
             payload = f"d={d}&t={t}"
+
+            # This list will hold our human-readable log strings
+            log_parts = []
 
             # 1. Add Generation Data (v1 / v2)
             if gen_unit in ["wh", "kwh", "mwh"]:
+                raw_gen = gen_value
                 if gen_unit == "kwh":
                     gen_value *= 1000
                 elif gen_unit == "mwh":
                     gen_value *= 1000000
+
+                # Tell PVOutput to calculate daily yield if this is a lifetime sensor
+                if gen_state_class in ["total", "total_increasing"]:
+                    payload += "&c1=1"
+                    log_parts.append(f"Gen (Lifetime): {raw_gen} {gen_unit} -> v1={int(gen_value)}")
+                else:
+                    log_parts.append(f"Gen (Daily): {raw_gen} {gen_unit} -> v1={int(gen_value)}")
+
                 payload += f"&v1={int(gen_value)}"
             else:
+                raw_gen = gen_value
                 if gen_unit in ["kw", "kilowatt", "kilowatts"]:
                     gen_value *= 1000
                 payload += f"&v2={int(gen_value)}"
+                log_parts.append(f"Gen (Power): {raw_gen} {gen_unit} -> v2={int(gen_value)}")
 
             # 2. Add Optional Consumption Data (v3 / v4)
             if con_id:
@@ -74,6 +89,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     try:
                         con_value = float(con_state.state)
                         con_unit = con_state.attributes.get("unit_of_measurement", "").lower()
+                        raw_con = con_value
 
                         if con_unit in ["wh", "kwh", "mwh"]:
                             if con_unit == "kwh":
@@ -81,12 +97,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                             elif con_unit == "mwh":
                                 con_value *= 1000000
                             payload += f"&v3={int(con_value)}"
+                            log_parts.append(f"Con (Energy): {raw_con} {con_unit} -> v3={int(con_value)}")
                         else:
                             if con_unit in ["kw", "kilowatt", "kilowatts"]:
                                 con_value *= 1000
                             payload += f"&v4={int(con_value)}"
+                            log_parts.append(f"Con (Power): {raw_con} {con_unit} -> v4={int(con_value)}")
                     except ValueError:
-                        pass # Silently ignore invalid consumption state and continue
+                        pass
 
             # 3. Add Optional Temperature Data (v5)
             if temp_id:
@@ -95,14 +113,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     try:
                         temp_value = float(temp_state.state)
                         temp_unit = temp_state.attributes.get("unit_of_measurement", "").lower()
+                        raw_temp = temp_value
 
-                        # PVOutput strictly expects Celsius
                         if temp_unit in ["°f", "f"]:
                             temp_value = (temp_value - 32) * 5.0 / 9.0
+                            log_parts.append(f"Temp: {raw_temp}°F -> v5={temp_value:.1f}°C")
+                        else:
+                            log_parts.append(f"Temp: {raw_temp}°C -> v5={temp_value:.1f}°C")
 
                         payload += f"&v5={temp_value:.1f}"
                     except ValueError:
-                        pass # Silently ignore invalid temp state and continue
+                        pass
+
+            # --- THE HUMAN-READABLE LOG ---
+            # We use INFO so it shows up without needing to enable debug logging
+            _LOGGER.info("PVOutput [%s | ID: %s] Preparing to send: %s", name, sys_id, " | ".join(log_parts))
 
             headers = {
                 "X-Pvoutput-Apikey": api_key,
@@ -113,15 +138,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             try:
                 async with session.post(PVOUTPUT_API_URL, headers=headers, data=payload) as resp:
                     if resp.status == 200:
-                        _LOGGER.debug("Successfully pushed to PVOutput for %s (%s): %s", system_name, sys_id, payload)
                         async_dispatcher_send(hass, f"{DOMAIN}_update_{sys_id}", dt_util.utcnow())
                     else:
                         text = await resp.text()
-                        _LOGGER.error("PVOutput API error for %s (%s): (%s) %s", system_name, sys_id, resp.status, text)
+                        _LOGGER.error("PVOutput API error for %s (%s): (%s) %s", name, sys_id, resp.status, text)
             except aiohttp.ClientError as e:
-                _LOGGER.warning("Network error connecting to PVOutput. Retrying next cycle. System %s (%s): (%s)", system_name, sys_id, e)
+                _LOGGER.warning("Network error connecting to PVOutput for %s. Retrying next cycle. (%s)", name, e)
             except Exception as e:
-                _LOGGER.error("Unexpected error connecting to PVOutput System %s (%s): %s", system_name, sys_id, e)
+                _LOGGER.error("Unexpected error connecting to PVOutput for %s: %s", name, e)
 
         listener = async_track_time_interval(hass, push_data, timedelta(minutes=frequency))
         remove_listeners.append(listener)
