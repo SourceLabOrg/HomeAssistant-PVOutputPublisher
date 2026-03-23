@@ -1,0 +1,11 @@
+.DS_Store
+.gradle
+gradle.properties
+build/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.idea
