@@ -9,18 +9,21 @@
         }
       },
       "add_system": {
-        "title": "Configure System",
-        "description": "Select the sensors tracking this system.",
+        "title": "Configure Solar System",
+        "description": "Select the sensors for this solar array.\n\n**Smart Detection:** You can select a single Power (W) OR Energy (Wh) sensor. The integration will format it, and PVOutput will estimate the missing metric.\n\n**Maximum Accuracy:** For the best results, select BOTH a Power and an Energy sensor. The integration will automatically detect which is which and upload them simultaneously.",
         "data": {
           "name": "System Name",
           "system_id": "System ID",
-          "entity_id": "Solar Generation Sensor",
-          "consumption_entity_id": "Power/Energy Consumption Sensor",
-          "temperature_entity_id": "Temperature Sensor",
+          "entity_id": "Primary Solar Sensor",
+          "secondary_entity_id": "Secondary Solar Sensor (Optional)",
+          "consumption_entity_id": "Consumption Sensor (Optional)",
+          "temperature_entity_id": "Temperature Sensor (Optional)",
           "frequency": "Update Frequency"
         },
         "data_description": {
           "name": "A friendly name for your own reference.",
+          "entity_id": "Your inverter's power (W) or energy (Wh) sensor.",
+          "secondary_entity_id": "If you selected a Power (W) sensor above, select your Energy (Wh) sensor here (or vice versa) for maximum accuracy. If left blank, PVOutput will automatically estimate the missing value.",
           "consumption_entity_id": "(Optional) Tracks your home's energy usage.",
           "temperature_entity_id": "(Optional) Tracks outside temperature."
         }
@@ -42,7 +45,7 @@
     "step": {
       "systems_manager": {
         "title": "Manage PVOutput Publisher",
-        "description": "Select an action below to update your settings.",
+        "description": "Select an action below to update your configuration.",
         "data": {
           "action": "Action"
         }
@@ -54,17 +57,21 @@
         }
       },
       "add_system": {
-        "title": "Configure System",
+        "title": "Configure Solar System",
+        "description": "Select the sensors for this solar array.\n\n**Smart Detection:** You can select a single Power (W) OR Energy (Wh) sensor. The integration will format it, and PVOutput will estimate the missing metric.\n\n**Maximum Accuracy:** For the best results, select BOTH a Power and an Energy sensor. The integration will automatically detect which is which and upload them simultaneously.",
         "data": {
           "name": "System Name",
           "system_id": "System ID",
-          "entity_id": "Solar Generation Sensor",
-          "consumption_entity_id": "Power/Energy Consumption Sensor",
-          "temperature_entity_id": "Temperature Sensor",
+          "entity_id": "Primary Solar Sensor",
+          "secondary_entity_id": "Secondary Solar Sensor (Optional)",
+          "consumption_entity_id": "Consumption Sensor (Optional)",
+          "temperature_entity_id": "Temperature Sensor (Optional)",
           "frequency": "Update Frequency"
         },
         "data_description": {
           "name": "A friendly name for your own reference.",
+          "entity_id": "Your inverter's power (W) or energy (Wh) sensor.",
+          "secondary_entity_id": "If you selected a Power (W) sensor above, select your Energy (Wh) sensor here (or vice versa) for maximum accuracy. If left blank, PVOutput will automatically estimate the missing value.",
           "consumption_entity_id": "(Optional) Tracks your home's energy usage.",
           "temperature_entity_id": "(Optional) Tracks outside temperature."
         }

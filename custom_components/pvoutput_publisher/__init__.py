@@ -1,6 +1,6 @@
 import logging
 import aiohttp
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -12,8 +12,8 @@ import homeassistant.util.dt as dt_util
 
 from .const import (
     DOMAIN, CONF_API_KEY, CONF_SYSTEMS, CONF_NAME, CONF_SYSTEM_ID,
-    CONF_ENTITY_ID, CONF_CONSUMPTION_ENTITY_ID, CONF_TEMPERATURE_ENTITY_ID,
-    CONF_FREQUENCY, PVOUTPUT_API_URL
+    CONF_ENTITY_ID, CONF_SECONDARY_ENTITY_ID, CONF_CONSUMPTION_ENTITY_ID,
+    CONF_TEMPERATURE_ENTITY_ID, CONF_FREQUENCY, PVOUTPUT_API_URL
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -31,13 +31,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     for system in systems:
         system_id = system[CONF_SYSTEM_ID]
         generation_ent_id = system[CONF_ENTITY_ID]
+        secondary_generation_ent_id = system.get(CONF_SECONDARY_ENTITY_ID)
         consumption_ent_id = system.get(CONF_CONSUMPTION_ENTITY_ID)
         temperature_ent_id = system.get(CONF_TEMPERATURE_ENTITY_ID)
         frequency = int(system[CONF_FREQUENCY])
         sys_name = system.get(CONF_NAME, system_id)
 
         # We pass loop variables as default arguments to avoid Python closure late-binding bugs
-        async def push_data(now: datetime, sys_id=system_id, gen_id=generation_ent_id, con_id=consumption_ent_id, temp_id=temperature_ent_id, name=sys_name):
+        async def push_data(now: datetime, sys_id=system_id, gen_id=generation_ent_id, sec_id=secondary_generation_ent_id, con_id=consumption_ent_id, temp_id=temperature_ent_id, name=sys_name):
             gen_state = hass.states.get(gen_id)
             if not gen_state or gen_state.state in ['unknown', 'unavailable']:
                 return
@@ -59,7 +60,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             # This list will hold our human-readable log strings
             log_parts = []
 
-            # 1. Add Generation Data (v1 / v2)
+            # Flags to prevent overwriting if user selects duplicate sensor types
+            has_energy_v1 = False
+            has_power_v2 = False
+
+            # 1A. Primary Generation Data
             if gen_unit in ["wh", "kwh", "mwh"]:
                 raw_gen = gen_value
                 if gen_unit == "kwh":
@@ -67,20 +72,60 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 elif gen_unit == "mwh":
                     gen_value *= 1000000
 
-                # Tell PVOutput to calculate daily yield if this is a lifetime sensor
                 if gen_state_class in ["total", "total_increasing"]:
                     payload += "&c1=1"
-                    log_parts.append(f"Gen (Lifetime): {raw_gen} {gen_unit} -> v1={int(gen_value)}")
+                    log_parts.append(f"Gen1 (Lifetime): {raw_gen} {gen_unit} -> v1={int(gen_value)}")
                 else:
-                    log_parts.append(f"Gen (Daily): {raw_gen} {gen_unit} -> v1={int(gen_value)}")
+                    log_parts.append(f"Gen1 (Daily): {raw_gen} {gen_unit} -> v1={int(gen_value)}")
 
                 payload += f"&v1={int(gen_value)}"
+                has_energy_v1 = True
             else:
                 raw_gen = gen_value
                 if gen_unit in ["kw", "kilowatt", "kilowatts"]:
                     gen_value *= 1000
                 payload += f"&v2={int(gen_value)}"
-                log_parts.append(f"Gen (Power): {raw_gen} {gen_unit} -> v2={int(gen_value)}")
+                log_parts.append(f"Gen1 (Power): {raw_gen} {gen_unit} -> v2={int(gen_value)}")
+                has_power_v2 = True
+
+            # 1B. Secondary Generation Data (Optional)
+            if sec_id:
+                sec_state = hass.states.get(sec_id)
+                if sec_state and sec_state.state not in ['unknown', 'unavailable']:
+                    try:
+                        sec_value = float(sec_state.state)
+                        sec_unit = sec_state.attributes.get("unit_of_measurement", "").lower()
+                        sec_state_class = sec_state.attributes.get("state_class", "").lower()
+                        raw_sec = sec_value
+
+                        if sec_unit in ["wh", "kwh", "mwh"]:
+                            if has_energy_v1:
+                                _LOGGER.warning("PVOutput [%s]: Ignored secondary sensor. You selected two Energy (Wh) sensors.", name)
+                            else:
+                                if sec_unit == "kwh":
+                                    sec_value *= 1000
+                                elif sec_unit == "mwh":
+                                    sec_value *= 1000000
+
+                                if sec_state_class in ["total", "total_increasing"]:
+                                    payload += "&c1=1"
+                                    log_parts.append(f"Gen2 (Lifetime): {raw_sec} {sec_unit} -> v1={int(sec_value)}")
+                                else:
+                                    log_parts.append(f"Gen2 (Daily): {raw_sec} {sec_unit} -> v1={int(sec_value)}")
+
+                                payload += f"&v1={int(sec_value)}"
+                                has_energy_v1 = True
+                        else:
+                            if has_power_v2:
+                                _LOGGER.warning("PVOutput [%s]: Ignored secondary sensor. You selected two Power (W) sensors.", name)
+                            else:
+                                if sec_unit in ["kw", "kilowatt", "kilowatts"]:
+                                    sec_value *= 1000
+                                payload += f"&v2={int(sec_value)}"
+                                log_parts.append(f"Gen2 (Power): {raw_sec} {sec_unit} -> v2={int(sec_value)}")
+                                has_power_v2 = True
+                    except ValueError:
+                        pass
 
             # 2. Add Optional Consumption Data (v3 / v4)
             if con_id:

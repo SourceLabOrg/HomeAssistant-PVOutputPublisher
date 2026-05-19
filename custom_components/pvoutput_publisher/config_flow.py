@@ -5,8 +5,8 @@ from homeassistant.core import callback
 
 from .const import (
     DOMAIN, CONF_API_KEY, CONF_SYSTEMS, CONF_NAME, CONF_SYSTEM_ID,
-    CONF_ENTITY_ID, CONF_CONSUMPTION_ENTITY_ID, CONF_TEMPERATURE_ENTITY_ID,
-    CONF_FREQUENCY, DEFAULT_FREQUENCY
+    CONF_ENTITY_ID, CONF_SECONDARY_ENTITY_ID, CONF_CONSUMPTION_ENTITY_ID,
+    CONF_TEMPERATURE_ENTITY_ID, CONF_FREQUENCY, DEFAULT_FREQUENCY
 )
 
 def _get_system_schema(existing_data=None):
@@ -20,9 +20,19 @@ def _get_system_schema(existing_data=None):
     if existing_data:
         schema[vol.Required(CONF_NAME, default=existing_data.get(CONF_NAME, existing_data.get(CONF_SYSTEM_ID)))] = str
         schema[vol.Required(CONF_SYSTEM_ID, default=existing_data.get(CONF_SYSTEM_ID))] = str
+
         schema[vol.Required(CONF_ENTITY_ID, default=existing_data.get(CONF_ENTITY_ID))] = selector.EntitySelector(
             selector.EntitySelectorConfig(domain="sensor", device_class=["power", "energy"])
         )
+
+        if existing_data.get(CONF_SECONDARY_ENTITY_ID):
+            schema[vol.Optional(CONF_SECONDARY_ENTITY_ID, default=existing_data.get(CONF_SECONDARY_ENTITY_ID))] = selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor", device_class=["power", "energy"])
+            )
+        else:
+            schema[vol.Optional(CONF_SECONDARY_ENTITY_ID)] = selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor", device_class=["power", "energy"])
+            )
 
         if existing_data.get(CONF_CONSUMPTION_ENTITY_ID):
             schema[vol.Optional(CONF_CONSUMPTION_ENTITY_ID, default=existing_data.get(CONF_CONSUMPTION_ENTITY_ID))] = selector.EntitySelector(
@@ -48,6 +58,9 @@ def _get_system_schema(existing_data=None):
         schema[vol.Required(CONF_NAME)] = str
         schema[vol.Required(CONF_SYSTEM_ID)] = str
         schema[vol.Required(CONF_ENTITY_ID)] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class=["power", "energy"])
+        )
+        schema[vol.Optional(CONF_SECONDARY_ENTITY_ID)] = selector.EntitySelector(
             selector.EntitySelectorConfig(domain="sensor", device_class=["power", "energy"])
         )
         schema[vol.Optional(CONF_CONSUMPTION_ENTITY_ID)] = selector.EntitySelector(
