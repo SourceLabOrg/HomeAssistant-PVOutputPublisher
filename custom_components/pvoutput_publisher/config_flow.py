@@ -35,11 +35,11 @@ def _get_system_schema(existing_data=None):
 
         if existing_data.get(CONF_TEMPERATURE_ENTITY_ID):
             schema[vol.Optional(CONF_TEMPERATURE_ENTITY_ID, default=existing_data.get(CONF_TEMPERATURE_ENTITY_ID))] = selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
+                selector.EntitySelectorConfig(domain="sensor")
             )
         else:
             schema[vol.Optional(CONF_TEMPERATURE_ENTITY_ID)] = selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
+                selector.EntitySelectorConfig(domain="sensor")
             )
 
         schema[vol.Required(CONF_FREQUENCY, default=str(existing_data.get(CONF_FREQUENCY, "5")))] = vol.In(frequency_options)
@@ -54,7 +54,7 @@ def _get_system_schema(existing_data=None):
             selector.EntitySelectorConfig(domain="sensor", device_class=["power", "energy"])
         )
         schema[vol.Optional(CONF_TEMPERATURE_ENTITY_ID)] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
+            selector.EntitySelectorConfig(domain="sensor")
         )
         schema[vol.Required(CONF_FREQUENCY, default="5")] = vol.In(frequency_options)
 
