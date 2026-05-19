@@ -22,6 +22,8 @@
         },
         "data_description": {
           "name": "Ein benutzerfreundlicher Name für Ihre Übersicht.",
+          "entity_id": "Der Leistungs- (W) oder Energie- (Wh) Sensor Ihres Wechselrichters.",
+          "secondary_entity_id": "Wenn Sie oben einen Leistungs- (W) Sensor ausgewählt haben, wählen Sie hier Ihren Energie- (Wh) Sensor (oder umgekehrt) für maximale Genauigkeit. Wenn leer gelassen, schätzt PVOutput den fehlenden Wert automatisch.",
           "consumption_entity_id": "(Optional) Erfasst den Energieverbrauch Ihres Hauses.",
           "temperature_entity_id": "(Optional) Erfasst die Außentemperatur."
         }
@@ -68,6 +70,8 @@
         },
         "data_description": {
           "name": "Ein benutzerfreundlicher Name für Ihre Übersicht.",
+          "entity_id": "Der Leistungs- (W) oder Energie- (Wh) Sensor Ihres Wechselrichters.",
+          "secondary_entity_id": "Wenn Sie oben einen Leistungs- (W) Sensor ausgewählt haben, wählen Sie hier Ihren Energie- (Wh) Sensor (oder umgekehrt) für maximale Genauigkeit. Wenn leer gelassen, schätzt PVOutput den fehlenden Wert automatisch.",
           "consumption_entity_id": "(Optional) Erfasst den Energieverbrauch Ihres Hauses.",
           "temperature_entity_id": "(Optional) Erfasst die Außentemperatur."
         }

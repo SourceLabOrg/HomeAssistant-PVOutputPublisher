@@ -22,6 +22,8 @@
         },
         "data_description": {
           "name": "A friendly name for your own reference.",
+          "entity_id": "Your inverter's power (W) or energy (Wh) sensor.",
+          "secondary_entity_id": "If you selected a Power (W) sensor above, select your Energy (Wh) sensor here (or vice versa) for maximum accuracy. If left blank, PVOutput will automatically estimate the missing value.",
           "consumption_entity_id": "(Optional) Tracks your home's energy usage.",
           "temperature_entity_id": "(Optional) Tracks outside temperature."
         }
@@ -68,6 +70,8 @@
         },
         "data_description": {
           "name": "A friendly name for your own reference.",
+          "entity_id": "Your inverter's power (W) or energy (Wh) sensor.",
+          "secondary_entity_id": "If you selected a Power (W) sensor above, select your Energy (Wh) sensor here (or vice versa) for maximum accuracy. If left blank, PVOutput will automatically estimate the missing value.",
           "consumption_entity_id": "(Optional) Tracks your home's energy usage.",
           "temperature_entity_id": "(Optional) Tracks outside temperature."
         }
