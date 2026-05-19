@@ -12,11 +12,13 @@ Please note that the code and documentation for this project were primarily gene
 ## Features
 * **UI Config Flow:** Fully configurable via the Home Assistant UI. No YAML required.
 * **Multi-System Support:** Publish data for multiple solar arrays or inverters to different PVOutput System IDs using a single API key.
+* **Strict Clock Alignment:** Synchronizes uploads to exact wall-clock intervals (e.g., :00, :05, :10) to prevent data drift and match PVOutput's native 5-minute buckets perfectly, even after Home Assistant restarts.
 * **Smart Data Detection:** Automatically formats the payload based on the units of your selected sensors (Watts vs. Watt-hours, Celsius vs. Fahrenheit).
-* **Lifetime Energy Support:** Automatically detects `state_class: total` sensors and flags PVOutput to calculate your daily yield and instantaneous power curves for you.
+* **Maximum Accuracy Dual-Sensors:** Support for selecting both Power and Energy sensors simultaneously to plot the most accurate live power curves without relying on backend estimation.
+* **Lifetime Energy Support:** Automatically detects `state_class: total` sensors and flags PVOutput to calculate your daily yield for you.
 * **Comprehensive Metrics:** Supports pushing Generation, Consumption, and Temperature data simultaneously.
 * **Last Upload Sensor:** Creates a timestamp entity in Home Assistant so you can monitor exactly when the last successful push occurred.
-* **Multi-Language Support:** Fully translated into English, Japanese, Spanish, and German.
+* **Multi-Language Support:** Fully translated into English, Japanese, Spanish, German, and Chinese (Simplified & Traditional).
 
 ---
 
@@ -24,9 +26,9 @@ Please note that the code and documentation for this project were primarily gene
 PVOutput requires data to be formatted precisely. This integration looks at the `unit_of_measurement` and `state_class` of your selected sensors and automatically handles the conversions:
 
 ### Generation & Consumption
-* **Power (Watts / kW):** Automatically converted to Watts and sent as `v2` (Generation) or `v4` (Consumption).
-* **Daily Energy (Wh / kWh):** Automatically converted to Watt-hours and sent as `v1` (Generation) or `v3` (Consumption).
-* **Lifetime Energy:** If your sensor tracks lifetime yield (e.g., `state_class: total_increasing`), the integration sends the `&c1=1` flag. PVOutput will automatically calculate your daily generation and live power curves by comparing the intervals.
+* **Single Sensor (Smart Detection):** You can select a single Power (W) or Energy (Wh) sensor. The integration will upload it, and PVOutput will automatically estimate the missing metric.
+* **Dual Sensors (Maximum Accuracy):** For the best results, select BOTH a Power and an Energy sensor in the UI configuration. The integration will automatically detect which is which and upload them simultaneously, providing exact live output and daily totals without requiring PVOutput to do any mathematical guessing.
+* **Lifetime Energy:** If your sensor tracks lifetime yield (e.g., `state_class: total_increasing`), the integration sends the `&c1=1` flag.
 
 ### Temperature
 * If your Home Assistant sensor uses Fahrenheit (`°F`), it will automatically be converted to Celsius before uploading, as PVOutput strictly requires Celsius for its `v5` parameter.
@@ -56,8 +58,9 @@ This integration is installed via [HACS](https://hacs.xyz/).
 5. Add your first system by providing:
    * **System Name:** A friendly name for your reference.
    * **System ID:** Your PVOutput System ID.
-   * **Solar Generation Sensor:** Your inverter's power or energy sensor.
-   * **Power/Energy Consumption Sensor:** (Optional) Your home's power draw or energy usage sensor.
+   * **Primary Solar Sensor:** Your inverter's power (W) or energy (Wh) sensor.
+   * **Secondary Solar Sensor:** (Optional) If you selected a Power (W) sensor above, select your Energy (Wh) sensor here, or vice versa, for maximum accuracy. If you only provide the primary sensor, PVOutput will automatically estimate the missing value, which may result in less accurate data. 
+   * **Consumption Sensor:** (Optional) Your home's power draw or energy usage sensor.
    * **Temperature Sensor:** (Optional) Outside temperature.
    * **Update Frequency:** How often to push data to PVOutput (5 to 180 minutes).
 

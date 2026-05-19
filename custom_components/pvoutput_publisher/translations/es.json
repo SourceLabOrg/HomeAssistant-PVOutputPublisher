@@ -10,13 +10,14 @@
       },
       "add_system": {
         "title": "Configurar Sistema",
-        "description": "Seleccione los sensores para este sistema.",
+        "description": "Seleccione los sensores para este sistema solar.\n\n**Detección Inteligente:** Puede seleccionar un solo sensor de Potencia (W) O de Energía (Wh). La integración lo formateará y PVOutput estimará la métrica faltante.\n\n**Precisión Máxima:** Para obtener los mejores resultados, seleccione AMBOS sensores: uno de Potencia y uno de Energía. La integración detectará automáticamente cuál es cuál y los subirá simultáneamente.",
         "data": {
           "name": "Nombre del Sistema",
           "system_id": "ID del Sistema",
-          "entity_id": "Sensor de Generación Solar",
-          "consumption_entity_id": "Sensor de Consumo Eléctrico",
-          "temperature_entity_id": "Sensor de Temperatura",
+          "entity_id": "Sensor Solar Principal",
+          "secondary_entity_id": "Sensor Solar Secundario (Opcional)",
+          "consumption_entity_id": "Sensor de Consumo Eléctrico (Opcional)",
+          "temperature_entity_id": "Sensor de Temperatura (Opcional)",
           "frequency": "Frecuencia de Actualización"
         },
         "data_description": {
@@ -55,12 +56,14 @@
       },
       "add_system": {
         "title": "Configurar Sistema",
+        "description": "Seleccione los sensores para este sistema solar.\n\n**Detección Inteligente:** Puede seleccionar un solo sensor de Potencia (W) O de Energía (Wh). La integración lo formateará y PVOutput estimará la métrica faltante.\n\n**Precisión Máxima:** Para obtener los mejores resultados, seleccione AMBOS sensores: uno de Potencia y uno de Energía. La integración detectará automáticamente cuál es cuál y los subirá simultáneamente.",
         "data": {
           "name": "Nombre del Sistema",
           "system_id": "ID del Sistema",
-          "entity_id": "Sensor de Generación Solar",
-          "consumption_entity_id": "Sensor de Consumo Eléctrico",
-          "temperature_entity_id": "Sensor de Temperatura",
+          "entity_id": "Sensor Solar Principal",
+          "secondary_entity_id": "Sensor Solar Secundario (Opcional)",
+          "consumption_entity_id": "Sensor de Consumo Eléctrico (Opcional)",
+          "temperature_entity_id": "Sensor de Temperatura (Opcional)",
           "frequency": "Frecuencia de Actualización"
         },
         "data_description": {
