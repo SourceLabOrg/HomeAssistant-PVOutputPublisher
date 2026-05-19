@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.const import Platform
-from homeassistant.helpers.event import async_track_time_interval
+from homeassistant.helpers.event import async_track_time_change
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 import homeassistant.util.dt as dt_util
@@ -147,7 +147,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             except Exception as e:
                 _LOGGER.error("Unexpected error connecting to PVOutput for %s: %s", name, e)
 
-        listener = async_track_time_interval(hass, push_data, timedelta(minutes=frequency))
+        # Smart clock-aligned scheduling (Cron style)
+        if frequency < 60:
+            # Creates a list of exact minutes: [0, 5, 10, 15...]
+            minutes = list(range(0, 60, frequency))
+            listener = async_track_time_change(hass, push_data, minute=minutes, second=0)
+        elif frequency == 60:
+            # Every hour on the dot (xx:00:00)
+            listener = async_track_time_change(hass, push_data, minute=0, second=0)
+        elif frequency == 180:
+            # Every 3 hours on the dot (00:00, 03:00, 06:00...)
+            hours = list(range(0, 24, 3))
+            listener = async_track_time_change(hass, push_data, hour=hours, minute=0, second=0)
+        else:
+            # Safe fallback just in case
+            listener = async_track_time_change(hass, push_data, minute=list(range(0, 60, 5)), second=0)
+
         remove_listeners.append(listener)
 
     hass.data[DOMAIN][entry.entry_id] = remove_listeners
