@@ -18,6 +18,7 @@
           "secondary_entity_id": "次要太阳能传感器 (选填)",
           "consumption_entity_id": "用电消耗传感器 (选填)",
           "temperature_entity_id": "温度传感器 (选填)",
+          "voltage_entity_id": "电压传感器 (选填)",
           "frequency": "更新频率"
         },
         "data_description": {
@@ -25,7 +26,8 @@
           "entity_id": "您逆变器的功率 (W) 或电量 (Wh) 传感器。",
           "secondary_entity_id": "如果您在上方选择了功率 (W) 传感器，请在此处选择电量 (Wh) 传感器（反之亦然）以达到最高精确度。如果留空，PVOutput 将自动估算缺失的值。",
           "consumption_entity_id": "(选填) 追踪您家中的能源使用情况。",
-          "temperature_entity_id": "(选填) 追踪室外温度。"
+          "temperature_entity_id": "(选填) 追踪室外温度。",
+          "voltage_entity_id": "(选填) 追踪电网/逆变器的工作电压。"
         }
       },
       "systems_manager": {

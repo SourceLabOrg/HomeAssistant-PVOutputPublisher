@@ -6,7 +6,7 @@ from homeassistant.core import callback
 from .const import (
     DOMAIN, CONF_API_KEY, CONF_SYSTEMS, CONF_NAME, CONF_SYSTEM_ID,
     CONF_ENTITY_ID, CONF_SECONDARY_ENTITY_ID, CONF_CONSUMPTION_ENTITY_ID,
-    CONF_TEMPERATURE_ENTITY_ID, CONF_FREQUENCY, DEFAULT_FREQUENCY
+    CONF_TEMPERATURE_ENTITY_ID, CONF_FREQUENCY, DEFAULT_FREQUENCY, CONF_VOLTAGE_ENTITY_ID
 )
 
 def _get_system_schema(existing_data=None):
@@ -52,6 +52,15 @@ def _get_system_schema(existing_data=None):
                 selector.EntitySelectorConfig(domain="sensor")
             )
 
+        if existing_data.get(CONF_VOLTAGE_ENTITY_ID):
+            schema[vol.Optional(CONF_VOLTAGE_ENTITY_ID, default=existing_data.get(CONF_VOLTAGE_ENTITY_ID))] = selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor", device_class=["voltage"])
+            )
+        else:
+            schema[vol.Optional(CONF_VOLTAGE_ENTITY_ID)] = selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor", device_class=["voltage"])
+            )
+
         schema[vol.Required(CONF_FREQUENCY, default=str(existing_data.get(CONF_FREQUENCY, "5")))] = vol.In(frequency_options)
 
     else:
@@ -68,6 +77,9 @@ def _get_system_schema(existing_data=None):
         )
         schema[vol.Optional(CONF_TEMPERATURE_ENTITY_ID)] = selector.EntitySelector(
             selector.EntitySelectorConfig(domain="sensor")
+        )
+        schema[vol.Optional(CONF_VOLTAGE_ENTITY_ID)] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class=["voltage"])
         )
         schema[vol.Required(CONF_FREQUENCY, default="5")] = vol.In(frequency_options)
 

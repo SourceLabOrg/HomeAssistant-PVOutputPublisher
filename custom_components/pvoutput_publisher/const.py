@@ -9,6 +9,7 @@ CONF_SECONDARY_ENTITY_ID = "secondary_entity_id"
 CONF_CONSUMPTION_ENTITY_ID = "consumption_entity_id"
 CONF_TEMPERATURE_ENTITY_ID = "temperature_entity_id"
 CONF_FREQUENCY = "frequency"
+CONF_VOLTAGE_ENTITY_ID = "voltage_entity_id"
 
 DEFAULT_FREQUENCY = "5"
 PVOUTPUT_API_URL = "https://pvoutput.org/service/r2/addstatus.jsp"
