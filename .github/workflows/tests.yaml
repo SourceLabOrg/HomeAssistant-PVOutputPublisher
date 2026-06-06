@@ -20,7 +20,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-          cache: 'pip' # Speeds up subsequent runs by caching dependencies
+          cache: 'pip'
+          cache-dependency-path: 'requirements_test.txt'
 
       - name: Install dependencies
         run: |
