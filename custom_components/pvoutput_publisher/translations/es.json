@@ -18,6 +18,7 @@
           "secondary_entity_id": "Sensor Solar Secundario (Opcional)",
           "consumption_entity_id": "Sensor de Consumo Eléctrico (Opcional)",
           "temperature_entity_id": "Sensor de Temperatura (Opcional)",
+          "voltage_entity_id": "Sensor de Voltaje (Opcional)",
           "frequency": "Frecuencia de Actualización"
         },
         "data_description": {
@@ -25,7 +26,8 @@
           "entity_id": "El sensor de potencia (W) o energía (Wh) de su inversor.",
           "secondary_entity_id": "Si seleccionó un sensor de Potencia (W) arriba, seleccione aquí su sensor de Energía (Wh) (o viceversa) para obtener la máxima precisión. Si se deja en blanco, PVOutput estimará automáticamente el valor faltante.",
           "consumption_entity_id": "(Opcional) Registra el uso de energía de su hogar.",
-          "temperature_entity_id": "(Opcional) Registra la temperatura exterior."
+          "temperature_entity_id": "(Opcional) Registra la temperatura exterior.",
+          "voltage_entity_id": "(Opcional) Registra el voltaje operativo de la red o del inversor."
         }
       },
       "systems_manager": {
@@ -66,6 +68,7 @@
           "secondary_entity_id": "Sensor Solar Secundario (Opcional)",
           "consumption_entity_id": "Sensor de Consumo Eléctrico (Opcional)",
           "temperature_entity_id": "Sensor de Temperatura (Opcional)",
+          "voltage_entity_id": "Sensor de Voltaje (Opcional)",
           "frequency": "Frecuencia de Actualización"
         },
         "data_description": {
@@ -73,7 +76,8 @@
           "entity_id": "El sensor de potencia (W) o energía (Wh) de su inversor.",
           "secondary_entity_id": "Si seleccionó un sensor de Potencia (W) arriba, seleccione aquí su sensor de Energía (Wh) (o viceversa) para obtener la máxima precisión. Si se deja en blanco, PVOutput estimará automáticamente el valor faltante.",
           "consumption_entity_id": "(Opcional) Registra el uso de energía de su hogar.",
-          "temperature_entity_id": "(Opcional) Registra la temperatura exterior."
+          "temperature_entity_id": "(Opcional) Registra la temperatura exterior.",
+          "voltage_entity_id": "(Opcional) Registra el voltaje operativo de la red o del inversor."
         }
       }
     }

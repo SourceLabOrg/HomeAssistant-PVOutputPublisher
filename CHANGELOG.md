@@ -2,7 +2,12 @@
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## 1.1.0 (Unreleased)
+## 1.2.0 (06/05/2026)
+
+### Feature Changes
+- Add support for optional voltage sensor (v6 parameter). (Issue#5)[https://github.com/SourceLabOrg/HomeAssistant-PVOutputPublisher/issues/5]
+
+## 1.1.0 (05/20/2026)
 
 ### Feature Changes
 - Switched to strict, clock-aligned scheduling to prevent time drift and perfectly sync with PVOutput intervals. (Issue#1)[https://github.com/SourceLabOrg/HomeAssistant-PVOutputPublisher/issues/1]

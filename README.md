@@ -62,6 +62,7 @@ This integration is installed via [HACS](https://hacs.xyz/).
    * **Secondary Solar Sensor:** (Optional) If you selected a Power (W) sensor above, select your Energy (Wh) sensor here, or vice versa, for maximum accuracy. If you only provide the primary sensor, PVOutput will automatically estimate the missing value, which may result in less accurate data. 
    * **Consumption Sensor:** (Optional) Your home's power draw or energy usage sensor.
    * **Temperature Sensor:** (Optional) Outside temperature.
+   * **Voltage Sensor:** (Optional) Tracks grid/inverter operational voltage lines.
    * **Update Frequency:** How often to push data to PVOutput (5 to 180 minutes).
 
 ### Managing Multiple Systems

@@ -18,6 +18,7 @@
           "secondary_entity_id": "Secondary Solar Sensor (Optional)",
           "consumption_entity_id": "Consumption Sensor (Optional)",
           "temperature_entity_id": "Temperature Sensor (Optional)",
+          "voltage_entity_id": "Voltage Sensor (Optional)",
           "frequency": "Update Frequency"
         },
         "data_description": {
@@ -25,7 +26,8 @@
           "entity_id": "Your inverter's power (W) or energy (Wh) sensor.",
           "secondary_entity_id": "If you selected a Power (W) sensor above, select your Energy (Wh) sensor here (or vice versa) for maximum accuracy. If left blank, PVOutput will automatically estimate the missing value.",
           "consumption_entity_id": "(Optional) Tracks your home's energy usage.",
-          "temperature_entity_id": "(Optional) Tracks outside temperature."
+          "temperature_entity_id": "(Optional) Tracks outside temperature.",
+          "voltage_entity_id": "(Optional) Tracks grid/inverter operational voltage lines."
         }
       },
       "systems_manager": {
@@ -66,6 +68,7 @@
           "secondary_entity_id": "Secondary Solar Sensor (Optional)",
           "consumption_entity_id": "Consumption Sensor (Optional)",
           "temperature_entity_id": "Temperature Sensor (Optional)",
+          "voltage_entity_id": "Voltage Sensor (Optional)",
           "frequency": "Update Frequency"
         },
         "data_description": {
@@ -73,7 +76,8 @@
           "entity_id": "Your inverter's power (W) or energy (Wh) sensor.",
           "secondary_entity_id": "If you selected a Power (W) sensor above, select your Energy (Wh) sensor here (or vice versa) for maximum accuracy. If left blank, PVOutput will automatically estimate the missing value.",
           "consumption_entity_id": "(Optional) Tracks your home's energy usage.",
-          "temperature_entity_id": "(Optional) Tracks outside temperature."
+          "temperature_entity_id": "(Optional) Tracks outside temperature.",
+          "voltage_entity_id": "(Optional) Tracks grid/inverter operational voltage lines."
         }
       }
     }
