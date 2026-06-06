@@ -2,10 +2,9 @@
 from datetime import timedelta
 import logging
 from unittest.mock import patch
-
 import pytest
+import aiohttp
 from aioresponses import aioresponses
-
 from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import (
@@ -169,3 +168,93 @@ async def test_push_data_duplicate_sensor_types(hass: HomeAssistant, caplog):
     # It should only send the primary sensor data
     assert "&v1=1000" in payload
     assert "&v2=" not in payload
+
+@pytest.mark.asyncio
+async def test_api_error_response(hass: HomeAssistant, caplog):
+    """Test that the integration gracefully handles a non-200 response from PVOutput."""
+    hass.states.async_set("sensor.solar_power", "2000", {"unit_of_measurement": "W"})
+
+    system_config = {
+        CONF_NAME: "Error System",
+        CONF_SYSTEM_ID: MOCK_SYSTEM_ID,
+        CONF_FREQUENCY: "5",
+        CONF_ENTITY_ID: "sensor.solar_power",
+    }
+
+    # Set up the mocked integration
+    entry = MockConfigEntry(domain=DOMAIN, data={CONF_API_KEY: MOCK_API_KEY, CONF_SYSTEMS: [system_config]})
+    entry.add_to_hass(hass)
+    await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    # Intercept the POST request and FORCE a 400 Bad Request error
+    with aioresponses() as mock_aio:
+        mock_aio.post(PVOUTPUT_API_URL, status=400, body="Bad Request: Invalid System ID")
+
+        # Trigger the timer
+        future = dt_util.utcnow().replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
+        async_fire_time_changed(hass, future)
+        await hass.async_block_till_done()
+
+    # Assert that the error was caught and logged correctly
+    assert "PVOutput API error for Error System" in caplog.text
+    assert "Bad Request: Invalid System ID" in caplog.text
+
+@pytest.mark.asyncio
+async def test_network_connection_error(hass: HomeAssistant, caplog):
+    """Test that the integration survives a hard network connection failure."""
+    hass.states.async_set("sensor.solar_power", "2000", {"unit_of_measurement": "W"})
+
+    system_config = {
+        CONF_NAME: "Offline System",
+        CONF_SYSTEM_ID: MOCK_SYSTEM_ID,
+        CONF_FREQUENCY: "5",
+        CONF_ENTITY_ID: "sensor.solar_power",
+    }
+
+    entry = MockConfigEntry(domain=DOMAIN, data={CONF_API_KEY: MOCK_API_KEY, CONF_SYSTEMS: [system_config]})
+    entry.add_to_hass(hass)
+    await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    # Force a hard network exception
+    with aioresponses() as mock_aio:
+        mock_aio.post(PVOUTPUT_API_URL, exception=aiohttp.ClientConnectionError("Connection refused"))
+
+        future = dt_util.utcnow().replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
+        async_fire_time_changed(hass, future)
+        await hass.async_block_till_done()
+
+    # Assert that the warning was logged and the integration did not crash
+    assert "Network error connecting to PVOutput for Offline System" in caplog.text
+
+@pytest.mark.asyncio
+async def test_unavailable_primary_sensor(hass: HomeAssistant, caplog):
+    """Test that uploads are skipped entirely if the primary sensor goes offline."""
+    # Explicitly set the sensor to the 'unavailable' state
+    hass.states.async_set("sensor.solar_power", "unavailable")
+
+    system_config = {
+        CONF_NAME: "Unavailable System",
+        CONF_SYSTEM_ID: MOCK_SYSTEM_ID,
+        CONF_FREQUENCY: "5",
+        CONF_ENTITY_ID: "sensor.solar_power",
+    }
+
+    entry = MockConfigEntry(domain=DOMAIN, data={CONF_API_KEY: MOCK_API_KEY, CONF_SYSTEMS: [system_config]})
+    entry.add_to_hass(hass)
+    await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    with aioresponses() as mock_aio:
+        mock_aio.post(PVOUTPUT_API_URL, status=200)
+
+        future = dt_util.utcnow().replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
+        async_fire_time_changed(hass, future)
+        await hass.async_block_till_done()
+
+        # Extract the intercepted requests
+        post_requests = mock_aio.requests.get(("POST", PVOUTPUT_API_URL))
+
+    # Assert that NO request was ever made because the sensor was offline
+    assert post_requests is None
