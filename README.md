@@ -10,8 +10,7 @@ Please note that the code and documentation for this project were primarily gene
 ---
 
 ## Features
-* **UI Config Flow (V2):** Fully configurable via the Home Assistant UI with 1-to-1 mappings to PVOutput API parameters. No YAML required.
-* **Seamless V1 $\rightarrow$ V2 Migration:** Automatically upgrades existing installations on startup with zero configuration loss.
+* **UI Config Flow:** Fully configurable via the Home Assistant UI with 1-to-1 mappings to PVOutput API parameters. No YAML required.
 * **Internal System Notes:** Save private reference notes for each solar array in the Home Assistant UI without sending them to the public API.
 * **Multi-System Support:** Publish data for multiple solar arrays or inverters to different PVOutput System IDs using a single API key.
 * **Strict Clock Alignment:** Synchronizes uploads to exact wall-clock intervals (e.g., :00, :05, :10) to prevent data drift and match PVOutput's native intervals, even across Home Assistant restarts.
