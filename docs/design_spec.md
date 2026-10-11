@@ -159,8 +159,8 @@ At scheduled intervals, for each configured v2 system:
 - [x] **Step 7: Documentation (`README.md`, `CHANGELOG.md`)**
   - Updated `README.md` to document the V2 parameter mapping, notes field, and migration.
   - Updated `CHANGELOG.md` with 2.0.0 release notes.
-- [ ] **Step 8: Multi-Language Translations (Final Phase)**
-  - Generate updated translations for `de.json`, `es.json`, `ja.json`, `zh-Hans.json`, `zh-Hant.json` once UI adjustments and iterations are finalized.
+- [x] **Step 8: Multi-Language Translations (Final Phase)**
+  - Generated updated translations for `de.json`, `es.json`, `ja.json`, `zh-Hans.json`, `zh-Hant.json` matching `en.json`.
 
 ---
 

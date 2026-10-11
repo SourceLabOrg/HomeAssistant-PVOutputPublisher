@@ -3,36 +3,58 @@
     "step": {
       "user": {
         "title": "Configuración de PVOutput Publisher",
-        "description": "Introduzca su clave API global de PVOutput.",
+        "description": "Introduzca su clave de API global de PVOutput.",
         "data": {
-          "api_key": "Clave API"
+          "api_key": "Clave de API"
         }
       },
       "add_system": {
-        "title": "Configurar Sistema",
-        "description": "Seleccione los sensores para este sistema solar.\n\n**Detección Inteligente:** Puede seleccionar un solo sensor de Potencia (W) O de Energía (Wh). La integración lo formateará y PVOutput estimará la métrica faltante.\n\n**Precisión Máxima:** Para obtener los mejores resultados, seleccione AMBOS sensores: uno de Potencia y uno de Energía. La integración detectará automáticamente cuál es cuál y los subirá simultáneamente.",
+        "title": "Configurar sistema solar",
+        "description": "Asigne sus sensores de Home Assistant a los parámetros de la API de PVOutput. Deje en blanco los sensores opcionales que no correspondan.",
         "data": {
-          "name": "Nombre del Sistema",
-          "system_id": "ID del Sistema",
-          "entity_id": "Sensor Solar Principal",
-          "secondary_entity_id": "Sensor Solar Secundario (Opcional)",
-          "consumption_entity_id": "Sensor de Consumo Eléctrico (Opcional)",
-          "temperature_entity_id": "Sensor de Temperatura (Opcional)",
-          "voltage_entity_id": "Sensor de Voltaje (Opcional)",
-          "frequency": "Frecuencia de Actualización"
+          "name": "Nombre del sistema",
+          "system_id": "ID del sistema",
+          "frequency": "Frecuencia de actualización",
+          "notes": "Notas internas (Opcional)",
+          "v1": "v1: Generación de energía (Wh)",
+          "v2": "v2: Generación de potencia (W)",
+          "v3": "v3: Consumo de energía (Wh)",
+          "v4": "v4: Consumo de potencia (W)",
+          "v5": "v5: Sensor de temperatura",
+          "v6": "v6: Sensor de voltaje",
+          "v7": "v7: Dato extendido 1",
+          "v8": "v8: Dato extendido 2",
+          "v9": "v9: Dato extendido 3",
+          "v10": "v10: Dato extendido 4",
+          "v11": "v11: Dato extendido 5",
+          "v12": "v12: Dato extendido 6",
+          "c1": "Indicador de energía acumulada (c1=1)",
+          "n": "Indicador de potencia neta (n=1)"
         },
         "data_description": {
-          "name": "Un nombre descriptivo para su propia referencia.",
-          "entity_id": "El sensor de potencia (W) o energía (Wh) de su inversor.",
-          "secondary_entity_id": "Si seleccionó un sensor de Potencia (W) arriba, seleccione aquí su sensor de Energía (Wh) (o viceversa) para obtener la máxima precisión. Si se deja en blanco, PVOutput estimará automáticamente el valor faltante.",
-          "consumption_entity_id": "(Opcional) Registra el uso de energía de su hogar.",
-          "temperature_entity_id": "(Opcional) Registra la temperatura exterior.",
-          "voltage_entity_id": "(Opcional) Registra el voltaje operativo de la red o del inversor."
+          "name": "Un nombre descriptivo para su sistema solar en Home Assistant.",
+          "system_id": "Su ID de sistema de PVOutput para esta instalación.",
+          "frequency": "Con qué frecuencia se deben enviar los datos a PVOutput.",
+          "notes": "Notas locales para su propia referencia (no se envían a PVOutput).",
+          "v1": "Energía generada acumulada o diaria en Wh (convierte kWh/MWh automáticamente).",
+          "v2": "Potencia generada instantánea en vatios (convierte kW automáticamente).",
+          "v3": "Energía consumida acumulada o diaria en Wh (convierte kWh/MWh automáticamente).",
+          "v4": "Potencia consumida instantánea en vatios (convierte kW automáticamente).",
+          "v5": "Temperatura ambiente en °C o °F (convierte °F a °C automáticamente).",
+          "v6": "Voltaje de red/inversor en voltios.",
+          "v7": "Campo de datos extendidos 1 (requiere cuenta de donante en PVOutput).",
+          "v8": "Campo de datos extendidos 2 (requiere cuenta de donante en PVOutput).",
+          "v9": "Campo de datos extendidos 3 (requiere cuenta de donante en PVOutput).",
+          "v10": "Campo de datos extendidos 4 (requiere cuenta de donante en PVOutput).",
+          "v11": "Campo de datos extendidos 5 (requiere cuenta de donante en PVOutput).",
+          "v12": "Campo de datos extendidos 6 (requiere cuenta de donante en PVOutput).",
+          "c1": "Marque si sus sensores de energía (v1/v3) proporcionan valores de contador acumulativo total.",
+          "n": "Marque si la generación de potencia (v2) representa exportación neta en lugar de generación bruta."
         }
       },
       "systems_manager": {
-        "title": "Gestionar Sistemas",
-        "description": "Seleccione una acción para gestionar sus sistemas.",
+        "title": "Administrar sistemas",
+        "description": "Seleccione una acción a continuación para gestionar sus instalaciones.",
         "data": {
           "action": "Acción"
         }
@@ -46,38 +68,60 @@
   "options": {
     "step": {
       "systems_manager": {
-        "title": "Gestionar PVOutput Publisher",
-        "description": "Seleccione una acción para actualizar su configuración.",
+        "title": "Administrar PVOutput Publisher",
+        "description": "Seleccione una acción a continuación para actualizar su configuración.",
         "data": {
           "action": "Acción"
         }
       },
       "edit_api": {
-        "title": "Editar Clave API",
+        "title": "Editar clave de API",
         "data": {
-          "api_key": "Clave API"
+          "api_key": "Clave de API"
         }
       },
       "add_system": {
-        "title": "Configurar Sistema",
-        "description": "Seleccione los sensores para este sistema solar.\n\n**Detección Inteligente:** Puede seleccionar un solo sensor de Potencia (W) O de Energía (Wh). La integración lo formateará y PVOutput estimará la métrica faltante.\n\n**Precisión Máxima:** Para obtener los mejores resultados, seleccione AMBOS sensores: uno de Potencia y uno de Energía. La integración detectará automáticamente cuál es cuál y los subirá simultáneamente.",
+        "title": "Configurar sistema solar",
+        "description": "Asigne sus sensores de Home Assistant a los parámetros de la API de PVOutput. Deje en blanco los sensores opcionales que no correspondan.",
         "data": {
-          "name": "Nombre del Sistema",
-          "system_id": "ID del Sistema",
-          "entity_id": "Sensor Solar Principal",
-          "secondary_entity_id": "Sensor Solar Secundario (Opcional)",
-          "consumption_entity_id": "Sensor de Consumo Eléctrico (Opcional)",
-          "temperature_entity_id": "Sensor de Temperatura (Opcional)",
-          "voltage_entity_id": "Sensor de Voltaje (Opcional)",
-          "frequency": "Frecuencia de Actualización"
+          "name": "Nombre del sistema",
+          "system_id": "ID del sistema",
+          "frequency": "Frecuencia de actualización",
+          "notes": "Notas internas (Opcional)",
+          "v1": "v1: Generación de energía (Wh)",
+          "v2": "v2: Generación de potencia (W)",
+          "v3": "v3: Consumo de energía (Wh)",
+          "v4": "v4: Consumo de potencia (W)",
+          "v5": "v5: Sensor de temperatura",
+          "v6": "v6: Sensor de voltaje",
+          "v7": "v7: Dato extendido 1",
+          "v8": "v8: Dato extendido 2",
+          "v9": "v9: Dato extendido 3",
+          "v10": "v10: Dato extendido 4",
+          "v11": "v11: Dato extendido 5",
+          "v12": "v12: Dato extendido 6",
+          "c1": "Indicador de energía acumulada (c1=1)",
+          "n": "Indicador de potencia neta (n=1)"
         },
         "data_description": {
-          "name": "Un nombre descriptivo para su propia referencia.",
-          "entity_id": "El sensor de potencia (W) o energía (Wh) de su inversor.",
-          "secondary_entity_id": "Si seleccionó un sensor de Potencia (W) arriba, seleccione aquí su sensor de Energía (Wh) (o viceversa) para obtener la máxima precisión. Si se deja en blanco, PVOutput estimará automáticamente el valor faltante.",
-          "consumption_entity_id": "(Opcional) Registra el uso de energía de su hogar.",
-          "temperature_entity_id": "(Opcional) Registra la temperatura exterior.",
-          "voltage_entity_id": "(Opcional) Registra el voltaje operativo de la red o del inversor."
+          "name": "Un nombre descriptivo para su sistema solar en Home Assistant.",
+          "system_id": "Su ID de sistema de PVOutput para esta instalación.",
+          "frequency": "Con qué frecuencia se deben enviar los datos a PVOutput.",
+          "notes": "Notas locales para su propia referencia (no se envían a PVOutput).",
+          "v1": "Energía generada acumulada o diaria en Wh (convierte kWh/MWh automáticamente).",
+          "v2": "Potencia generada instantánea en vatios (convierte kW automáticamente).",
+          "v3": "Energía consumida acumulada o diaria en Wh (convierte kWh/MWh automáticamente).",
+          "v4": "Potencia consumida instantánea en vatios (convierte kW automáticamente).",
+          "v5": "Temperatura ambiente en °C o °F (convierte °F a °C automáticamente).",
+          "v6": "Voltaje de red/inversor en voltios.",
+          "v7": "Campo de datos extendidos 1 (requiere cuenta de donante en PVOutput).",
+          "v8": "Campo de datos extendidos 2 (requiere cuenta de donante en PVOutput).",
+          "v9": "Campo de datos extendidos 3 (requiere cuenta de donante en PVOutput).",
+          "v10": "Campo de datos extendidos 4 (requiere cuenta de donante en PVOutput).",
+          "v11": "Campo de datos extendidos 5 (requiere cuenta de donante en PVOutput).",
+          "v12": "Campo de datos extendidos 6 (requiere cuenta de donante en PVOutput).",
+          "c1": "Marque si sus sensores de energía (v1/v3) proporcionan valores de contador acumulativo total.",
+          "n": "Marque si la generación de potencia (v2) representa exportación neta en lugar de generación bruta."
         }
       }
     }

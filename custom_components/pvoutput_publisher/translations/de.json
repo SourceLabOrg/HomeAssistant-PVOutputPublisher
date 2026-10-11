@@ -9,30 +9,52 @@
         }
       },
       "add_system": {
-        "title": "System Konfigurieren",
-        "description": "Wählen Sie die Sensoren für dieses System aus.\n\n**Smarte Erkennung:** Sie können einen einzelnen Leistungs- (W) ODER Energie- (Wh) Sensor auswählen. Die Integration formatiert ihn und PVOutput schätzt den fehlenden Wert.\n\n**Maximale Genauigkeit:** Für die besten Ergebnisse wählen Sie SOWOHL einen Leistungs- als auch einen Energiesensor. Die Integration erkennt automatisch, welcher welcher ist, und lädt beide gleichzeitig hoch.",
+        "title": "Solaranlage konfigurieren",
+        "description": "Ordnen Sie Ihre Home Assistant-Sensoren den PVOutput-API-Parametern zu. Lassen Sie optionale Sensoren leer, falls nicht zutreffend.",
         "data": {
           "name": "Systemname",
           "system_id": "System-ID",
-          "entity_id": "Primärer Solarsensor",
-          "secondary_entity_id": "Sekundärer Solarsensor (Optional)",
-          "consumption_entity_id": "Stromverbrauch-Sensor (Optional)",
-          "temperature_entity_id": "Temperatursensor (Optional)",
-          "voltage_entity_id": "Spannungssensor (Optional)",
-          "frequency": "Aktualisierungsintervall"
+          "frequency": "Aktualisierungsintervall",
+          "notes": "Interne Notizen (Optional)",
+          "v1": "v1: Energieerzeugung (Wh)",
+          "v2": "v2: Leistungserzeugung (W)",
+          "v3": "v3: Energieverbrauch (Wh)",
+          "v4": "v4: Leistungsverbrauch (W)",
+          "v5": "v5: Temperatursensor",
+          "v6": "v6: Spannungssensor",
+          "v7": "v7: Erweiterte Daten 1",
+          "v8": "v8: Erweiterte Daten 2",
+          "v9": "v9: Erweiterte Daten 3",
+          "v10": "v10: Erweiterte Daten 4",
+          "v11": "v11: Erweiterte Daten 5",
+          "v12": "v12: Erweiterte Daten 6",
+          "c1": "Kumulatives Energie-Flag (c1=1)",
+          "n": "Netto-Leistungserzeugungs-Flag (n=1)"
         },
         "data_description": {
-          "name": "Ein benutzerfreundlicher Name für Ihre Übersicht.",
-          "entity_id": "Der Leistungs- (W) oder Energie- (Wh) Sensor Ihres Wechselrichters.",
-          "secondary_entity_id": "Wenn Sie oben einen Leistungs- (W) Sensor ausgewählt haben, wählen Sie hier Ihren Energie- (Wh) Sensor (oder umgekehrt) für maximale Genauigkeit. Wenn leer gelassen, schätzt PVOutput den fehlenden Wert automatisch.",
-          "consumption_entity_id": "(Optional) Erfasst den Energieverbrauch Ihres Hauses.",
-          "temperature_entity_id": "(Optional) Erfasst die Außentemperatur.",
-          "voltage_entity_id": "(Optional) Erfasst die Betriebsspannung des Netzes/Wechselrichters."
+          "name": "Ein aussagekräftiger Name für Ihre Solaranlage in Home Assistant.",
+          "system_id": "Ihre PVOutput System-ID für diese Anlage.",
+          "frequency": "Wie oft Daten an PVOutput gesendet werden sollen.",
+          "notes": "Lokale Notizen zur eigenen Verwendung (werden nicht an PVOutput übertragen).",
+          "v1": "Kumulierte oder tägliche erzeugte Energie in Wh (kWh/MWh werden automatisch umgerechnet).",
+          "v2": "Momentane Erzeugungsleistung in Watt (kW wird automatisch umgerechnet).",
+          "v3": "Kumulierter oder täglicher Energieverbrauch in Wh (kWh/MWh werden automatisch umgerechnet).",
+          "v4": "Momentaner Leistungsverbrauch in Watt (kW wird automatisch umgerechnet).",
+          "v5": "Außentemperatur in °C oder °F (°F wird automatisch in °C umgerechnet).",
+          "v6": "Netz-/Wechselrichterspannung in Volt.",
+          "v7": "Erweitertes Datenfeld 1 (erfordert PVOutput-Spendenkonto).",
+          "v8": "Erweitertes Datenfeld 2 (erfordert PVOutput-Spendenkonto).",
+          "v9": "Erweitertes Datenfeld 3 (erfordert PVOutput-Spendenkonto).",
+          "v10": "Erweitertes Datenfeld 4 (erfordert PVOutput-Spendenkonto).",
+          "v11": "Erweitertes Datenfeld 5 (erfordert PVOutput-Spendenkonto).",
+          "v12": "Erweitertes Datenfeld 6 (erfordert PVOutput-Spendenkonto).",
+          "c1": "Aktivieren, wenn Ihre Energiesensoren (v1/v3) lebenslange Gesamtzählerstände liefern.",
+          "n": "Aktivieren, wenn die Leistungserzeugung (v2) Netto-Einspeisung statt Bruttoerzeugung darstellt."
         }
       },
       "systems_manager": {
-        "title": "Systeme Verwalten",
-        "description": "Wählen Sie eine Aktion zur Verwaltung Ihrer Anlagen aus.",
+        "title": "Systeme verwalten",
+        "description": "Wählen Sie unten eine Aktion aus, um Ihre Anlagen zu verwalten.",
         "data": {
           "action": "Aktion"
         }
@@ -46,38 +68,60 @@
   "options": {
     "step": {
       "systems_manager": {
-        "title": "PVOutput Publisher Verwalten",
-        "description": "Wählen Sie eine Aktion zur Aktualisierung Ihrer Einstellungen aus.",
+        "title": "PVOutput Publisher verwalten",
+        "description": "Wählen Sie unten eine Aktion aus, um Ihre Konfiguration zu aktualisieren.",
         "data": {
           "action": "Aktion"
         }
       },
       "edit_api": {
-        "title": "API-Schlüssel Bearbeiten",
+        "title": "API-Schlüssel bearbeiten",
         "data": {
           "api_key": "API-Schlüssel"
         }
       },
       "add_system": {
-        "title": "System Konfigurieren",
-        "description": "Wählen Sie die Sensoren für dieses System aus.\n\n**Smarte Erkennung:** Sie können einen einzelnen Leistungs- (W) ODER Energie- (Wh) Sensor auswählen. Die Integration formatiert ihn und PVOutput schätzt den fehlenden Wert.\n\n**Maximale Genauigkeit:** Für die besten Ergebnisse wählen Sie SOWOHL einen Leistungs- als auch einen Energiesensor. Die Integration erkennt automatisch, welcher welcher ist, und lädt beide gleichzeitig hoch.",
+        "title": "Solaranlage konfigurieren",
+        "description": "Ordnen Sie Ihre Home Assistant-Sensoren den PVOutput-API-Parametern zu. Lassen Sie optionale Sensoren leer, falls nicht zutreffend.",
         "data": {
           "name": "Systemname",
           "system_id": "System-ID",
-          "entity_id": "Primärer Solarsensor",
-          "secondary_entity_id": "Sekundärer Solarsensor (Optional)",
-          "consumption_entity_id": "Stromverbrauch-Sensor (Optional)",
-          "temperature_entity_id": "Temperatursensor (Optional)",
-          "voltage_entity_id": "Spannungssensor (Optional)",
-          "frequency": "Aktualisierungsintervall"
+          "frequency": "Aktualisierungsintervall",
+          "notes": "Interne Notizen (Optional)",
+          "v1": "v1: Energieerzeugung (Wh)",
+          "v2": "v2: Leistungserzeugung (W)",
+          "v3": "v3: Energieverbrauch (Wh)",
+          "v4": "v4: Leistungsverbrauch (W)",
+          "v5": "v5: Temperatursensor",
+          "v6": "v6: Spannungssensor",
+          "v7": "v7: Erweiterte Daten 1",
+          "v8": "v8: Erweiterte Daten 2",
+          "v9": "v9: Erweiterte Daten 3",
+          "v10": "v10: Erweiterte Daten 4",
+          "v11": "v11: Erweiterte Daten 5",
+          "v12": "v12: Erweiterte Daten 6",
+          "c1": "Kumulatives Energie-Flag (c1=1)",
+          "n": "Netto-Leistungserzeugungs-Flag (n=1)"
         },
         "data_description": {
-          "name": "Ein benutzerfreundlicher Name für Ihre Übersicht.",
-          "entity_id": "Der Leistungs- (W) oder Energie- (Wh) Sensor Ihres Wechselrichters.",
-          "secondary_entity_id": "Wenn Sie oben einen Leistungs- (W) Sensor ausgewählt haben, wählen Sie hier Ihren Energie- (Wh) Sensor (oder umgekehrt) für maximale Genauigkeit. Wenn leer gelassen, schätzt PVOutput den fehlenden Wert automatisch.",
-          "consumption_entity_id": "(Optional) Erfasst den Energieverbrauch Ihres Hauses.",
-          "temperature_entity_id": "(Optional) Erfasst die Außentemperatur.",
-          "voltage_entity_id": "(Optional) Erfasst die Betriebsspannung des Netzes/Wechselrichters."
+          "name": "Ein aussagekräftiger Name für Ihre Solaranlage in Home Assistant.",
+          "system_id": "Ihre PVOutput System-ID für diese Anlage.",
+          "frequency": "Wie oft Daten an PVOutput gesendet werden sollen.",
+          "notes": "Lokale Notizen zur eigenen Verwendung (werden nicht an PVOutput übertragen).",
+          "v1": "Kumulierte oder tägliche erzeugte Energie in Wh (kWh/MWh werden automatisch umgerechnet).",
+          "v2": "Momentane Erzeugungsleistung in Watt (kW wird automatisch umgerechnet).",
+          "v3": "Kumulierter oder täglicher Energieverbrauch in Wh (kWh/MWh werden automatisch umgerechnet).",
+          "v4": "Momentaner Leistungsverbrauch in Watt (kW wird automatisch umgerechnet).",
+          "v5": "Außentemperatur in °C oder °F (°F wird automatisch in °C umgerechnet).",
+          "v6": "Netz-/Wechselrichterspannung in Volt.",
+          "v7": "Erweitertes Datenfeld 1 (erfordert PVOutput-Spendenkonto).",
+          "v8": "Erweitertes Datenfeld 2 (erfordert PVOutput-Spendenkonto).",
+          "v9": "Erweitertes Datenfeld 3 (erfordert PVOutput-Spendenkonto).",
+          "v10": "Erweitertes Datenfeld 4 (erfordert PVOutput-Spendenkonto).",
+          "v11": "Erweitertes Datenfeld 5 (erfordert PVOutput-Spendenkonto).",
+          "v12": "Erweitertes Datenfeld 6 (erfordert PVOutput-Spendenkonto).",
+          "c1": "Aktivieren, wenn Ihre Energiesensoren (v1/v3) lebenslange Gesamtzählerstände liefern.",
+          "n": "Aktivieren, wenn die Leistungserzeugung (v2) Netto-Einspeisung statt Bruttoerzeugung darstellt."
         }
       }
     }

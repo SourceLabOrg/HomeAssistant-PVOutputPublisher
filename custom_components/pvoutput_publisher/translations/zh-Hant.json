@@ -3,81 +3,125 @@
     "step": {
       "user": {
         "title": "PVOutput Publisher 設定",
-        "description": "請輸入您的全局 PVOutput API 金鑰。",
+        "description": "請輸入您的全域 PVOutput API Key。",
         "data": {
-          "api_key": "API 金鑰"
+          "api_key": "API Key"
         }
       },
       "add_system": {
-        "title": "設定太陽能系統",
-        "description": "為此太陽能陣列選擇感測器。\n\n**智慧偵測：** 您可以選擇單一的功率 (W) 或電量 (Wh) 感測器。系統將自動格式化，並由 PVOutput 估算缺失的指標。\n\n**最高精確度：** 為了獲得最佳結果，請同時選擇功率與電量感測器。系統將自動識別並同時上傳兩者的數據。",
+        "title": "設定太陽能發電系統",
+        "description": "將您的 Home Assistant 感測器對應至 PVOutput API 參數。不適用的可選感測器可留空。",
         "data": {
           "name": "系統名稱",
           "system_id": "系統 ID",
-          "entity_id": "主要太陽能感測器",
-          "secondary_entity_id": "次要太陽能感測器 (選填)",
-          "consumption_entity_id": "用電消耗感測器 (選填)",
-          "temperature_entity_id": "溫度感測器 (選填)",
-          "voltage_entity_id": "電壓感測器 (選填)",
-          "frequency": "更新頻率"
+          "frequency": "更新頻率",
+          "notes": "內部備註（可選）",
+          "v1": "v1: 發電量 (Wh)",
+          "v2": "v2: 發電功率 (W)",
+          "v3": "v3: 用電量 (Wh)",
+          "v4": "v4: 用電功率 (W)",
+          "v5": "v5: 溫度感測器",
+          "v6": "v6: 電壓感測器",
+          "v7": "v7: 擴充資料 1",
+          "v8": "v8: 擴充資料 2",
+          "v9": "v9: 擴充資料 3",
+          "v10": "v10: 擴充資料 4",
+          "v11": "v11: 擴充資料 5",
+          "v12": "v12: 擴充資料 6",
+          "c1": "累計電量旗標 (c1=1)",
+          "n": "淨發電功率旗標 (n=1)"
         },
         "data_description": {
-          "name": "供您自己參考的自訂名稱。",
-          "entity_id": "您逆變器的功率 (W) 或電量 (Wh) 感測器。",
-          "secondary_entity_id": "如果您在上方選擇了功率 (W) 感測器，請在此處選擇電量 (Wh) 感測器（反之亦然）以達到最高精確度。如果留空，PVOutput 將自動估算缺失的值。",
-          "consumption_entity_id": "(選填) 追蹤您家中的能源使用情況。",
-          "temperature_entity_id": "(選填) 追蹤室外溫度。",
-          "voltage_entity_id": "(選填) 追蹤電網/逆變器的工作電壓。"
+          "name": "該太陽能系統在 Home Assistant 中的自訂名稱。",
+          "system_id": "該系統在 PVOutput 中的系統 ID。",
+          "frequency": "向 PVOutput 上傳資料的頻率。",
+          "notes": "供您自己參考的本地備註（不會傳送至 PVOutput）。",
+          "v1": "累計或每日發電量（單位 Wh，kWh/MWh 會自動轉換）。",
+          "v2": "即時發電功率（單位瓦特，kW 會自動轉換）。",
+          "v3": "累計或每日用電量（單位 Wh，kWh/MWh 會自動轉換）。",
+          "v4": "即時用電功率（單位瓦特，kW 會自動轉換）。",
+          "v5": "環境溫度（°C 或 °F，°F 會自動轉換為 °C）。",
+          "v6": "電網/變流器電壓（單位伏特）。",
+          "v7": "擴充資料欄位 1（需 PVOutput 贊助帳號）。",
+          "v8": "擴充資料欄位 2（需 PVOutput 贊助帳號）。",
+          "v9": "擴充資料欄位 3（需 PVOutput 贊助帳號）。",
+          "v10": "擴充資料欄位 4（需 PVOutput 贊助帳號）。",
+          "v11": "擴充資料欄位 5（需 PVOutput 贊助帳號）。",
+          "v12": "擴充資料欄位 6（需 PVOutput 贊助帳號）。",
+          "c1": "如果您的電量感測器 (v1/v3) 提供的是累計總電量值，請勾選此項。",
+          "n": "如果發電功率 (v2) 代表淨上網功率而非總發電功率，請勾選此項。"
         }
       },
       "systems_manager": {
         "title": "管理系統",
-        "description": "請選擇下方的動作來管理您的陣列。",
+        "description": "在下方選擇操作以管理您的系統。",
         "data": {
-          "action": "動作"
+          "action": "操作"
         }
       }
     },
     "error": {},
     "abort": {
-      "already_configured": "此整合已經設定完成。"
+      "already_configured": "此整合已經設定過了。"
     }
   },
   "options": {
     "step": {
       "systems_manager": {
         "title": "管理 PVOutput Publisher",
-        "description": "請選擇下方的動作來更新您的設定。",
+        "description": "在下方選擇操作以更新您的設定。",
         "data": {
-          "action": "動作"
+          "action": "操作"
         }
       },
       "edit_api": {
-        "title": "編輯 API 金鑰",
+        "title": "修改 API Key",
         "data": {
-          "api_key": "API 金鑰"
+          "api_key": "API Key"
         }
       },
       "add_system": {
-        "title": "設定太陽能系統",
-        "description": "為此太陽能陣列選擇感測器。\n\n**智慧偵測：** 您可以選擇單一的功率 (W) 或電量 (Wh) 感測器。系統將自動格式化，並由 PVOutput 估算缺失的指標。\n\n**最高精確度：** 為了獲得最佳結果，請同時選擇功率與電量感測器。系統將自動識別並同時上傳兩者的數據。",
+        "title": "設定太陽能發電系統",
+        "description": "將您的 Home Assistant 感測器對應至 PVOutput API 參數。不適用的可選感測器可留空。",
         "data": {
           "name": "系統名稱",
           "system_id": "系統 ID",
-          "entity_id": "主要太陽能感測器",
-          "secondary_entity_id": "次要太陽能感測器 (選填)",
-          "consumption_entity_id": "用電消耗感測器 (選填)",
-          "temperature_entity_id": "溫度感測器 (選填)",
-          "voltage_entity_id": "電壓感測器 (選填)",
-          "frequency": "更新頻率"
+          "frequency": "更新頻率",
+          "notes": "內部備註（可選）",
+          "v1": "v1: 發電量 (Wh)",
+          "v2": "v2: 發電功率 (W)",
+          "v3": "v3: 用電量 (Wh)",
+          "v4": "v4: 用電功率 (W)",
+          "v5": "v5: 溫度感測器",
+          "v6": "v6: 電壓感測器",
+          "v7": "v7: 擴充資料 1",
+          "v8": "v8: 擴充資料 2",
+          "v9": "v9: 擴充資料 3",
+          "v10": "v10: 擴充資料 4",
+          "v11": "v11: 擴充資料 5",
+          "v12": "v12: 擴充資料 6",
+          "c1": "累計電量旗標 (c1=1)",
+          "n": "淨發電功率旗標 (n=1)"
         },
         "data_description": {
-          "name": "供您自己參考的自訂名稱。",
-          "entity_id": "您逆變器的功率 (W) 或電量 (Wh) 感測器。",
-          "secondary_entity_id": "如果您在上方選擇了功率 (W) 感測器，請在此處選擇電量 (Wh) 感測器（反之亦然）以達到最高精確度。如果留空，PVOutput 將自動估算缺失的值。",
-          "consumption_entity_id": "(選填) 追蹤您家中的能源使用情況。",
-          "temperature_entity_id": "(選填) 追蹤室外溫度。",
-          "voltage_entity_id": "(選填) 追蹤電網/逆變器的工作電壓。"
+          "name": "該太陽能系統在 Home Assistant 中的自訂名稱。",
+          "system_id": "該系統在 PVOutput 中的系統 ID。",
+          "frequency": "向 PVOutput 上傳資料的頻率。",
+          "notes": "供您自己參考的本地備註（不會傳送至 PVOutput）。",
+          "v1": "累計或每日發電量（單位 Wh，kWh/MWh 會自動轉換）。",
+          "v2": "即時發電功率（單位瓦特，kW 會自動轉換）。",
+          "v3": "累計或每日用電量（單位 Wh，kWh/MWh 會自動轉換）。",
+          "v4": "即時用電功率（單位瓦特，kW 會自動轉換）。",
+          "v5": "環境溫度（°C 或 °F，°F 會自動轉換為 °C）。",
+          "v6": "電網/變流器電壓（單位伏特）。",
+          "v7": "擴充資料欄位 1（需 PVOutput 贊助帳號）。",
+          "v8": "擴充資料欄位 2（需 PVOutput 贊助帳號）。",
+          "v9": "擴充資料欄位 3（需 PVOutput 贊助帳號）。",
+          "v10": "擴充資料欄位 4（需 PVOutput 贊助帳號）。",
+          "v11": "擴充資料欄位 5（需 PVOutput 贊助帳號）。",
+          "v12": "擴充資料欄位 6（需 PVOutput 贊助帳號）。",
+          "c1": "如果您的電量感測器 (v1/v3) 提供的是累計總電量值，請勾選此項。",
+          "n": "如果發電功率 (v2) 代表淨上網功率而非總發電功率，請勾選此項。"
         }
       }
     }
