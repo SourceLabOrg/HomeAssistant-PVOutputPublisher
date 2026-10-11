@@ -2,82 +2,126 @@
   "config": {
     "step": {
       "user": {
-        "title": "PVOutput Publisher 设置",
-        "description": "请输入您的全局 PVOutput API 密钥。",
+        "title": "PVOutput Publisher 配置",
+        "description": "请输入您的全局 PVOutput API Key。",
         "data": {
-          "api_key": "API 密钥"
+          "api_key": "API Key"
         }
       },
       "add_system": {
-        "title": "设置太阳能系统",
-        "description": "为此太阳能阵列选择传感器。\n\n**智能检测：** 您可以选择单一的功率 (W) 或电量 (Wh) 传感器。系统将自动格式化，并由 PVOutput 估算缺失的指标。\n\n**最高精确度：** 为了获得最佳结果，请同时选择功率与电量传感器。系统将自动识别并同时上传两者的数据。",
+        "title": "配置太阳能发电系统",
+        "description": "将您的 Home Assistant 传感器映射到 PVOutput API 参数。不适用的可选传感器可留空。",
         "data": {
           "name": "系统名称",
           "system_id": "系统 ID",
-          "entity_id": "主要太阳能传感器",
-          "secondary_entity_id": "次要太阳能传感器 (选填)",
-          "consumption_entity_id": "用电消耗传感器 (选填)",
-          "temperature_entity_id": "温度传感器 (选填)",
-          "voltage_entity_id": "电压传感器 (选填)",
-          "frequency": "更新频率"
+          "frequency": "更新频率",
+          "notes": "内部备注（可选）",
+          "v1": "v1: 发电量 (Wh)",
+          "v2": "v2: 发电功率 (W)",
+          "v3": "v3: 用电量 (Wh)",
+          "v4": "v4: 用电功率 (W)",
+          "v5": "v5: 温度传感器",
+          "v6": "v6: 电压传感器",
+          "v7": "v7: 扩展数据 1",
+          "v8": "v8: 扩展数据 2",
+          "v9": "v9: 扩展数据 3",
+          "v10": "v10: 扩展数据 4",
+          "v11": "v11: 扩展数据 5",
+          "v12": "v12: 扩展数据 6",
+          "c1": "累计电量标志 (c1=1)",
+          "n": "净发电功率标志 (n=1)"
         },
         "data_description": {
-          "name": "供您自己参考的自定义名称。",
-          "entity_id": "您逆变器的功率 (W) 或电量 (Wh) 传感器。",
-          "secondary_entity_id": "如果您在上方选择了功率 (W) 传感器，请在此处选择电量 (Wh) 传感器（反之亦然）以达到最高精确度。如果留空，PVOutput 将自动估算缺失的值。",
-          "consumption_entity_id": "(选填) 追踪您家中的能源使用情况。",
-          "temperature_entity_id": "(选填) 追踪室外温度。",
-          "voltage_entity_id": "(选填) 追踪电网/逆变器的工作电压。"
+          "name": "该太阳能系统在 Home Assistant 中的友好名称。",
+          "system_id": "该系统在 PVOutput 中的系统 ID。",
+          "frequency": "向 PVOutput 上传数据的频率。",
+          "notes": "供您自己参考的本地备注（不会发送至 PVOutput）。",
+          "v1": "累计或每日发电量（单位 Wh，kWh/MWh 会自动换算）。",
+          "v2": "瞬时发电功率（单位瓦特，kW 会自动换算）。",
+          "v3": "累计或每日用电量（单位 Wh，kWh/MWh 会自动换算）。",
+          "v4": "瞬时用电功率（单位瓦特，kW 会自动换算）。",
+          "v5": "环境温度（°C 或 °F，°F 会自动转换为 °C）。",
+          "v6": "电网/逆变器电压（单位伏特）。",
+          "v7": "扩展数据字段 1（需 PVOutput 赞助账户）。",
+          "v8": "扩展数据字段 2（需 PVOutput 赞助账户）。",
+          "v9": "扩展数据字段 3（需 PVOutput 赞助账户）。",
+          "v10": "扩展数据字段 4（需 PVOutput 赞助账户）。",
+          "v11": "扩展数据字段 5（需 PVOutput 赞助账户）。",
+          "v12": "扩展数据字段 6（需 PVOutput 赞助账户）。",
+          "c1": "如果您的电量传感器 (v1/v3) 提供的是终身累计电量值，请勾选此项。",
+          "n": "如果发电功率 (v2) 代表净上网功率而非总发电功率，请勾选此项。"
         }
       },
       "systems_manager": {
         "title": "管理系统",
-        "description": "请选择下方的动作来管理您的阵列。",
+        "description": "在下方选择操作以管理您的系统。",
         "data": {
-          "action": "动作"
+          "action": "操作"
         }
       }
     },
     "error": {},
     "abort": {
-      "already_configured": "此集成已经设置完成。"
+      "already_configured": "该集成已经配置过了。"
     }
   },
   "options": {
     "step": {
       "systems_manager": {
         "title": "管理 PVOutput Publisher",
-        "description": "请选择下方的动作来更新您的设置。",
+        "description": "在下方选择操作以更新您的配置。",
         "data": {
-          "action": "动作"
+          "action": "操作"
         }
       },
       "edit_api": {
-        "title": "编辑 API 密钥",
+        "title": "修改 API Key",
         "data": {
-          "api_key": "API 密钥"
+          "api_key": "API Key"
         }
       },
       "add_system": {
-        "title": "设置太阳能系统",
-        "description": "为此太阳能阵列选择传感器。\n\n**智能检测：** 您可以选择单一的功率 (W) 或电量 (Wh) 传感器。系统将自动格式化，并由 PVOutput 估算缺失的指标。\n\n**最高精确度：** 为了获得最佳结果，请同时选择功率与电量传感器。系统将自动识别并同时上传两者的数据。",
+        "title": "配置太阳能发电系统",
+        "description": "将您的 Home Assistant 传感器映射到 PVOutput API 参数。不适用的可选传感器可留空。",
         "data": {
           "name": "系统名称",
           "system_id": "系统 ID",
-          "entity_id": "主要太阳能传感器",
-          "secondary_entity_id": "次要太阳能传感器 (选填)",
-          "consumption_entity_id": "用电消耗传感器 (选填)",
-          "temperature_entity_id": "温度传感器 (选填)",
-          "voltage_entity_id": "电压传感器 (选填)",
-          "frequency": "更新频率"
+          "frequency": "更新频率",
+          "notes": "内部备注（可选）",
+          "v1": "v1: 发电量 (Wh)",
+          "v2": "v2: 发电功率 (W)",
+          "v3": "v3: 用电量 (Wh)",
+          "v4": "v4: 用电功率 (W)",
+          "v5": "v5: 温度传感器",
+          "v6": "v6: 电压传感器",
+          "v7": "v7: 扩展数据 1",
+          "v8": "v8: 扩展数据 2",
+          "v9": "v9: 扩展数据 3",
+          "v10": "v10: 扩展数据 4",
+          "v11": "v11: 扩展数据 5",
+          "v12": "v12: 扩展数据 6",
+          "c1": "累计电量标志 (c1=1)",
+          "n": "净发电功率标志 (n=1)"
         },
         "data_description": {
-          "name": "供您自己参考的自定义名称。",
-          "entity_id": "您逆变器的功率 (W) 或电量 (Wh) 传感器。",
-          "secondary_entity_id": "如果您在上方选择了功率 (W) 传感器，请在此处选择电量 (Wh) 传感器（反之亦然）以达到最高精确度。如果留空，PVOutput 将自动估算缺失的值。",
-          "consumption_entity_id": "(选填) 追踪您家中的能源使用情况。",
-          "temperature_entity_id": "(选填) 追踪室外温度。",
-          "voltage_entity_id": "(选填) 追踪电网/逆变器的工作电压。"
+          "name": "该太阳能系统在 Home Assistant 中的友好名称。",
+          "system_id": "该系统在 PVOutput 中的系统 ID。",
+          "frequency": "向 PVOutput 上传数据的频率。",
+          "notes": "供您自己参考的本地备注（不会发送至 PVOutput）。",
+          "v1": "累计或每日发电量（单位 Wh，kWh/MWh 会自动换算）。",
+          "v2": "瞬时发电功率（单位瓦特，kW 会自动换算）。",
+          "v3": "累计或每日用电量（单位 Wh，kWh/MWh 会自动换算）。",
+          "v4": "瞬时用电功率（单位瓦特，kW 会自动换算）。",
+          "v5": "环境温度（°C 或 °F，°F 会自动转换为 °C）。",
+          "v6": "电网/逆变器电压（单位伏特）。",
+          "v7": "扩展数据字段 1（需 PVOutput 赞助账户）。",
+          "v8": "扩展数据字段 2（需 PVOutput 赞助账户）。",
+          "v9": "扩展数据字段 3（需 PVOutput 赞助账户）。",
+          "v10": "扩展数据字段 4（需 PVOutput 赞助账户）。",
+          "v11": "扩展数据字段 5（需 PVOutput 赞助账户）。",
+          "v12": "扩展数据字段 6（需 PVOutput 赞助账户）。",
+          "c1": "如果您的电量传感器 (v1/v3) 提供的是终身累计电量值，请勾选此项。",
+          "n": "如果发电功率 (v2) 代表净上网功率而非总发电功率，请勾选此项。"
         }
       }
     }

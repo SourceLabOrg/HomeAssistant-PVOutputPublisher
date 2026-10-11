@@ -5,6 +5,7 @@ from datetime import datetime
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.const import Platform
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.event import async_track_time_change
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.dispatcher import async_dispatcher_send
@@ -12,13 +13,161 @@ import homeassistant.util.dt as dt_util
 
 from .const import (
     DOMAIN, CONF_API_KEY, CONF_SYSTEMS, CONF_NAME, CONF_SYSTEM_ID,
+    CONF_FREQUENCY, PVOUTPUT_API_URL, CONF_NOTES,
+    CONF_V1, CONF_V2, CONF_V3, CONF_V4, CONF_V5, CONF_V6,
+    CONF_V7, CONF_V8, CONF_V9, CONF_V10, CONF_V11, CONF_V12,
+    CONF_C1, CONF_NET,
     CONF_ENTITY_ID, CONF_SECONDARY_ENTITY_ID, CONF_CONSUMPTION_ENTITY_ID,
-    CONF_TEMPERATURE_ENTITY_ID, CONF_FREQUENCY, PVOUTPUT_API_URL, CONF_VOLTAGE_ENTITY_ID
+    CONF_TEMPERATURE_ENTITY_ID, CONF_VOLTAGE_ENTITY_ID, DEFAULT_FREQUENCY
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = [Platform.SENSOR]
+
+def _determine_energy_or_power(hass: HomeAssistant, entity_id: str | None) -> tuple[str | None, bool]:
+    """Helper to detect whether an entity is energy (v1/v3) or power (v2/v4) and if lifetime."""
+    if not entity_id:
+        return None, False
+
+    # 1. Try checking live state machine
+    state = hass.states.get(entity_id)
+    if state:
+        unit = state.attributes.get("unit_of_measurement", "").lower()
+        device_class = state.attributes.get("device_class", "").lower()
+        state_class = state.attributes.get("state_class", "").lower()
+        is_lifetime = state_class in ["total", "total_increasing"]
+
+        if unit in ["wh", "kwh", "mwh"] or device_class == "energy":
+            return "energy", is_lifetime
+        if unit in ["w", "kw", "kilowatt", "kilowatts"] or device_class == "power":
+            return "power", False
+
+    # 2. Try checking Home Assistant Entity Registry
+    try:
+        registry = er.async_get(hass)
+        entry_obj = registry.async_get(entity_id)
+        if entry_obj:
+            unit = (entry_obj.unit_of_measurement or "").lower()
+            dc = (entry_obj.device_class or entry_obj.original_device_class or "").lower()
+            if unit in ["wh", "kwh", "mwh"] or dc == "energy":
+                return "energy", False
+            if unit in ["w", "kw"] or dc == "power":
+                return "power", False
+    except Exception:
+        pass
+
+    # 3. String heuristics fallback
+    lower_id = entity_id.lower()
+    if any(k in lower_id for k in ["energy", "kwh", "wh", "yield", "total"]):
+        return "energy", False
+    if any(k in lower_id for k in ["power", "kw", "watt"]):
+        return "power", False
+
+    # Default to power if cannot determine
+    return "power", False
+
+
+def migrate_v1_system_to_v2(hass: HomeAssistant, system: dict) -> dict:
+    """Convert a single v1 system dictionary to the v2 schema."""
+    # If already in v2 format (contains v1 or v2 keys), return as is
+    if CONF_V1 in system or CONF_V2 in system:
+        return system
+
+    name = system.get(CONF_NAME, system.get(CONF_SYSTEM_ID, "Solar System"))
+    system_id = system.get(CONF_SYSTEM_ID, "")
+    frequency = str(system.get(CONF_FREQUENCY, DEFAULT_FREQUENCY))
+    notes = system.get(CONF_NOTES, "")
+
+    prim_id = system.get(CONF_ENTITY_ID)
+    sec_id = system.get(CONF_SECONDARY_ENTITY_ID)
+    con_id = system.get(CONF_CONSUMPTION_ENTITY_ID)
+    temp_id = system.get(CONF_TEMPERATURE_ENTITY_ID)
+    volt_id = system.get(CONF_VOLTAGE_ENTITY_ID)
+
+    v1 = None
+    v2 = None
+    c1 = False
+
+    if prim_id:
+        prim_type, _ = _determine_energy_or_power(hass, prim_id)
+        if prim_type == "energy":
+            v1 = prim_id
+            # NOTE: Home Assistant's Entity Registry stores unit_of_measurement and
+            # device_class on disk, but does NOT persist state_class. Because async_migrate_entry
+            # runs before other integrations initialize their live entity states at boot,
+            # state_class (e.g. total_increasing) cannot be read from hass.states here.
+            # In PVOutput, virtually all solar inverter energy sensors (Wh/kWh) report lifetime
+            # cumulative totals. Without c1=1, PVOutput rejects lifetime values as "Energy too high".
+            # We therefore default c1=True whenever an Energy sensor is migrated to v1.
+            c1 = True
+            if sec_id:
+                sec_type, _ = _determine_energy_or_power(hass, sec_id)
+                if sec_type == "power":
+                    v2 = sec_id
+        else:
+            v2 = prim_id
+            if sec_id:
+                sec_type, _ = _determine_energy_or_power(hass, sec_id)
+                if sec_type == "energy":
+                    v1 = sec_id
+                    c1 = True
+    elif sec_id:
+        sec_type, _ = _determine_energy_or_power(hass, sec_id)
+        if sec_type == "energy":
+            v1 = sec_id
+            c1 = True
+        else:
+            v2 = sec_id
+
+    v3 = None
+    v4 = None
+    if con_id:
+        con_type, _ = _determine_energy_or_power(hass, con_id)
+        if con_type == "energy":
+            v3 = con_id
+            if not v1:
+                c1 = True
+        else:
+            v4 = con_id
+
+    return {
+        CONF_NAME: name,
+        CONF_SYSTEM_ID: system_id,
+        CONF_FREQUENCY: frequency,
+        CONF_NOTES: notes,
+        CONF_V1: v1,
+        CONF_V2: v2,
+        CONF_V3: v3,
+        CONF_V4: v4,
+        CONF_V5: temp_id,
+        CONF_V6: volt_id,
+        CONF_V7: None,
+        CONF_V8: None,
+        CONF_V9: None,
+        CONF_V10: None,
+        CONF_V11: None,
+        CONF_V12: None,
+        CONF_C1: c1,
+        CONF_NET: False,
+    }
+
+
+async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
+    """Migrate old entry to version 2."""
+    _LOGGER.info("Migrating PVOutput Publisher configuration entry from version %s to 2", config_entry.version)
+
+    if config_entry.version == 1:
+        new_data = {**config_entry.data}
+        raw_systems = new_data.get(CONF_SYSTEMS, [])
+        migrated_systems = [migrate_v1_system_to_v2(hass, sys) for sys in raw_systems]
+        new_data[CONF_SYSTEMS] = migrated_systems
+
+        hass.config_entries.async_update_entry(config_entry, data=new_data, version=2)
+        _LOGGER.info("PVOutput Publisher migration to version 2 successful")
+
+    return True
+
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
@@ -28,162 +177,149 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     remove_listeners = []
 
-    for system in systems:
+    for raw_system in systems:
+        # Guarantee system is in v2 format even if migration was somehow bypassed
+        system = migrate_v1_system_to_v2(hass, raw_system)
+
         system_id = system[CONF_SYSTEM_ID]
-        generation_ent_id = system[CONF_ENTITY_ID]
-        secondary_generation_ent_id = system.get(CONF_SECONDARY_ENTITY_ID)
-        consumption_ent_id = system.get(CONF_CONSUMPTION_ENTITY_ID)
-        temperature_ent_id = system.get(CONF_TEMPERATURE_ENTITY_ID)
-        voltage_ent_id = system.get(CONF_VOLTAGE_ENTITY_ID)
-        frequency = int(system[CONF_FREQUENCY])
+        frequency = int(system.get(CONF_FREQUENCY, DEFAULT_FREQUENCY))
         sys_name = system.get(CONF_NAME, system_id)
 
         # We pass loop variables as default arguments to avoid Python closure late-binding bugs
-        async def push_data(now: datetime, sys_id=system_id, gen_id=generation_ent_id, sec_id=secondary_generation_ent_id, con_id=consumption_ent_id, temp_id=temperature_ent_id, volt_id=voltage_ent_id, name=sys_name):
-            gen_state = hass.states.get(gen_id)
-            if not gen_state or gen_state.state in ['unknown', 'unavailable']:
-                return
-
-            try:
-                gen_value = float(gen_state.state)
-            except ValueError:
-                return
-
-            gen_unit = gen_state.attributes.get("unit_of_measurement", "").lower()
-            gen_state_class = gen_state.attributes.get("state_class", "").lower()
-
+        async def push_data(now: datetime, sys_data=system, sys_id=system_id, name=sys_name):
             # Localized time
             local_time = dt_util.now()
             d = local_time.strftime('%Y%m%d')
             t = local_time.strftime('%H:%M')
             payload = f"d={d}&t={t}"
-
-            # This list will hold our human-readable log strings
             log_parts = []
 
-            # Flags to prevent overwriting if user selects duplicate sensor types
-            has_energy_v1 = False
-            has_power_v2 = False
-
-            # Primary Generation Data
-            if gen_unit in ["wh", "kwh", "mwh"]:
-                raw_gen = gen_value
-                if gen_unit == "kwh":
-                    gen_value *= 1000
-                elif gen_unit == "mwh":
-                    gen_value *= 1000000
-
-                if gen_state_class in ["total", "total_increasing"]:
-                    payload += "&c1=1"
-                    log_parts.append(f"Gen1 (Lifetime): {raw_gen} {gen_unit} -> v1={int(gen_value)}")
-                else:
-                    log_parts.append(f"Gen1 (Daily): {raw_gen} {gen_unit} -> v1={int(gen_value)}")
-
-                payload += f"&v1={int(gen_value)}"
-                has_energy_v1 = True
-            else:
-                raw_gen = gen_value
-                if gen_unit in ["kw", "kilowatt", "kilowatts"]:
-                    gen_value *= 1000
-                payload += f"&v2={int(gen_value)}"
-                log_parts.append(f"Gen1 (Power): {raw_gen} {gen_unit} -> v2={int(gen_value)}")
-                has_power_v2 = True
-
-            # Secondary Generation Data (Optional)
-            if sec_id:
-                sec_state = hass.states.get(sec_id)
-                if sec_state and sec_state.state not in ['unknown', 'unavailable']:
+            # v1: Energy Generation (Wh)
+            v1_id = sys_data.get(CONF_V1)
+            if v1_id:
+                v1_state = hass.states.get(v1_id)
+                if v1_state and v1_state.state not in ['unknown', 'unavailable']:
                     try:
-                        sec_value = float(sec_state.state)
-                        sec_unit = sec_state.attributes.get("unit_of_measurement", "").lower()
-                        sec_state_class = sec_state.attributes.get("state_class", "").lower()
-                        raw_sec = sec_value
-
-                        if sec_unit in ["wh", "kwh", "mwh"]:
-                            if has_energy_v1:
-                                _LOGGER.warning("PVOutput [%s]: Ignored secondary sensor. You selected two Energy (Wh) sensors.", name)
-                            else:
-                                if sec_unit == "kwh":
-                                    sec_value *= 1000
-                                elif sec_unit == "mwh":
-                                    sec_value *= 1000000
-
-                                if sec_state_class in ["total", "total_increasing"]:
-                                    payload += "&c1=1"
-                                    log_parts.append(f"Gen2 (Lifetime): {raw_sec} {sec_unit} -> v1={int(sec_value)}")
-                                else:
-                                    log_parts.append(f"Gen2 (Daily): {raw_sec} {sec_unit} -> v1={int(sec_value)}")
-
-                                payload += f"&v1={int(sec_value)}"
-                                has_energy_v1 = True
-                        else:
-                            if has_power_v2:
-                                _LOGGER.warning("PVOutput [%s]: Ignored secondary sensor. You selected two Power (W) sensors.", name)
-                            else:
-                                if sec_unit in ["kw", "kilowatt", "kilowatts"]:
-                                    sec_value *= 1000
-                                payload += f"&v2={int(sec_value)}"
-                                log_parts.append(f"Gen2 (Power): {raw_sec} {sec_unit} -> v2={int(sec_value)}")
-                                has_power_v2 = True
+                        v1_val = float(v1_state.state)
+                        unit = v1_state.attributes.get("unit_of_measurement", "").lower()
+                        raw = v1_val
+                        if unit == "kwh":
+                            v1_val *= 1000
+                        elif unit == "mwh":
+                            v1_val *= 1000000
+                        payload += f"&v1={int(v1_val)}"
+                        log_parts.append(f"v1 (Energy Gen): {raw} {unit} -> {int(v1_val)}Wh")
                     except ValueError:
                         pass
 
-            # Add Optional Consumption Data (v3 / v4)
-            if con_id:
-                con_state = hass.states.get(con_id)
-                if con_state and con_state.state not in ['unknown', 'unavailable']:
+            # v2: Power Generation (W)
+            v2_id = sys_data.get(CONF_V2)
+            if v2_id:
+                v2_state = hass.states.get(v2_id)
+                if v2_state and v2_state.state not in ['unknown', 'unavailable']:
                     try:
-                        con_value = float(con_state.state)
-                        con_unit = con_state.attributes.get("unit_of_measurement", "").lower()
-                        raw_con = con_value
-
-                        if con_unit in ["wh", "kwh", "mwh"]:
-                            if con_unit == "kwh":
-                                con_value *= 1000
-                            elif con_unit == "mwh":
-                                con_value *= 1000000
-                            payload += f"&v3={int(con_value)}"
-                            log_parts.append(f"Con (Energy): {raw_con} {con_unit} -> v3={int(con_value)}")
-                        else:
-                            if con_unit in ["kw", "kilowatt", "kilowatts"]:
-                                con_value *= 1000
-                            payload += f"&v4={int(con_value)}"
-                            log_parts.append(f"Con (Power): {raw_con} {con_unit} -> v4={int(con_value)}")
+                        v2_val = float(v2_state.state)
+                        unit = v2_state.attributes.get("unit_of_measurement", "").lower()
+                        raw = v2_val
+                        if unit in ["kw", "kilowatt", "kilowatts"]:
+                            v2_val *= 1000
+                        payload += f"&v2={int(v2_val)}"
+                        log_parts.append(f"v2 (Power Gen): {raw} {unit} -> {int(v2_val)}W")
                     except ValueError:
                         pass
 
-            # Add Optional Temperature Data (v5)
-            if temp_id:
-                temp_state = hass.states.get(temp_id)
-                if temp_state and temp_state.state not in ['unknown', 'unavailable']:
+            # v3: Energy Consumption (Wh)
+            v3_id = sys_data.get(CONF_V3)
+            if v3_id:
+                v3_state = hass.states.get(v3_id)
+                if v3_state and v3_state.state not in ['unknown', 'unavailable']:
                     try:
-                        temp_value = float(temp_state.state)
-                        temp_unit = temp_state.attributes.get("unit_of_measurement", "").lower()
-                        raw_temp = temp_value
-
-                        if temp_unit in ["°f", "f"]:
-                            temp_value = (temp_value - 32) * 5.0 / 9.0
-                            log_parts.append(f"Temp: {raw_temp}°F -> v5={temp_value:.1f}°C")
-                        else:
-                            log_parts.append(f"Temp: {raw_temp}°C -> v5={temp_value:.1f}°C")
-
-                        payload += f"&v5={temp_value:.1f}"
+                        v3_val = float(v3_state.state)
+                        unit = v3_state.attributes.get("unit_of_measurement", "").lower()
+                        raw = v3_val
+                        if unit == "kwh":
+                            v3_val *= 1000
+                        elif unit == "mwh":
+                            v3_val *= 1000000
+                        payload += f"&v3={int(v3_val)}"
+                        log_parts.append(f"v3 (Energy Con): {raw} {unit} -> {int(v3_val)}Wh")
                     except ValueError:
                         pass
 
-            # Add Optional Voltage Data (v6)
-            if volt_id:
-                volt_state = hass.states.get(volt_id)
+            # v4: Power Consumption (W)
+            v4_id = sys_data.get(CONF_V4)
+            if v4_id:
+                v4_state = hass.states.get(v4_id)
+                if v4_state and v4_state.state not in ['unknown', 'unavailable']:
+                    try:
+                        v4_val = float(v4_state.state)
+                        unit = v4_state.attributes.get("unit_of_measurement", "").lower()
+                        raw = v4_val
+                        if unit in ["kw", "kilowatt", "kilowatts"]:
+                            v4_val *= 1000
+                        payload += f"&v4={int(v4_val)}"
+                        log_parts.append(f"v4 (Power Con): {raw} {unit} -> {int(v4_val)}W")
+                    except ValueError:
+                        pass
+
+            # v5: Temperature (°C)
+            v5_id = sys_data.get(CONF_V5)
+            if v5_id:
+                v5_state = hass.states.get(v5_id)
+                if v5_state and v5_state.state not in ['unknown', 'unavailable']:
+                    try:
+                        temp_val = float(v5_state.state)
+                        unit = v5_state.attributes.get("unit_of_measurement", "").lower()
+                        raw = temp_val
+                        if unit in ["°f", "f"]:
+                            temp_val = (temp_val - 32) * 5.0 / 9.0
+                            log_parts.append(f"v5 (Temp): {raw}°F -> {temp_val:.1f}°C")
+                        else:
+                            log_parts.append(f"v5 (Temp): {raw}°C -> {temp_val:.1f}°C")
+                        payload += f"&v5={temp_val:.1f}"
+                    except ValueError:
+                        pass
+
+            # v6: Voltage (V)
+            v6_id = sys_data.get(CONF_V6)
+            if v6_id:
+                volt_state = hass.states.get(v6_id)
                 if volt_state and volt_state.state not in ['unknown', 'unavailable']:
                     try:
-                        volt_value = float(volt_state.state)
-                        log_parts.append(f"Volt: {volt_value:.1f}V -> v6={volt_value:.1f}")
-                        payload += f"&v6={volt_value:.1f}"
+                        volt_val = float(volt_state.state)
+                        log_parts.append(f"v6 (Volt): {volt_val:.1f}V")
+                        payload += f"&v6={volt_val:.1f}"
                     except ValueError:
                         pass
 
-            # --- THE HUMAN-READABLE LOG ---
-            # We use INFO so it shows up without needing to enable debug logging
+            # v7 to v12: Extended Metrics
+            for v_key in [CONF_V7, CONF_V8, CONF_V9, CONF_V10, CONF_V11, CONF_V12]:
+                ext_id = sys_data.get(v_key)
+                if ext_id:
+                    ext_state = hass.states.get(ext_id)
+                    if ext_state and ext_state.state not in ['unknown', 'unavailable']:
+                        try:
+                            ext_val = float(ext_state.state)
+                            val_str = f"{ext_val:g}"
+                            payload += f"&{v_key}={val_str}"
+                            log_parts.append(f"{v_key}: {val_str}")
+                        except ValueError:
+                            pass
+
+            # Flags: c1 (Cumulative) and n (Net)
+            if sys_data.get(CONF_C1):
+                payload += "&c1=1"
+                log_parts.append("c1=1 (Cumulative)")
+
+            if sys_data.get(CONF_NET):
+                payload += "&n=1"
+                log_parts.append("n=1 (Net)")
+
+            # Do not push if no metrics are present
+            if not log_parts:
+                return
+
+            # Human-readable info log
             _LOGGER.info("PVOutput [%s | ID: %s] Preparing to send: %s", name, sys_id, " | ".join(log_parts))
 
             headers = {
@@ -206,18 +342,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         # Smart clock-aligned scheduling (Cron style)
         if frequency < 60:
-            # Creates a list of exact minutes: [0, 5, 10, 15...]
             minutes = list(range(0, 60, frequency))
             listener = async_track_time_change(hass, push_data, minute=minutes, second=0)
         elif frequency == 60:
-            # Every hour on the dot (xx:00:00)
             listener = async_track_time_change(hass, push_data, minute=0, second=0)
         elif frequency == 180:
-            # Every 3 hours on the dot (00:00, 03:00, 06:00...)
             hours = list(range(0, 24, 3))
             listener = async_track_time_change(hass, push_data, hour=hours, minute=0, second=0)
         else:
-            # Safe fallback just in case
             listener = async_track_time_change(hass, push_data, minute=list(range(0, 60, 5)), second=0)
 
         remove_listeners.append(listener)
