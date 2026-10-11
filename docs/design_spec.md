@@ -45,6 +45,14 @@ CONF_V10 = "v10"  # Extended Data 4
 CONF_V11 = "v11"  # Extended Data 5
 CONF_V12 = "v12"  # Extended Data 6
 
+# PVOutput Battery Parameters
+CONF_B1 = "b1"    # Battery Power (W)
+CONF_B2 = "b2"    # State of Charge (%)
+CONF_B3 = "b3"    # Battery Usable Capacity (Wh)
+CONF_B4 = "b4"    # Battery Lifetime Charge (Wh)
+CONF_B5 = "b5"    # Battery Lifetime Discharge (Wh)
+CONF_B6 = "b6"    # Battery State (0-9)
+
 # PVOutput Flags
 CONF_C1 = "c1"    # Cumulative Energy Flag (bool -> &c1=1)
 CONF_NET = "n"    # Net Power Flag (bool -> &n=1)

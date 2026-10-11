@@ -21,9 +21,20 @@ CONF_V10 = "v10"
 CONF_V11 = "v11"
 CONF_V12 = "v12"
 
+# V2 Battery Parameters
+CONF_B1 = "b1"
+CONF_B2 = "b2"
+CONF_B3 = "b3"
+CONF_B4 = "b4"
+CONF_B5 = "b5"
+CONF_B6 = "b6"
+
 # V2 Flags
 CONF_C1 = "c1"
 CONF_NET = "n"
+
+# Section Keys
+CONF_DONATION_FIELDS = "donation_fields"
 
 # Legacy V1 Configuration Keys (Kept for Migration)
 CONF_ENTITY_ID = "entity_id"

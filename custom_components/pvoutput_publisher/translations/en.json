@@ -22,12 +22,6 @@
           "v4": "v4: Power Consumption (W)",
           "v5": "v5: Temperature Sensor",
           "v6": "v6: Voltage Sensor",
-          "v7": "v7: Extended Metric 1",
-          "v8": "v8: Extended Metric 2",
-          "v9": "v9: Extended Metric 3",
-          "v10": "v10: Extended Metric 4",
-          "v11": "v11: Extended Metric 5",
-          "v12": "v12: Extended Metric 6",
           "c1": "Cumulative Energy Flag (c1=1)",
           "n": "Net Power Generation Flag (n=1)"
         },
@@ -42,14 +36,42 @@
           "v4": "Instantaneous power consumed in Watts (converts kW automatically).",
           "v5": "Ambient temperature in °C or °F (converts °F to °C automatically).",
           "v6": "Line/Inverter voltage in Volts.",
-          "v7": "Extended data field 1 (requires a PVOutput donation account).",
-          "v8": "Extended data field 2 (requires a PVOutput donation account).",
-          "v9": "Extended data field 3 (requires a PVOutput donation account).",
-          "v10": "Extended data field 4 (requires a PVOutput donation account).",
-          "v11": "Extended data field 5 (requires a PVOutput donation account).",
-          "v12": "Extended data field 6 (requires a PVOutput donation account).",
           "c1": "Check if your energy sensors (v1/v3) provide lifetime cumulative counter values.",
           "n": "Check if power generation (v2) represents net export rather than gross generation."
+        },
+        "sections": {
+          "donation_fields": {
+            "name": "Donation Features",
+            "description": "Requires an active PVOutput donation account.",
+            "data": {
+              "v7": "v7: Extended Metric 1",
+              "v8": "v8: Extended Metric 2",
+              "v9": "v9: Extended Metric 3",
+              "v10": "v10: Extended Metric 4",
+              "v11": "v11: Extended Metric 5",
+              "v12": "v12: Extended Metric 6",
+              "b1": "b1: Battery Power (W)",
+              "b2": "b2: Battery State of Charge (%)",
+              "b3": "b3: Battery Usable Capacity (Wh)",
+              "b4": "b4: Battery Lifetime Charge (Wh)",
+              "b5": "b5: Battery Lifetime Discharge (Wh)",
+              "b6": "b6: Battery State (Code 0-9)"
+            },
+            "data_description": {
+              "v7": "Extended data field 1 (requires a PVOutput donation account).",
+              "v8": "Extended data field 2 (requires a PVOutput donation account).",
+              "v9": "Extended data field 3 (requires a PVOutput donation account).",
+              "v10": "Extended data field 4 (requires a PVOutput donation account).",
+              "v11": "Extended data field 5 (requires a PVOutput donation account).",
+              "v12": "Extended data field 6 (requires a PVOutput donation account).",
+              "b1": "Instantaneous battery power in Watts (converts kW automatically). Positive = charging, negative = discharging.",
+              "b2": "Battery state of charge percentage (0-100%).",
+              "b3": "Usable battery capacity in Watt-hours (converts kWh/MWh automatically).",
+              "b4": "Cumulative lifetime battery charge energy in Watt-hours (converts kWh/MWh automatically).",
+              "b5": "Cumulative lifetime battery discharge energy in Watt-hours (converts kWh/MWh automatically).",
+              "b6": "Numeric battery state code (0: Invalid, 1: Standby, 2: Thermal, 3: Enabled, 4: Fault, 5-9: User Defined)."
+            }
+          }
         }
       },
       "systems_manager": {
@@ -94,12 +116,6 @@
           "v4": "v4: Power Consumption (W)",
           "v5": "v5: Temperature Sensor",
           "v6": "v6: Voltage Sensor",
-          "v7": "v7: Extended Metric 1",
-          "v8": "v8: Extended Metric 2",
-          "v9": "v9: Extended Metric 3",
-          "v10": "v10: Extended Metric 4",
-          "v11": "v11: Extended Metric 5",
-          "v12": "v12: Extended Metric 6",
           "c1": "Cumulative Energy Flag (c1=1)",
           "n": "Net Power Generation Flag (n=1)"
         },
@@ -114,14 +130,42 @@
           "v4": "Instantaneous power consumed in Watts (converts kW automatically).",
           "v5": "Ambient temperature in °C or °F (converts °F to °C automatically).",
           "v6": "Line/Inverter voltage in Volts.",
-          "v7": "Extended data field 1 (requires a PVOutput donation account).",
-          "v8": "Extended data field 2 (requires a PVOutput donation account).",
-          "v9": "Extended data field 3 (requires a PVOutput donation account).",
-          "v10": "Extended data field 4 (requires a PVOutput donation account).",
-          "v11": "Extended data field 5 (requires a PVOutput donation account).",
-          "v12": "Extended data field 6 (requires a PVOutput donation account).",
           "c1": "Check if your energy sensors (v1/v3) provide lifetime cumulative counter values.",
           "n": "Check if power generation (v2) represents net export rather than gross generation."
+        },
+        "sections": {
+          "donation_fields": {
+            "name": "Donation Features",
+            "description": "Requires an active PVOutput donation account.",
+            "data": {
+              "v7": "v7: Extended Metric 1",
+              "v8": "v8: Extended Metric 2",
+              "v9": "v9: Extended Metric 3",
+              "v10": "v10: Extended Metric 4",
+              "v11": "v11: Extended Metric 5",
+              "v12": "v12: Extended Metric 6",
+              "b1": "b1: Battery Power (W)",
+              "b2": "b2: Battery State of Charge (%)",
+              "b3": "b3: Battery Usable Capacity (Wh)",
+              "b4": "b4: Battery Lifetime Charge (Wh)",
+              "b5": "b5: Battery Lifetime Discharge (Wh)",
+              "b6": "b6: Battery State (Code 0-9)"
+            },
+            "data_description": {
+              "v7": "Extended data field 1 (requires a PVOutput donation account).",
+              "v8": "Extended data field 2 (requires a PVOutput donation account).",
+              "v9": "Extended data field 3 (requires a PVOutput donation account).",
+              "v10": "Extended data field 4 (requires a PVOutput donation account).",
+              "v11": "Extended data field 5 (requires a PVOutput donation account).",
+              "v12": "Extended data field 6 (requires a PVOutput donation account).",
+              "b1": "Instantaneous battery power in Watts (converts kW automatically). Positive = charging, negative = discharging.",
+              "b2": "Battery state of charge percentage (0-100%).",
+              "b3": "Usable battery capacity in Watt-hours (converts kWh/MWh automatically).",
+              "b4": "Cumulative lifetime battery charge energy in Watt-hours (converts kWh/MWh automatically).",
+              "b5": "Cumulative lifetime battery discharge energy in Watt-hours (converts kWh/MWh automatically).",
+              "b6": "Numeric battery state code (0: Invalid, 1: Standby, 2: Thermal, 3: Enabled, 4: Fault, 5-9: User Defined)."
+            }
+          }
         }
       }
     }
