@@ -5,33 +5,29 @@ A custom Home Assistant integration that actively pushes your solar generation, 
 Unlike the official Home Assistant PVOutput integration (which only *downloads* data), this integration acts as an automated publisher, bridging your local Home Assistant sensors to your public PVOutput dashboard.
 
 ## Disclaimer: AI-Generated Project
-Please note that the code and documentation for this project were primarily generated with the assistance of an AI. While it has been actively tested and confirmed to work perfectly within Home Assistant, it is provided "as is." Please review the code and use it at your own discretion.
+Please note that the code and documentation for this project were primarily generated with the assistance of an AI. While it has been actively tested and confirmed to work within Home Assistant, it is provided "as is." Please review the code and use it at your own discretion.
 
 ---
 
 ## Features
-* **UI Config Flow:** Fully configurable via the Home Assistant UI. No YAML required.
+* **UI Config Flow (V2):** Fully configurable via the Home Assistant UI with 1-to-1 mappings to PVOutput API parameters. No YAML required.
+* **Seamless V1 $\rightarrow$ V2 Migration:** Automatically upgrades existing installations on startup with zero configuration loss.
+* **Internal System Notes:** Save private reference notes for each solar array in the Home Assistant UI without sending them to the public API.
 * **Multi-System Support:** Publish data for multiple solar arrays or inverters to different PVOutput System IDs using a single API key.
-* **Strict Clock Alignment:** Synchronizes uploads to exact wall-clock intervals (e.g., :00, :05, :10) to prevent data drift and match PVOutput's native 5-minute buckets perfectly, even after Home Assistant restarts.
-* **Smart Data Detection:** Automatically formats the payload based on the units of your selected sensors (Watts vs. Watt-hours, Celsius vs. Fahrenheit).
-* **Maximum Accuracy Dual-Sensors:** Support for selecting both Power and Energy sensors simultaneously to plot the most accurate live power curves without relying on backend estimation.
-* **Lifetime Energy Support:** Automatically detects `state_class: total` sensors and flags PVOutput to calculate your daily yield for you.
-* **Comprehensive Metrics:** Supports pushing Generation, Consumption, and Temperature data simultaneously.
-* **Last Upload Sensor:** Creates a timestamp entity in Home Assistant so you can monitor exactly when the last successful push occurred.
-* **Multi-Language Support:** Fully translated into English, Japanese, Spanish, German, and Chinese (Simplified & Traditional).
-
----
-
-## Smart Sensor Detection
-PVOutput requires data to be formatted precisely. This integration looks at the `unit_of_measurement` and `state_class` of your selected sensors and automatically handles the conversions:
-
-### Generation & Consumption
-* **Single Sensor (Smart Detection):** You can select a single Power (W) or Energy (Wh) sensor. The integration will upload it, and PVOutput will automatically estimate the missing metric.
-* **Dual Sensors (Maximum Accuracy):** For the best results, select BOTH a Power and an Energy sensor in the UI configuration. The integration will automatically detect which is which and upload them simultaneously, providing exact live output and daily totals without requiring PVOutput to do any mathematical guessing.
-* **Lifetime Energy:** If your sensor tracks lifetime yield (e.g., `state_class: total_increasing`), the integration sends the `&c1=1` flag.
-
-### Temperature
-* If your Home Assistant sensor uses Fahrenheit (`°F`), it will automatically be converted to Celsius before uploading, as PVOutput strictly requires Celsius for its `v5` parameter.
+* **Strict Clock Alignment:** Synchronizes uploads to exact wall-clock intervals (e.g., :00, :05, :10) to prevent data drift and match PVOutput's native intervals, even across Home Assistant restarts.
+* **Direct Parameter Mapping & Auto-Scaling:**
+  * **v1 (Energy Generation):** Watt-hours (automatically converts `kWh` and `MWh`).
+  * **v2 (Power Generation):** Watts (automatically converts `kW`).
+  * **v3 (Energy Consumption):** Watt-hours (automatically converts `kWh` and `MWh`).
+  * **v4 (Power Consumption):** Watts (automatically converts `kW`).
+  * **v5 (Temperature):** Automatically converts Fahrenheit (`°F`) to Celsius (`°C`).
+  * **v6 (Voltage):** Inverter / Line voltage.
+  * **v7 – v12 (Extended Data):** Support for PVOutput donation account custom metrics.
+* **Flags Support:**
+  * **Cumulative Flag (`c1=1`):** Informs PVOutput that energy readings represent lifetime cumulative values.
+  * **Net Flag (`n=1`):** Informs PVOutput that power readings represent net export.
+* **Last Upload Sensor:** Creates a timestamp entity in Home Assistant to monitor when the last successful push occurred.
+* **Multi-Language Support:** Fully translated into English, Japanese, Spanish, German, and Chinese.
 
 ---
 
@@ -42,7 +38,7 @@ This integration is installed via [HACS](https://hacs.xyz/).
 1. Open **HACS** in your Home Assistant instance.
 2. Go to **Integrations**.
 3. Click the three dots in the top right corner and select **Custom repositories**.
-4. Paste the URL of this GitHub repository `https://github.com/SourceLabOrg/HomeAssistant-PVOutputPublisher`
+4. Paste the URL of this GitHub repository: `https://github.com/SourceLabOrg/HomeAssistant-PVOutputPublisher`
 5. Select **Integration** as the Category and click **Add**.
 6. Search for **PVOutput Publisher** in HACS and click **Download**.
 7. **Restart Home Assistant**.
@@ -55,15 +51,20 @@ This integration is installed via [HACS](https://hacs.xyz/).
 2. Click **Add Integration** in the bottom right corner.
 3. Search for **PVOutput Publisher**.
 4. Enter your global **PVOutput API Key** (found in your PVOutput account settings).
-5. Add your first system by providing:
+5. Configure your solar array parameters:
    * **System Name:** A friendly name for your reference.
    * **System ID:** Your PVOutput System ID.
-   * **Primary Solar Sensor:** Your inverter's power (W) or energy (Wh) sensor.
-   * **Secondary Solar Sensor:** (Optional) If you selected a Power (W) sensor above, select your Energy (Wh) sensor here, or vice versa, for maximum accuracy. If you only provide the primary sensor, PVOutput will automatically estimate the missing value, which may result in less accurate data. 
-   * **Consumption Sensor:** (Optional) Your home's power draw or energy usage sensor.
-   * **Temperature Sensor:** (Optional) Outside temperature.
-   * **Voltage Sensor:** (Optional) Tracks grid/inverter operational voltage lines.
-   * **Update Frequency:** How often to push data to PVOutput (5 to 180 minutes).
+   * **Update Frequency:** How often to push data (5 to 180 minutes).
+   * **Internal Notes:** (Optional) Private reference notes.
+   * **v1: Energy Generation (Wh):** (Optional) Generation energy sensor.
+   * **v2: Power Generation (W):** (Optional) Generation power sensor.
+   * **v3: Energy Consumption (Wh):** (Optional) Consumption energy sensor.
+   * **v4: Power Consumption (W):** (Optional) Consumption power sensor.
+   * **v5: Temperature:** (Optional) Outside temperature sensor.
+   * **v6: Voltage:** (Optional) Inverter/grid line voltage.
+   * **v7 – v12: Extended Data:** (Optional) Custom donation metrics.
+   * **Cumulative Flag (`c1=1`):** Check if energy sensors supply lifetime counter values.
+   * **Net Power Flag (`n=1`):** Check if power readings represent net export.
 
 ### Managing Multiple Systems
 You can add, edit, or remove systems at any time. Simply go to **Settings > Devices & Services**, find the **PVOutput Publisher** integration card, and click **Configure**.
@@ -74,17 +75,17 @@ You can add, edit, or remove systems at any time. Simply go to **Settings > Devi
 For every system you configure, this integration creates a sensor:
 * `sensor.pvoutput_[system_name]_last_upload`
 
-This sensor tracks the exact date and time of the last successful HTTP 200 OK response from the PVOutput API. You can use this sensor in your Lovelace dashboards or to trigger automations (e.g., send a notification if data hasn't successfully published in over an hour).
+This sensor tracks the exact date and time of the last successful HTTP 200 OK response from the PVOutput API. You can use this sensor in your Lovelace dashboards or to trigger automations (e.g., alert if data hasn't published in over an hour).
 
 ---
 
 ## Troubleshooting & Logs
-If data is not appearing in PVOutput, check your Home Assistant logs (**Settings > System > Logs**). The integration gracefully handles network drops, but will print detailed error messages if the PVOutput API rejects your payload (e.g., invalid API key, incorrect System ID, or pushing data too far in the past). You can view the raw outbound payload by setting the logging level for `custom_components.pvoutput_publisher` to `info` in your `configuration.yaml`.
+If data is not appearing in PVOutput, check your Home Assistant logs (**Settings > System > Logs**). The integration will log the exact formatted outbound metrics at the `INFO` level:
 
 ```yaml
 ## Logging
 logger:
   default: warning
   logs:
-    custom_components.pvoutput_publisher: debug
+    custom_components.pvoutput_publisher: info
 ```

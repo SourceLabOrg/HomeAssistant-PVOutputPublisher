@@ -5,8 +5,10 @@ from homeassistant.core import callback
 
 from .const import (
     DOMAIN, CONF_API_KEY, CONF_SYSTEMS, CONF_NAME, CONF_SYSTEM_ID,
-    CONF_ENTITY_ID, CONF_SECONDARY_ENTITY_ID, CONF_CONSUMPTION_ENTITY_ID,
-    CONF_TEMPERATURE_ENTITY_ID, CONF_FREQUENCY, DEFAULT_FREQUENCY, CONF_VOLTAGE_ENTITY_ID
+    CONF_FREQUENCY, DEFAULT_FREQUENCY, CONF_NOTES,
+    CONF_V1, CONF_V2, CONF_V3, CONF_V4, CONF_V5, CONF_V6,
+    CONF_V7, CONF_V8, CONF_V9, CONF_V10, CONF_V11, CONF_V12,
+    CONF_C1, CONF_NET
 )
 
 def _get_system_schema(existing_data=None):
@@ -15,78 +17,103 @@ def _get_system_schema(existing_data=None):
         "30": "30 minutes", "60": "1 hour", "180": "3 hours"
     }
 
-    schema = {}
+    data = existing_data or {}
 
-    if existing_data:
-        schema[vol.Required(CONF_NAME, default=existing_data.get(CONF_NAME, existing_data.get(CONF_SYSTEM_ID)))] = str
-        schema[vol.Required(CONF_SYSTEM_ID, default=existing_data.get(CONF_SYSTEM_ID))] = str
+    schema = {
+        vol.Required(CONF_NAME, default=data.get(CONF_NAME, data.get(CONF_SYSTEM_ID, ""))): str,
+        vol.Required(CONF_SYSTEM_ID, default=data.get(CONF_SYSTEM_ID, "")): str,
+        vol.Required(CONF_FREQUENCY, default=str(data.get(CONF_FREQUENCY, DEFAULT_FREQUENCY))): vol.In(frequency_options),
+    }
 
-        schema[vol.Required(CONF_ENTITY_ID, default=existing_data.get(CONF_ENTITY_ID))] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class=["power", "energy"])
+    # Internal Notes (Optional, not sent to API)
+    if data.get(CONF_NOTES):
+        schema[vol.Optional(CONF_NOTES, default=data.get(CONF_NOTES))] = selector.TextSelector(
+            selector.TextSelectorConfig(multiline=True)
         )
-
-        if existing_data.get(CONF_SECONDARY_ENTITY_ID):
-            schema[vol.Optional(CONF_SECONDARY_ENTITY_ID, default=existing_data.get(CONF_SECONDARY_ENTITY_ID))] = selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="sensor", device_class=["power", "energy"])
-            )
-        else:
-            schema[vol.Optional(CONF_SECONDARY_ENTITY_ID)] = selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="sensor", device_class=["power", "energy"])
-            )
-
-        if existing_data.get(CONF_CONSUMPTION_ENTITY_ID):
-            schema[vol.Optional(CONF_CONSUMPTION_ENTITY_ID, default=existing_data.get(CONF_CONSUMPTION_ENTITY_ID))] = selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="sensor", device_class=["power", "energy"])
-            )
-        else:
-            schema[vol.Optional(CONF_CONSUMPTION_ENTITY_ID)] = selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="sensor", device_class=["power", "energy"])
-            )
-
-        if existing_data.get(CONF_TEMPERATURE_ENTITY_ID):
-            schema[vol.Optional(CONF_TEMPERATURE_ENTITY_ID, default=existing_data.get(CONF_TEMPERATURE_ENTITY_ID))] = selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="sensor")
-            )
-        else:
-            schema[vol.Optional(CONF_TEMPERATURE_ENTITY_ID)] = selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="sensor")
-            )
-
-        if existing_data.get(CONF_VOLTAGE_ENTITY_ID):
-            schema[vol.Optional(CONF_VOLTAGE_ENTITY_ID, default=existing_data.get(CONF_VOLTAGE_ENTITY_ID))] = selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="sensor", device_class=["voltage"])
-            )
-        else:
-            schema[vol.Optional(CONF_VOLTAGE_ENTITY_ID)] = selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="sensor", device_class=["voltage"])
-            )
-
-        schema[vol.Required(CONF_FREQUENCY, default=str(existing_data.get(CONF_FREQUENCY, "5")))] = vol.In(frequency_options)
-
     else:
-        schema[vol.Required(CONF_NAME)] = str
-        schema[vol.Required(CONF_SYSTEM_ID)] = str
-        schema[vol.Required(CONF_ENTITY_ID)] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class=["power", "energy"])
+        schema[vol.Optional(CONF_NOTES)] = selector.TextSelector(
+            selector.TextSelectorConfig(multiline=True)
         )
-        schema[vol.Optional(CONF_SECONDARY_ENTITY_ID)] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class=["power", "energy"])
+
+    # v1 (Energy Generation - Wh)
+    if data.get(CONF_V1):
+        schema[vol.Optional(CONF_V1, default=data.get(CONF_V1))] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class=["energy"])
         )
-        schema[vol.Optional(CONF_CONSUMPTION_ENTITY_ID)] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class=["power", "energy"])
+    else:
+        schema[vol.Optional(CONF_V1)] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class=["energy"])
         )
-        schema[vol.Optional(CONF_TEMPERATURE_ENTITY_ID)] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor")
+
+    # v2 (Power Generation - W)
+    if data.get(CONF_V2):
+        schema[vol.Optional(CONF_V2, default=data.get(CONF_V2))] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class=["power"])
         )
-        schema[vol.Optional(CONF_VOLTAGE_ENTITY_ID)] = selector.EntitySelector(
+    else:
+        schema[vol.Optional(CONF_V2)] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class=["power"])
+        )
+
+    # v3 (Energy Consumption - Wh)
+    if data.get(CONF_V3):
+        schema[vol.Optional(CONF_V3, default=data.get(CONF_V3))] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class=["energy"])
+        )
+    else:
+        schema[vol.Optional(CONF_V3)] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class=["energy"])
+        )
+
+    # v4 (Power Consumption - W)
+    if data.get(CONF_V4):
+        schema[vol.Optional(CONF_V4, default=data.get(CONF_V4))] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class=["power"])
+        )
+    else:
+        schema[vol.Optional(CONF_V4)] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class=["power"])
+        )
+
+    # v5 (Temperature - °C / °F)
+    if data.get(CONF_V5):
+        schema[vol.Optional(CONF_V5, default=data.get(CONF_V5))] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class=["temperature"])
+        )
+    else:
+        schema[vol.Optional(CONF_V5)] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class=["temperature"])
+        )
+
+    # v6 (Voltage - V)
+    if data.get(CONF_V6):
+        schema[vol.Optional(CONF_V6, default=data.get(CONF_V6))] = selector.EntitySelector(
             selector.EntitySelectorConfig(domain="sensor", device_class=["voltage"])
         )
-        schema[vol.Required(CONF_FREQUENCY, default="5")] = vol.In(frequency_options)
+    else:
+        schema[vol.Optional(CONF_V6)] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class=["voltage"])
+        )
+
+    # v7 through v12 (Extended Data)
+    for v_key in [CONF_V7, CONF_V8, CONF_V9, CONF_V10, CONF_V11, CONF_V12]:
+        if data.get(v_key):
+            schema[vol.Optional(v_key, default=data.get(v_key))] = selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor")
+            )
+        else:
+            schema[vol.Optional(v_key)] = selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor")
+            )
+
+    # Flags
+    schema[vol.Optional(CONF_C1, default=data.get(CONF_C1, False))] = selector.BooleanSelector()
+    schema[vol.Optional(CONF_NET, default=data.get(CONF_NET, False))] = selector.BooleanSelector()
 
     return vol.Schema(schema)
 
 class PVOutputPusherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    VERSION = 1
+    VERSION = 2
 
     def __init__(self):
         self._api_key = None

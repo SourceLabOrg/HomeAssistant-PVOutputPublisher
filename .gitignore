@@ -2,6 +2,7 @@
 .gradle
 gradle.properties
 build/
+.coverage
 
 ### STS ###
 .apt_generated
