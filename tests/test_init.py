@@ -232,8 +232,24 @@ async def test_push_data_minimal(hass: HomeAssistant):
         payload = await setup_and_trigger(hass, mock_aio, system_config)
 
     assert "&v2=2000" in payload
+    # Verify free and donation parameters are omitted when not defined
     assert "&v1=" not in payload
+    assert "&v3=" not in payload
+    assert "&v4=" not in payload
     assert "&v5=" not in payload
+    assert "&v6=" not in payload
+    assert "&v7=" not in payload
+    assert "&v8=" not in payload
+    assert "&v9=" not in payload
+    assert "&v10=" not in payload
+    assert "&v11=" not in payload
+    assert "&v12=" not in payload
+    assert "&b1=" not in payload
+    assert "&b2=" not in payload
+    assert "&b3=" not in payload
+    assert "&b4=" not in payload
+    assert "&b5=" not in payload
+    assert "&b6=" not in payload
 
 
 @pytest.mark.asyncio

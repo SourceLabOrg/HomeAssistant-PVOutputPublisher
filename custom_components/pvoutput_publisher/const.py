@@ -33,6 +33,9 @@ CONF_B6 = "b6"
 CONF_C1 = "c1"
 CONF_NET = "n"
 
+# Section Keys
+CONF_DONATION_FIELDS = "donation_fields"
+
 # Legacy V1 Configuration Keys (Kept for Migration)
 CONF_ENTITY_ID = "entity_id"
 CONF_SECONDARY_ENTITY_ID = "secondary_entity_id"
