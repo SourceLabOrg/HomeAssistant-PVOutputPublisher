@@ -538,3 +538,26 @@ async def test_async_migrate_entry_consumption_lifetime_flag(hass: HomeAssistant
     assert migrated[CONF_C1] is True
 
 
+@pytest.mark.asyncio
+async def test_push_data_temperature_sensor_without_device_class(hass: HomeAssistant):
+    """Test that temperature sensors lacking device_class (e.g. weather/MQTT/template) upload successfully."""
+    # Sensor has unit °C but NO device_class attribute
+    hass.states.async_set("sensor.outdoor_temp_no_dc", "23.8", {"unit_of_measurement": "°C"})
+    hass.states.async_set("sensor.solar_power", "1500", {"unit_of_measurement": "W"})
+
+    system_config = {
+        CONF_NAME: "Weather Temp System",
+        CONF_SYSTEM_ID: MOCK_SYSTEM_ID,
+        CONF_FREQUENCY: "5",
+        CONF_V2: "sensor.solar_power",
+        CONF_V5: "sensor.outdoor_temp_no_dc",
+    }
+
+    with aioresponses() as mock_aio:
+        payload = await setup_and_trigger(hass, mock_aio, system_config)
+
+    assert "&v5=23.8" in payload
+    assert "&v2=1500" in payload
+
+
+

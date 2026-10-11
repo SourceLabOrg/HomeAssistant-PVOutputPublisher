@@ -154,8 +154,9 @@ At scheduled intervals, for each configured v2 system:
 - [x] **Step 6: Unit & Integration Tests**
   - Added unit tests for `async_migrate_entry` (live state present, registry lookup, fallback naming, idempotency, duplicate sensors, secondary-only configs, consumption lifetime).
   - Updated config flow tests for v2 schema and full field editing.
+  - Added specific regression tests for temperature sensors without `device_class: temperature`.
   - Updated push payload tests for v2 parameters, flags, unit conversions, and notes exclusion.
-  - Test suite passing with 22/22 tests (95% coverage).
+  - Test suite passing with 24/24 tests (95% coverage).
 - [x] **Step 7: Documentation (`README.md`, `CHANGELOG.md`)**
   - Updated `README.md` to document the V2 parameter mapping, notes field, and migration.
   - Updated `CHANGELOG.md` with 2.0.0 release notes.

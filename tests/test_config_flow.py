@@ -238,3 +238,36 @@ async def test_options_flow_edit_all_fields(hass):
     )
     assert result["step_id"] == "systems_manager"
 
+
+@pytest.mark.asyncio
+async def test_setup_with_custom_temperature_sensor(hass):
+    """Test configuring a system with a custom temperature sensor without device class."""
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        user_input={CONF_API_KEY: "key123"}
+    )
+    # Configure system using a sensor that lacks device_class
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        user_input={
+            CONF_NAME: "Temp Test Array",
+            CONF_SYSTEM_ID: "4321",
+            CONF_FREQUENCY: "5",
+            CONF_V2: "sensor.solar_power",
+            CONF_V5: "sensor.custom_outdoor_temperature",
+        }
+    )
+    assert result["step_id"] == "systems_manager"
+    with patch("custom_components.pvoutput_publisher.async_setup_entry", return_value=True):
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"],
+            user_input={"action": "finish"}
+        )
+
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    assert result["data"][CONF_SYSTEMS][0][CONF_V5] == "sensor.custom_outdoor_temperature"
+
+

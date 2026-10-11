@@ -78,11 +78,11 @@ def _get_system_schema(existing_data=None):
     # v5 (Temperature - °C / °F)
     if data.get(CONF_V5):
         schema[vol.Optional(CONF_V5, default=data.get(CONF_V5))] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class=["temperature"])
+            selector.EntitySelectorConfig(domain="sensor")
         )
     else:
         schema[vol.Optional(CONF_V5)] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class=["temperature"])
+            selector.EntitySelectorConfig(domain="sensor")
         )
 
     # v6 (Voltage - V)
