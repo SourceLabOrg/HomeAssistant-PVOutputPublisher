@@ -389,3 +389,11 @@ async def test_options_flow_form_section_collapse_state(hass):
     assert sec.options["collapsed"] is False
 
 
+def test_get_system_schema_with_none_donation_fields():
+    """Test that _get_system_schema does not crash when donation_fields is explicitly None."""
+    from custom_components.pvoutput_publisher.config_flow import _get_system_schema
+    schema = _get_system_schema({CONF_DONATION_FIELDS: None, CONF_NAME: "Test", CONF_SYSTEM_ID: "123"})
+    assert schema is not None
+
+
+

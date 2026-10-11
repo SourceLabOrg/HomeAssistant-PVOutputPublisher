@@ -646,4 +646,54 @@ async def test_push_data_temperature_sensor_without_device_class(hass: HomeAssis
     assert "&v2=1500" in payload
 
 
+@pytest.mark.asyncio
+async def test_push_data_with_none_unit_of_measurement(hass: HomeAssistant):
+    """Test that sensors with unit_of_measurement: None (e.g. template/MQTT) do not raise AttributeError."""
+    hass.states.async_set("sensor.none_unit_power", "3500", {"unit_of_measurement": None})
+    hass.states.async_set("sensor.none_unit_energy", "12000", {"unit_of_measurement": None})
+    hass.states.async_set("sensor.none_unit_batt", "1500", {"unit_of_measurement": None})
+
+    system_config = {
+        CONF_NAME: "None Unit System",
+        CONF_SYSTEM_ID: MOCK_SYSTEM_ID,
+        CONF_FREQUENCY: "5",
+        CONF_V1: "sensor.none_unit_energy",
+        CONF_V2: "sensor.none_unit_power",
+        CONF_B1: "sensor.none_unit_batt",
+    }
+
+    with aioresponses() as mock_aio:
+        payload = await setup_and_trigger(hass, mock_aio, system_config)
+
+    assert "&v1=12000" in payload
+    assert "&v2=3500" in payload
+    assert "&b1=1500" in payload
+
+
+@pytest.mark.asyncio
+async def test_battery_b6_range_validation_and_b1_mandatory(hass: HomeAssistant, caplog: pytest.LogCaptureFixture):
+    """Test that b6 codes outside 0-9 are omitted and warning is logged when b2-b6 exist without b1."""
+    # Out-of-range b6 code (e.g. 99)
+    hass.states.async_set("sensor.batt_soc", "80", {"unit_of_measurement": "%"})
+    hass.states.async_set("sensor.invalid_mode", "99", {})
+
+    system_config = {
+        CONF_NAME: "Battery Warning System",
+        CONF_SYSTEM_ID: MOCK_SYSTEM_ID,
+        CONF_FREQUENCY: "5",
+        # b1 intentionally omitted to test mandatory b1 warning
+        CONF_B2: "sensor.batt_soc",
+        CONF_B6: "sensor.invalid_mode",
+    }
+
+    with aioresponses() as mock_aio:
+        payload = await setup_and_trigger(hass, mock_aio, system_config)
+
+    assert "&b2=80" in payload
+    assert "&b6=" not in payload  # 99 should be omitted due to being outside 0-9
+    assert "Battery State (b6) value 99 is out of range (0-9)" in caplog.text
+    assert "Battery parameters (b2-b6) were provided without b1" in caplog.text
+
+
+
 

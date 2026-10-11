@@ -110,7 +110,8 @@ def _get_system_schema(existing_data=None):
     schema[vol.Optional(CONF_NET, default=data.get(CONF_NET, False))] = selector.BooleanSelector()
 
     # Donation Section (v7-v12 & b1-b6)
-    donation_data = data.get(CONF_DONATION_FIELDS, data)
+    # NOTE: Use 'or data' fallback in case CONF_DONATION_FIELDS explicitly exists with value None.
+    donation_data = data.get(CONF_DONATION_FIELDS) or data
     donation_keys = [
         CONF_V7, CONF_V8, CONF_V9, CONF_V10, CONF_V11, CONF_V12,
         CONF_B1, CONF_B2, CONF_B3, CONF_B4, CONF_B5, CONF_B6

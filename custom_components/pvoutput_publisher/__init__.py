@@ -34,9 +34,11 @@ def _determine_energy_or_power(hass: HomeAssistant, entity_id: str | None) -> tu
     # 1. Try checking live state machine
     state = hass.states.get(entity_id)
     if state:
-        unit = state.attributes.get("unit_of_measurement", "").lower()
-        device_class = state.attributes.get("device_class", "").lower()
-        state_class = state.attributes.get("state_class", "").lower()
+        # NOTE: Use (attr or "").lower() defensively because dict.get("key", "")
+        # will return None if the attribute is explicitly set to None (e.g. MQTT/template sensors).
+        unit = (state.attributes.get("unit_of_measurement") or "").lower()
+        device_class = (state.attributes.get("device_class") or "").lower()
+        state_class = (state.attributes.get("state_class") or "").lower()
         is_lifetime = state_class in ["total", "total_increasing"]
 
         if unit in ["wh", "kwh", "mwh"] or device_class == "energy":
@@ -212,7 +214,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 if v1_state and v1_state.state not in ['unknown', 'unavailable']:
                     try:
                         v1_val = float(v1_state.state)
-                        unit = v1_state.attributes.get("unit_of_measurement", "").lower()
+                        # NOTE: Use (attr or "").lower() defensively because dict.get("key", "")
+                        # returns None if the attribute exists with value None (common in template/MQTT sensors).
+                        unit = (v1_state.attributes.get("unit_of_measurement") or "").lower()
                         raw = v1_val
                         if unit == "kwh":
                             v1_val *= 1000
@@ -230,7 +234,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 if v2_state and v2_state.state not in ['unknown', 'unavailable']:
                     try:
                         v2_val = float(v2_state.state)
-                        unit = v2_state.attributes.get("unit_of_measurement", "").lower()
+                        unit = (v2_state.attributes.get("unit_of_measurement") or "").lower()
                         raw = v2_val
                         if unit in ["kw", "kilowatt", "kilowatts"]:
                             v2_val *= 1000
@@ -246,7 +250,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 if v3_state and v3_state.state not in ['unknown', 'unavailable']:
                     try:
                         v3_val = float(v3_state.state)
-                        unit = v3_state.attributes.get("unit_of_measurement", "").lower()
+                        unit = (v3_state.attributes.get("unit_of_measurement") or "").lower()
                         raw = v3_val
                         if unit == "kwh":
                             v3_val *= 1000
@@ -264,7 +268,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 if v4_state and v4_state.state not in ['unknown', 'unavailable']:
                     try:
                         v4_val = float(v4_state.state)
-                        unit = v4_state.attributes.get("unit_of_measurement", "").lower()
+                        unit = (v4_state.attributes.get("unit_of_measurement") or "").lower()
                         raw = v4_val
                         if unit in ["kw", "kilowatt", "kilowatts"]:
                             v4_val *= 1000
@@ -280,7 +284,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 if v5_state and v5_state.state not in ['unknown', 'unavailable']:
                     try:
                         temp_val = float(v5_state.state)
-                        unit = v5_state.attributes.get("unit_of_measurement", "").lower()
+                        unit = (v5_state.attributes.get("unit_of_measurement") or "").lower()
                         raw = temp_val
                         if unit in ["°f", "f"]:
                             temp_val = (temp_val - 32) * 5.0 / 9.0
@@ -317,6 +321,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                         except ValueError:
                             pass
 
+            has_b1 = False
+            has_other_battery = False
+
             # b1: Battery Power (W) (Positive = Charging, Negative = Discharging)
             b1_id = sys_data.get(CONF_B1)
             if b1_id:
@@ -324,12 +331,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 if b1_state and b1_state.state not in ['unknown', 'unavailable']:
                     try:
                         b1_val = float(b1_state.state)
-                        unit = b1_state.attributes.get("unit_of_measurement", "").lower()
+                        unit = (b1_state.attributes.get("unit_of_measurement") or "").lower()
                         raw = b1_val
                         if unit in ["kw", "kilowatt", "kilowatts"]:
                             b1_val *= 1000
                         payload += f"&b1={int(round(b1_val))}"
                         log_parts.append(f"b1 (Battery Power): {raw} {unit} -> {int(round(b1_val))}W")
+                        has_b1 = True
                     except ValueError:
                         pass
 
@@ -343,6 +351,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                         val_str = f"{b2_val:g}"
                         payload += f"&b2={val_str}"
                         log_parts.append(f"b2 (Battery SOC): {val_str}%")
+                        has_other_battery = True
                     except ValueError:
                         pass
 
@@ -353,7 +362,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 if b3_state and b3_state.state not in ['unknown', 'unavailable']:
                     try:
                         b3_val = float(b3_state.state)
-                        unit = b3_state.attributes.get("unit_of_measurement", "").lower()
+                        unit = (b3_state.attributes.get("unit_of_measurement") or "").lower()
                         raw = b3_val
                         if unit == "kwh":
                             b3_val *= 1000
@@ -361,6 +370,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                             b3_val *= 1000000
                         payload += f"&b3={int(round(b3_val))}"
                         log_parts.append(f"b3 (Battery Size): {raw} {unit} -> {int(round(b3_val))}Wh")
+                        has_other_battery = True
                     except ValueError:
                         pass
 
@@ -371,7 +381,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 if b4_state and b4_state.state not in ['unknown', 'unavailable']:
                     try:
                         b4_val = float(b4_state.state)
-                        unit = b4_state.attributes.get("unit_of_measurement", "").lower()
+                        unit = (b4_state.attributes.get("unit_of_measurement") or "").lower()
                         raw = b4_val
                         if unit == "kwh":
                             b4_val *= 1000
@@ -379,6 +389,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                             b4_val *= 1000000
                         payload += f"&b4={int(round(b4_val))}"
                         log_parts.append(f"b4 (Battery Lifetime Charge): {raw} {unit} -> {int(round(b4_val))}Wh")
+                        has_other_battery = True
                     except ValueError:
                         pass
 
@@ -389,7 +400,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 if b5_state and b5_state.state not in ['unknown', 'unavailable']:
                     try:
                         b5_val = float(b5_state.state)
-                        unit = b5_state.attributes.get("unit_of_measurement", "").lower()
+                        unit = (b5_state.attributes.get("unit_of_measurement") or "").lower()
                         raw = b5_val
                         if unit == "kwh":
                             b5_val *= 1000
@@ -397,20 +408,38 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                             b5_val *= 1000000
                         payload += f"&b5={int(round(b5_val))}"
                         log_parts.append(f"b5 (Battery Lifetime Discharge): {raw} {unit} -> {int(round(b5_val))}Wh")
+                        has_other_battery = True
                     except ValueError:
                         pass
 
             # b6: Battery State (0-9)
+            # PVOutput specification defines codes 0 through 9 (0=Unknown, 1=Charging, 2=Discharging, etc.).
             b6_id = sys_data.get(CONF_B6)
             if b6_id:
                 b6_state = hass.states.get(b6_id)
                 if b6_state and b6_state.state not in ['unknown', 'unavailable']:
                     try:
                         b6_val = int(float(b6_state.state))
-                        payload += f"&b6={b6_val}"
-                        log_parts.append(f"b6 (Battery State): {b6_val}")
+                        if 0 <= b6_val <= 9:
+                            payload += f"&b6={b6_val}"
+                            log_parts.append(f"b6 (Battery State): {b6_val}")
+                            has_other_battery = True
+                        else:
+                            _LOGGER.warning(
+                                "PVOutput [%s | ID: %s] Battery State (b6) value %s is out of range (0-9). Omitting b6.",
+                                name, sys_id, b6_val
+                            )
                     except ValueError:
                         pass
+
+            # PVOutput specification: When sending battery data, b1 is mandatory;
+            # PVOutput will ignore b2-b6 if b1 is missing from the payload.
+            if has_other_battery and not has_b1:
+                _LOGGER.warning(
+                    "PVOutput [%s | ID: %s] Battery parameters (b2-b6) were provided without b1 (Battery Power). "
+                    "PVOutput requires b1 for battery data to be accepted; other battery parameters may be ignored.",
+                    name, sys_id
+                )
 
             # Flags: c1 (Cumulative) and n (Net)
             if sys_data.get(CONF_C1):
