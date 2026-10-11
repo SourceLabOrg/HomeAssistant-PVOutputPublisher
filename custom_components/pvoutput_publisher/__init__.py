@@ -90,11 +90,17 @@ def migrate_v1_system_to_v2(hass: HomeAssistant, system: dict) -> dict:
     c1 = False
 
     if prim_id:
-        prim_type, prim_lifetime = _determine_energy_or_power(hass, prim_id)
+        prim_type, _ = _determine_energy_or_power(hass, prim_id)
         if prim_type == "energy":
             v1 = prim_id
-            if prim_lifetime:
-                c1 = True
+            # NOTE: Home Assistant's Entity Registry stores unit_of_measurement and
+            # device_class on disk, but does NOT persist state_class. Because async_migrate_entry
+            # runs before other integrations initialize their live entity states at boot,
+            # state_class (e.g. total_increasing) cannot be read from hass.states here.
+            # In PVOutput, virtually all solar inverter energy sensors (Wh/kWh) report lifetime
+            # cumulative totals. Without c1=1, PVOutput rejects lifetime values as "Energy too high".
+            # We therefore default c1=True whenever an Energy sensor is migrated to v1.
+            c1 = True
             if sec_id:
                 sec_type, _ = _determine_energy_or_power(hass, sec_id)
                 if sec_type == "power":
@@ -102,27 +108,25 @@ def migrate_v1_system_to_v2(hass: HomeAssistant, system: dict) -> dict:
         else:
             v2 = prim_id
             if sec_id:
-                sec_type, sec_lifetime = _determine_energy_or_power(hass, sec_id)
+                sec_type, _ = _determine_energy_or_power(hass, sec_id)
                 if sec_type == "energy":
                     v1 = sec_id
-                    if sec_lifetime:
-                        c1 = True
+                    c1 = True
     elif sec_id:
-        sec_type, sec_lifetime = _determine_energy_or_power(hass, sec_id)
+        sec_type, _ = _determine_energy_or_power(hass, sec_id)
         if sec_type == "energy":
             v1 = sec_id
-            if sec_lifetime:
-                c1 = True
+            c1 = True
         else:
             v2 = sec_id
 
     v3 = None
     v4 = None
     if con_id:
-        con_type, con_lifetime = _determine_energy_or_power(hass, con_id)
+        con_type, _ = _determine_energy_or_power(hass, con_id)
         if con_type == "energy":
             v3 = con_id
-            if con_lifetime and not v1:
+            if not v1:
                 c1 = True
         else:
             v4 = con_id

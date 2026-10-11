@@ -168,5 +168,6 @@ At scheduled intervals, for each configured v2 system:
 *(Updated dynamically during implementation)*
 - *2026-10-11:* Switched from dual-mode toggle to unified v2 architecture with automated `async_migrate_entry` to provide cleaner UX and zero configuration ambiguity.
 - *2026-10-11:* English translation (`en.json`) updated first; other language files deferred to final phase per iterative development plan.
+- *2026-10-11:* Migration logic defaults `c1=True` for migrated Energy generation sensors because Home Assistant's Entity Registry does not persist `state_class` to disk at boot time. This ensures lifetime energy sensors display `[x] Cumulative Energy Flag` in the UI and prevent PVOutput 400 Bad Request errors.
 - *2026-10-11:* Migration logic refined to prevent duplicate sensor assignments (e.g. if a user configured two energy sensors in v1, secondary energy is safely ignored rather than mistakenly placed into `v2` Power).
 

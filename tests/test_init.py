@@ -467,6 +467,7 @@ async def test_async_migrate_entry_duplicate_energy_sensors(hass: HomeAssistant)
     # Primary is energy -> v1, secondary energy is ignored (v2 is None)
     assert migrated[CONF_V1] == "sensor.sol_eng_1"
     assert migrated[CONF_V2] is None
+    assert migrated[CONF_C1] is True
 
 
 @pytest.mark.asyncio
@@ -491,6 +492,7 @@ async def test_async_migrate_entry_duplicate_power_sensors(hass: HomeAssistant):
     # Primary is power -> v2, secondary power is ignored (v1 is None)
     assert migrated[CONF_V2] == "sensor.sol_pwr_1"
     assert migrated[CONF_V1] is None
+    assert migrated[CONF_C1] is False
 
 
 @pytest.mark.asyncio
