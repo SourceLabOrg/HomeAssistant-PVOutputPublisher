@@ -29,7 +29,13 @@
           "v11": "v11: Dato extendido 5",
           "v12": "v12: Dato extendido 6",
           "c1": "Indicador de energía acumulada (c1=1)",
-          "n": "Indicador de potencia neta (n=1)"
+          "n": "Indicador de potencia neta (n=1)",
+          "b1": "b1: Potencia de batería (W)",
+          "b2": "b2: Estado de carga de batería (%)",
+          "b3": "b3: Capacidad útil de batería (Wh)",
+          "b4": "b4: Carga total acumulada (Wh)",
+          "b5": "b5: Descarga total acumulada (Wh)",
+          "b6": "b6: Estado de batería (Código 0-9)"
         },
         "data_description": {
           "name": "Un nombre descriptivo para su sistema solar en Home Assistant.",
@@ -49,7 +55,13 @@
           "v11": "Campo de datos extendidos 5 (requiere cuenta de donante en PVOutput).",
           "v12": "Campo de datos extendidos 6 (requiere cuenta de donante en PVOutput).",
           "c1": "Marque si sus sensores de energía (v1/v3) proporcionan valores de contador acumulativo total.",
-          "n": "Marque si la generación de potencia (v2) representa exportación neta en lugar de generación bruta."
+          "n": "Marque si la generación de potencia (v2) representa exportación neta en lugar de generación bruta.",
+          "b1": "Potencia instantánea de la batería en vatios (kW se convierte automáticamente). Positivo = cargando, negativo = descargando.",
+          "b2": "Porcentaje de estado de carga de la batería (0-100%).",
+          "b3": "Capacidad útil de la batería en vatios-hora (kWh/MWh se convierte automáticamente).",
+          "b4": "Energía de carga acumulada en la vida útil en vatios-hora (kWh/MWh se convierte automáticamente).",
+          "b5": "Energía de descarga acumulada en la vida útil en vatios-hora (kWh/MWh se convierte automáticamente).",
+          "b6": "Código numérico de estado de la batería (0: No válido, 1: En espera, 2: Térmico, 3: Habilitado, 4: Fallo, 5-9: Definido por usuario)."
         }
       },
       "systems_manager": {
@@ -101,7 +113,13 @@
           "v11": "v11: Dato extendido 5",
           "v12": "v12: Dato extendido 6",
           "c1": "Indicador de energía acumulada (c1=1)",
-          "n": "Indicador de potencia neta (n=1)"
+          "n": "Indicador de potencia neta (n=1)",
+          "b1": "b1: Potencia de batería (W)",
+          "b2": "b2: Estado de carga de batería (%)",
+          "b3": "b3: Capacidad útil de batería (Wh)",
+          "b4": "b4: Carga total acumulada (Wh)",
+          "b5": "b5: Descarga total acumulada (Wh)",
+          "b6": "b6: Estado de batería (Código 0-9)"
         },
         "data_description": {
           "name": "Un nombre descriptivo para su sistema solar en Home Assistant.",
@@ -121,7 +139,13 @@
           "v11": "Campo de datos extendidos 5 (requiere cuenta de donante en PVOutput).",
           "v12": "Campo de datos extendidos 6 (requiere cuenta de donante en PVOutput).",
           "c1": "Marque si sus sensores de energía (v1/v3) proporcionan valores de contador acumulativo total.",
-          "n": "Marque si la generación de potencia (v2) representa exportación neta en lugar de generación bruta."
+          "n": "Marque si la generación de potencia (v2) representa exportación neta en lugar de generación bruta.",
+          "b1": "Potencia instantánea de la batería en vatios (kW se convierte automáticamente). Positivo = cargando, negativo = descargando.",
+          "b2": "Porcentaje de estado de carga de la batería (0-100%).",
+          "b3": "Capacidad útil de la batería en vatios-hora (kWh/MWh se convierte automáticamente).",
+          "b4": "Energía de carga acumulada en la vida útil en vatios-hora (kWh/MWh se convierte automáticamente).",
+          "b5": "Energía de descarga acumulada en la vida útil en vatios-hora (kWh/MWh se convierte automáticamente).",
+          "b6": "Código numérico de estado de la batería (0: No válido, 1: En espera, 2: Térmico, 3: Habilitado, 4: Fallo, 5-9: Definido por usuario)."
         }
       }
     }

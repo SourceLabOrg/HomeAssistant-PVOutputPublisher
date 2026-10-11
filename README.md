@@ -22,6 +22,13 @@ Please note that the code and documentation for this project were primarily gene
   * **v5 (Temperature):** Automatically converts Fahrenheit (`°F`) to Celsius (`°C`).
   * **v6 (Voltage):** Inverter / Line voltage.
   * **v7 – v12 (Extended Data):** Support for PVOutput donation account custom metrics.
+  * **b1 – b6 (Battery Parameters):**
+    * **b1 (Battery Power):** Watts (automatically converts `kW`; positive = charge, negative = discharge).
+    * **b2 (State of Charge):** Percentage (0–100%).
+    * **b3 (Usable Capacity):** Watt-hours (automatically converts `kWh` and `MWh`).
+    * **b4 (Lifetime Charge):** Watt-hours (automatically converts `kWh` and `MWh`).
+    * **b5 (Lifetime Discharge):** Watt-hours (automatically converts `kWh` and `MWh`).
+    * **b6 (Battery State):** Numeric status code (0–9).
 * **Flags Support:**
   * **Cumulative Flag (`c1=1`):** Informs PVOutput that energy readings represent lifetime cumulative values.
   * **Net Flag (`n=1`):** Informs PVOutput that power readings represent net export.
@@ -62,6 +69,12 @@ This integration is installed via [HACS](https://hacs.xyz/).
    * **v5: Temperature:** (Optional) Outside temperature sensor.
    * **v6: Voltage:** (Optional) Inverter/grid line voltage.
    * **v7 – v12: Extended Data:** (Optional) Custom donation metrics.
+   * **b1: Battery Power (W):** (Optional) Battery power (positive for charge, negative for discharge).
+   * **b2: Battery State of Charge (%):** (Optional) Battery charge percentage (0–100%).
+   * **b3: Battery Usable Capacity (Wh):** (Optional) Usable battery capacity.
+   * **b4: Battery Lifetime Charge (Wh):** (Optional) Cumulative lifetime battery charge energy.
+   * **b5: Battery Lifetime Discharge (Wh):** (Optional) Cumulative lifetime battery discharge energy.
+   * **b6: Battery State (Code 0-9):** (Optional) Numeric battery status code.
    * **Cumulative Flag (`c1=1`):** Check if energy sensors supply lifetime counter values.
    * **Net Power Flag (`n=1`):** Check if power readings represent net export.
 

@@ -16,6 +16,7 @@ from .const import (
     CONF_FREQUENCY, PVOUTPUT_API_URL, CONF_NOTES,
     CONF_V1, CONF_V2, CONF_V3, CONF_V4, CONF_V5, CONF_V6,
     CONF_V7, CONF_V8, CONF_V9, CONF_V10, CONF_V11, CONF_V12,
+    CONF_B1, CONF_B2, CONF_B3, CONF_B4, CONF_B5, CONF_B6,
     CONF_C1, CONF_NET,
     CONF_ENTITY_ID, CONF_SECONDARY_ENTITY_ID, CONF_CONSUMPTION_ENTITY_ID,
     CONF_TEMPERATURE_ENTITY_ID, CONF_VOLTAGE_ENTITY_ID, DEFAULT_FREQUENCY
@@ -70,8 +71,12 @@ def _determine_energy_or_power(hass: HomeAssistant, entity_id: str | None) -> tu
 
 def migrate_v1_system_to_v2(hass: HomeAssistant, system: dict) -> dict:
     """Convert a single v1 system dictionary to the v2 schema."""
-    # If already in v2 format (contains v1 or v2 keys), return as is
-    if CONF_V1 in system or CONF_V2 in system:
+    legacy_keys = [
+        CONF_ENTITY_ID, CONF_SECONDARY_ENTITY_ID, CONF_CONSUMPTION_ENTITY_ID,
+        CONF_TEMPERATURE_ENTITY_ID, CONF_VOLTAGE_ENTITY_ID
+    ]
+    # If not containing legacy v1 keys, return as is
+    if not any(k in system for k in legacy_keys):
         return system
 
     name = system.get(CONF_NAME, system.get(CONF_SYSTEM_ID, "Solar System"))
@@ -148,6 +153,12 @@ def migrate_v1_system_to_v2(hass: HomeAssistant, system: dict) -> dict:
         CONF_V10: None,
         CONF_V11: None,
         CONF_V12: None,
+        CONF_B1: None,
+        CONF_B2: None,
+        CONF_B3: None,
+        CONF_B4: None,
+        CONF_B5: None,
+        CONF_B6: None,
         CONF_C1: c1,
         CONF_NET: False,
     }
@@ -305,6 +316,101 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                             log_parts.append(f"{v_key}: {val_str}")
                         except ValueError:
                             pass
+
+            # b1: Battery Power (W) (Positive = Charging, Negative = Discharging)
+            b1_id = sys_data.get(CONF_B1)
+            if b1_id:
+                b1_state = hass.states.get(b1_id)
+                if b1_state and b1_state.state not in ['unknown', 'unavailable']:
+                    try:
+                        b1_val = float(b1_state.state)
+                        unit = b1_state.attributes.get("unit_of_measurement", "").lower()
+                        raw = b1_val
+                        if unit in ["kw", "kilowatt", "kilowatts"]:
+                            b1_val *= 1000
+                        payload += f"&b1={int(round(b1_val))}"
+                        log_parts.append(f"b1 (Battery Power): {raw} {unit} -> {int(round(b1_val))}W")
+                    except ValueError:
+                        pass
+
+            # b2: Battery State of Charge (%)
+            b2_id = sys_data.get(CONF_B2)
+            if b2_id:
+                b2_state = hass.states.get(b2_id)
+                if b2_state and b2_state.state not in ['unknown', 'unavailable']:
+                    try:
+                        b2_val = float(b2_state.state)
+                        val_str = f"{b2_val:g}"
+                        payload += f"&b2={val_str}"
+                        log_parts.append(f"b2 (Battery SOC): {val_str}%")
+                    except ValueError:
+                        pass
+
+            # b3: Battery Size / Usable Capacity (Wh)
+            b3_id = sys_data.get(CONF_B3)
+            if b3_id:
+                b3_state = hass.states.get(b3_id)
+                if b3_state and b3_state.state not in ['unknown', 'unavailable']:
+                    try:
+                        b3_val = float(b3_state.state)
+                        unit = b3_state.attributes.get("unit_of_measurement", "").lower()
+                        raw = b3_val
+                        if unit == "kwh":
+                            b3_val *= 1000
+                        elif unit == "mwh":
+                            b3_val *= 1000000
+                        payload += f"&b3={int(round(b3_val))}"
+                        log_parts.append(f"b3 (Battery Size): {raw} {unit} -> {int(round(b3_val))}Wh")
+                    except ValueError:
+                        pass
+
+            # b4: Battery Lifetime Charge (Wh)
+            b4_id = sys_data.get(CONF_B4)
+            if b4_id:
+                b4_state = hass.states.get(b4_id)
+                if b4_state and b4_state.state not in ['unknown', 'unavailable']:
+                    try:
+                        b4_val = float(b4_state.state)
+                        unit = b4_state.attributes.get("unit_of_measurement", "").lower()
+                        raw = b4_val
+                        if unit == "kwh":
+                            b4_val *= 1000
+                        elif unit == "mwh":
+                            b4_val *= 1000000
+                        payload += f"&b4={int(round(b4_val))}"
+                        log_parts.append(f"b4 (Battery Lifetime Charge): {raw} {unit} -> {int(round(b4_val))}Wh")
+                    except ValueError:
+                        pass
+
+            # b5: Battery Lifetime Discharge (Wh)
+            b5_id = sys_data.get(CONF_B5)
+            if b5_id:
+                b5_state = hass.states.get(b5_id)
+                if b5_state and b5_state.state not in ['unknown', 'unavailable']:
+                    try:
+                        b5_val = float(b5_state.state)
+                        unit = b5_state.attributes.get("unit_of_measurement", "").lower()
+                        raw = b5_val
+                        if unit == "kwh":
+                            b5_val *= 1000
+                        elif unit == "mwh":
+                            b5_val *= 1000000
+                        payload += f"&b5={int(round(b5_val))}"
+                        log_parts.append(f"b5 (Battery Lifetime Discharge): {raw} {unit} -> {int(round(b5_val))}Wh")
+                    except ValueError:
+                        pass
+
+            # b6: Battery State (0-9)
+            b6_id = sys_data.get(CONF_B6)
+            if b6_id:
+                b6_state = hass.states.get(b6_id)
+                if b6_state and b6_state.state not in ['unknown', 'unavailable']:
+                    try:
+                        b6_val = int(float(b6_state.state))
+                        payload += f"&b6={b6_val}"
+                        log_parts.append(f"b6 (Battery State): {b6_val}")
+                    except ValueError:
+                        pass
 
             # Flags: c1 (Cumulative) and n (Net)
             if sys_data.get(CONF_C1):

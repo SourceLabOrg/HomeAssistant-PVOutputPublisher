@@ -28,6 +28,12 @@
           "v10": "v10: Extended Metric 4",
           "v11": "v11: Extended Metric 5",
           "v12": "v12: Extended Metric 6",
+          "b1": "b1: Battery Power (W)",
+          "b2": "b2: Battery State of Charge (%)",
+          "b3": "b3: Battery Usable Capacity (Wh)",
+          "b4": "b4: Battery Lifetime Charge (Wh)",
+          "b5": "b5: Battery Lifetime Discharge (Wh)",
+          "b6": "b6: Battery State (Code 0-9)",
           "c1": "Cumulative Energy Flag (c1=1)",
           "n": "Net Power Generation Flag (n=1)"
         },
@@ -48,6 +54,12 @@
           "v10": "Extended data field 4 (requires a PVOutput donation account).",
           "v11": "Extended data field 5 (requires a PVOutput donation account).",
           "v12": "Extended data field 6 (requires a PVOutput donation account).",
+          "b1": "Instantaneous battery power in Watts (converts kW automatically). Positive = charging, negative = discharging.",
+          "b2": "Battery state of charge percentage (0-100%).",
+          "b3": "Usable battery capacity in Watt-hours (converts kWh/MWh automatically).",
+          "b4": "Cumulative lifetime battery charge energy in Watt-hours (converts kWh/MWh automatically).",
+          "b5": "Cumulative lifetime battery discharge energy in Watt-hours (converts kWh/MWh automatically).",
+          "b6": "Numeric battery state code (0: Invalid, 1: Standby, 2: Thermal, 3: Enabled, 4: Fault, 5-9: User Defined).",
           "c1": "Check if your energy sensors (v1/v3) provide lifetime cumulative counter values.",
           "n": "Check if power generation (v2) represents net export rather than gross generation."
         }
@@ -100,6 +112,12 @@
           "v10": "v10: Extended Metric 4",
           "v11": "v11: Extended Metric 5",
           "v12": "v12: Extended Metric 6",
+          "b1": "b1: Battery Power (W)",
+          "b2": "b2: Battery State of Charge (%)",
+          "b3": "b3: Battery Usable Capacity (Wh)",
+          "b4": "b4: Battery Lifetime Charge (Wh)",
+          "b5": "b5: Battery Lifetime Discharge (Wh)",
+          "b6": "b6: Battery State (Code 0-9)",
           "c1": "Cumulative Energy Flag (c1=1)",
           "n": "Net Power Generation Flag (n=1)"
         },
@@ -120,6 +138,12 @@
           "v10": "Extended data field 4 (requires a PVOutput donation account).",
           "v11": "Extended data field 5 (requires a PVOutput donation account).",
           "v12": "Extended data field 6 (requires a PVOutput donation account).",
+          "b1": "Instantaneous battery power in Watts (converts kW automatically). Positive = charging, negative = discharging.",
+          "b2": "Battery state of charge percentage (0-100%).",
+          "b3": "Usable battery capacity in Watt-hours (converts kWh/MWh automatically).",
+          "b4": "Cumulative lifetime battery charge energy in Watt-hours (converts kWh/MWh automatically).",
+          "b5": "Cumulative lifetime battery discharge energy in Watt-hours (converts kWh/MWh automatically).",
+          "b6": "Numeric battery state code (0: Invalid, 1: Standby, 2: Thermal, 3: Enabled, 4: Fault, 5-9: User Defined).",
           "c1": "Check if your energy sensors (v1/v3) provide lifetime cumulative counter values.",
           "n": "Check if power generation (v2) represents net export rather than gross generation."
         }

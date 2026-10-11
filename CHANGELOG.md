@@ -2,6 +2,17 @@
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.1.0 (10/11/2026)
+
+### Feature Changes
+- Added support for Battery parameters `b1` through `b6` (PVOutput donation features):
+  - `b1`: Battery Power (W) with automatic kW to W conversion, signed for charging (+) and discharging (-).
+  - `b2`: Battery State of Charge (%) (0–100%).
+  - `b3`: Battery Usable Capacity / Size (Wh) with automatic kWh/MWh conversion.
+  - `b4`: Battery Lifetime Charge (Wh) with automatic kWh/MWh conversion.
+  - `b5`: Battery Lifetime Discharge (Wh) with automatic kWh/MWh conversion.
+  - `b6`: Battery State (0–9 numeric status code).
+
 ## 2.0.0 (10/11/2026)
 
 ### Breaking Changes / Architecture Upgrade

@@ -8,6 +8,7 @@ from .const import (
     CONF_FREQUENCY, DEFAULT_FREQUENCY, CONF_NOTES,
     CONF_V1, CONF_V2, CONF_V3, CONF_V4, CONF_V5, CONF_V6,
     CONF_V7, CONF_V8, CONF_V9, CONF_V10, CONF_V11, CONF_V12,
+    CONF_B1, CONF_B2, CONF_B3, CONF_B4, CONF_B5, CONF_B6,
     CONF_C1, CONF_NET
 )
 
@@ -105,6 +106,66 @@ def _get_system_schema(existing_data=None):
             schema[vol.Optional(v_key)] = selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor")
             )
+
+    # b1 (Battery Power - W)
+    if data.get(CONF_B1):
+        schema[vol.Optional(CONF_B1, default=data.get(CONF_B1))] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class=["power"])
+        )
+    else:
+        schema[vol.Optional(CONF_B1)] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class=["power"])
+        )
+
+    # b2 (Battery State of Charge - %)
+    if data.get(CONF_B2):
+        schema[vol.Optional(CONF_B2, default=data.get(CONF_B2))] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class=["battery"])
+        )
+    else:
+        schema[vol.Optional(CONF_B2)] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class=["battery"])
+        )
+
+    # b3 (Battery Size / Usable Capacity - Wh)
+    if data.get(CONF_B3):
+        schema[vol.Optional(CONF_B3, default=data.get(CONF_B3))] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor")
+        )
+    else:
+        schema[vol.Optional(CONF_B3)] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor")
+        )
+
+    # b4 (Battery Lifetime Charge - Wh)
+    if data.get(CONF_B4):
+        schema[vol.Optional(CONF_B4, default=data.get(CONF_B4))] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class=["energy"])
+        )
+    else:
+        schema[vol.Optional(CONF_B4)] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class=["energy"])
+        )
+
+    # b5 (Battery Lifetime Discharge - Wh)
+    if data.get(CONF_B5):
+        schema[vol.Optional(CONF_B5, default=data.get(CONF_B5))] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class=["energy"])
+        )
+    else:
+        schema[vol.Optional(CONF_B5)] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor", device_class=["energy"])
+        )
+
+    # b6 (Battery State - Code 0-9)
+    if data.get(CONF_B6):
+        schema[vol.Optional(CONF_B6, default=data.get(CONF_B6))] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor")
+        )
+    else:
+        schema[vol.Optional(CONF_B6)] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor")
+        )
 
     # Flags
     schema[vol.Optional(CONF_C1, default=data.get(CONF_C1, False))] = selector.BooleanSelector()

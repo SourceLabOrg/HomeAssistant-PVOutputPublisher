@@ -22,6 +22,7 @@ from custom_components.pvoutput_publisher.const import (
     DOMAIN, CONF_API_KEY, CONF_SYSTEMS, CONF_NAME, CONF_SYSTEM_ID,
     CONF_FREQUENCY, CONF_NOTES, CONF_V1, CONF_V2, CONF_V3, CONF_V4,
     CONF_V5, CONF_V6, CONF_V7, CONF_V8, CONF_V9, CONF_V10, CONF_V11, CONF_V12,
+    CONF_B1, CONF_B2, CONF_B3, CONF_B4, CONF_B5, CONF_B6,
     CONF_C1, CONF_NET, CONF_ENTITY_ID, CONF_SECONDARY_ENTITY_ID,
     CONF_CONSUMPTION_ENTITY_ID, CONF_TEMPERATURE_ENTITY_ID, CONF_VOLTAGE_ENTITY_ID,
     PVOUTPUT_API_URL
@@ -78,19 +79,25 @@ async def test_setup_and_unload(hass: HomeAssistant):
 
 @pytest.mark.asyncio
 async def test_push_data_all_sensors_v2(hass: HomeAssistant):
-    """Test payload generation with all V2 sensors, extended metrics, and flags."""
+    """Test payload generation with all V2 sensors, extended metrics, battery, and flags."""
     hass.states.async_set("sensor.solar_energy", "12500", {"unit_of_measurement": "Wh"})
     hass.states.async_set("sensor.solar_power", "3500", {"unit_of_measurement": "W"})
     hass.states.async_set("sensor.home_energy", "4500", {"unit_of_measurement": "Wh"})
     hass.states.async_set("sensor.home_power", "800", {"unit_of_measurement": "W"})
     hass.states.async_set("sensor.outside_temp", "22.5", {"unit_of_measurement": "°C"})
     hass.states.async_set("sensor.grid_voltage", "240.2", {"unit_of_measurement": "V"})
-    hass.states.async_set("sensor.battery_soc", "88.5", {})
+    hass.states.async_set("sensor.ext_7", "88.5", {})
     hass.states.async_set("sensor.ext_8", "12", {})
     hass.states.async_set("sensor.ext_9", "34", {})
     hass.states.async_set("sensor.ext_10", "56", {})
     hass.states.async_set("sensor.ext_11", "78", {})
     hass.states.async_set("sensor.ext_12", "90", {})
+    hass.states.async_set("sensor.battery_power", "1500", {"unit_of_measurement": "W"})
+    hass.states.async_set("sensor.battery_soc", "75.5", {})
+    hass.states.async_set("sensor.battery_size", "10000", {"unit_of_measurement": "Wh"})
+    hass.states.async_set("sensor.battery_life_chg", "50000", {"unit_of_measurement": "Wh"})
+    hass.states.async_set("sensor.battery_life_dis", "48000", {"unit_of_measurement": "Wh"})
+    hass.states.async_set("sensor.battery_state", "3", {})
 
     system_config = {
         CONF_NAME: "Test System",
@@ -103,12 +110,18 @@ async def test_push_data_all_sensors_v2(hass: HomeAssistant):
         CONF_V4: "sensor.home_power",
         CONF_V5: "sensor.outside_temp",
         CONF_V6: "sensor.grid_voltage",
-        CONF_V7: "sensor.battery_soc",
+        CONF_V7: "sensor.ext_7",
         CONF_V8: "sensor.ext_8",
         CONF_V9: "sensor.ext_9",
         CONF_V10: "sensor.ext_10",
         CONF_V11: "sensor.ext_11",
         CONF_V12: "sensor.ext_12",
+        CONF_B1: "sensor.battery_power",
+        CONF_B2: "sensor.battery_soc",
+        CONF_B3: "sensor.battery_size",
+        CONF_B4: "sensor.battery_life_chg",
+        CONF_B5: "sensor.battery_life_dis",
+        CONF_B6: "sensor.battery_state",
         CONF_C1: True,
         CONF_NET: True,
     }
@@ -129,9 +142,48 @@ async def test_push_data_all_sensors_v2(hass: HomeAssistant):
     assert "&v10=56" in payload
     assert "&v11=78" in payload
     assert "&v12=90" in payload
+    assert "&b1=1500" in payload  # Battery Power (W)
+    assert "&b2=75.5" in payload  # Battery SOC (%)
+    assert "&b3=10000" in payload # Battery Size (Wh)
+    assert "&b4=50000" in payload # Lifetime Charge (Wh)
+    assert "&b5=48000" in payload # Lifetime Discharge (Wh)
+    assert "&b6=3" in payload     # Battery State code
     assert "&c1=1" in payload     # Lifetime flag
     assert "&n=1" in payload      # Net flag
     assert "Internal array notes" not in payload # Notes must NOT be sent to API
+
+
+@pytest.mark.asyncio
+async def test_push_data_battery_metrics_and_conversions(hass: HomeAssistant):
+    """Test battery power discharge (negative), kW and kWh conversion."""
+    hass.states.async_set("sensor.battery_discharge_kw", "-2.4", {"unit_of_measurement": "kW"})
+    hass.states.async_set("sensor.battery_soc_int", "90", {})
+    hass.states.async_set("sensor.battery_cap_kwh", "13.5", {"unit_of_measurement": "kWh"})
+    hass.states.async_set("sensor.battery_chg_mwh", "0.05", {"unit_of_measurement": "MWh"})
+    hass.states.async_set("sensor.battery_dis_kwh", "45.2", {"unit_of_measurement": "kWh"})
+    hass.states.async_set("sensor.battery_mode", "1", {})
+
+    system_config = {
+        CONF_NAME: "Battery Test",
+        CONF_SYSTEM_ID: MOCK_SYSTEM_ID,
+        CONF_FREQUENCY: "5",
+        CONF_B1: "sensor.battery_discharge_kw",
+        CONF_B2: "sensor.battery_soc_int",
+        CONF_B3: "sensor.battery_cap_kwh",
+        CONF_B4: "sensor.battery_chg_mwh",
+        CONF_B5: "sensor.battery_dis_kwh",
+        CONF_B6: "sensor.battery_mode",
+    }
+
+    with aioresponses() as mock_aio:
+        payload = await setup_and_trigger(hass, mock_aio, system_config)
+
+    assert "&b1=-2400" in payload # -2.4 kW -> -2400 W
+    assert "&b2=90" in payload    # 90% SOC
+    assert "&b3=13500" in payload # 13.5 kWh -> 13500 Wh
+    assert "&b4=50000" in payload # 0.05 MWh -> 50000 Wh
+    assert "&b5=45200" in payload # 45.2 kWh -> 45200 Wh
+    assert "&b6=1" in payload     # Standby state code
 
 
 @pytest.mark.asyncio
@@ -311,6 +363,12 @@ async def test_async_migrate_entry_v1_to_v2_with_live_states(hass: HomeAssistant
     assert migrated[CONF_V4] is None
     assert migrated[CONF_V5] == "sensor.temp"
     assert migrated[CONF_V6] == "sensor.volts"
+    assert migrated[CONF_B1] is None
+    assert migrated[CONF_B2] is None
+    assert migrated[CONF_B3] is None
+    assert migrated[CONF_B4] is None
+    assert migrated[CONF_B5] is None
+    assert migrated[CONF_B6] is None
     assert migrated[CONF_C1] is True  # total_increasing set c1=True
     assert migrated[CONF_NET] is False
     assert migrated[CONF_NOTES] == ""
@@ -396,6 +454,12 @@ async def test_push_data_with_invalid_sensor_values(hass: HomeAssistant):
     hass.states.async_set("sensor.bad_v5", "err", {"unit_of_measurement": "°C"})
     hass.states.async_set("sensor.bad_v6", "none", {})
     hass.states.async_set("sensor.bad_v7", "xyz", {})
+    hass.states.async_set("sensor.bad_b1", "invalid_power", {"unit_of_measurement": "kW"})
+    hass.states.async_set("sensor.bad_b2", "bad_soc", {})
+    hass.states.async_set("sensor.bad_b3", "bad_size", {})
+    hass.states.async_set("sensor.bad_b4", "bad_life_chg", {})
+    hass.states.async_set("sensor.bad_b5", "bad_life_dis", {})
+    hass.states.async_set("sensor.bad_b6", "bad_state", {})
     hass.states.async_set("sensor.good_v2", "1500", {"unit_of_measurement": "W"})
 
     system_config = {
@@ -409,6 +473,12 @@ async def test_push_data_with_invalid_sensor_values(hass: HomeAssistant):
         CONF_V5: "sensor.bad_v5",
         CONF_V6: "sensor.bad_v6",
         CONF_V7: "sensor.bad_v7",
+        CONF_B1: "sensor.bad_b1",
+        CONF_B2: "sensor.bad_b2",
+        CONF_B3: "sensor.bad_b3",
+        CONF_B4: "sensor.bad_b4",
+        CONF_B5: "sensor.bad_b5",
+        CONF_B6: "sensor.bad_b6",
     }
 
     entry = MockConfigEntry(domain=DOMAIN, data={CONF_API_KEY: MOCK_API_KEY, CONF_SYSTEMS: [system_config]}, version=2)

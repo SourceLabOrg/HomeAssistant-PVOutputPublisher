@@ -29,7 +29,13 @@
           "v11": "v11: Erweiterte Daten 5",
           "v12": "v12: Erweiterte Daten 6",
           "c1": "Kumulatives Energie-Flag (c1=1)",
-          "n": "Netto-Leistungserzeugungs-Flag (n=1)"
+          "n": "Netto-Leistungserzeugungs-Flag (n=1)",
+          "b1": "b1: Batterieleistung (W)",
+          "b2": "b2: Batterieladezustand (%)",
+          "b3": "b3: Nutzkapazität der Batterie (Wh)",
+          "b4": "b4: Lebenszeit-Batterieladung (Wh)",
+          "b5": "b5: Lebenszeit-Batterieentladung (Wh)",
+          "b6": "b6: Batteriestatus (Code 0-9)"
         },
         "data_description": {
           "name": "Ein aussagekräftiger Name für Ihre Solaranlage in Home Assistant.",
@@ -49,7 +55,13 @@
           "v11": "Erweitertes Datenfeld 5 (erfordert PVOutput-Spendenkonto).",
           "v12": "Erweitertes Datenfeld 6 (erfordert PVOutput-Spendenkonto).",
           "c1": "Aktivieren, wenn Ihre Energiesensoren (v1/v3) lebenslange Gesamtzählerstände liefern.",
-          "n": "Aktivieren, wenn die Leistungserzeugung (v2) Netto-Einspeisung statt Bruttoerzeugung darstellt."
+          "n": "Aktivieren, wenn die Leistungserzeugung (v2) Netto-Einspeisung statt Bruttoerzeugung darstellt.",
+          "b1": "Momentane Batterieleistung in Watt (kW wird automatisch umgerechnet). Positiv = Laden, negativ = Entladen.",
+          "b2": "Batterieladezustand in Prozent (0-100%).",
+          "b3": "Nutzbare Batteriekapazität in Wattstunden (kWh/MWh werden automatisch umgerechnet).",
+          "b4": "Kumulierte geladene Lebenszeit-Energie in Wattstunden (kWh/MWh werden automatisch umgerechnet).",
+          "b5": "Kumulierte entladene Lebenszeit-Energie in Wattstunden (kWh/MWh werden automatisch umgerechnet).",
+          "b6": "Numerischer Batteriestatuscode (0: Ungültig, 1: Standby, 2: Thermisch, 3: Aktiviert, 4: Fehler, 5-9: Benutzerdefiniert)."
         }
       },
       "systems_manager": {
@@ -101,7 +113,13 @@
           "v11": "v11: Erweiterte Daten 5",
           "v12": "v12: Erweiterte Daten 6",
           "c1": "Kumulatives Energie-Flag (c1=1)",
-          "n": "Netto-Leistungserzeugungs-Flag (n=1)"
+          "n": "Netto-Leistungserzeugungs-Flag (n=1)",
+          "b1": "b1: Batterieleistung (W)",
+          "b2": "b2: Batterieladezustand (%)",
+          "b3": "b3: Nutzkapazität der Batterie (Wh)",
+          "b4": "b4: Lebenszeit-Batterieladung (Wh)",
+          "b5": "b5: Lebenszeit-Batterieentladung (Wh)",
+          "b6": "b6: Batteriestatus (Code 0-9)"
         },
         "data_description": {
           "name": "Ein aussagekräftiger Name für Ihre Solaranlage in Home Assistant.",
@@ -121,7 +139,13 @@
           "v11": "Erweitertes Datenfeld 5 (erfordert PVOutput-Spendenkonto).",
           "v12": "Erweitertes Datenfeld 6 (erfordert PVOutput-Spendenkonto).",
           "c1": "Aktivieren, wenn Ihre Energiesensoren (v1/v3) lebenslange Gesamtzählerstände liefern.",
-          "n": "Aktivieren, wenn die Leistungserzeugung (v2) Netto-Einspeisung statt Bruttoerzeugung darstellt."
+          "n": "Aktivieren, wenn die Leistungserzeugung (v2) Netto-Einspeisung statt Bruttoerzeugung darstellt.",
+          "b1": "Momentane Batterieleistung in Watt (kW wird automatisch umgerechnet). Positiv = Laden, negativ = Entladen.",
+          "b2": "Batterieladezustand in Prozent (0-100%).",
+          "b3": "Nutzbare Batteriekapazität in Wattstunden (kWh/MWh werden automatisch umgerechnet).",
+          "b4": "Kumulierte geladene Lebenszeit-Energie in Wattstunden (kWh/MWh werden automatisch umgerechnet).",
+          "b5": "Kumulierte entladene Lebenszeit-Energie in Wattstunden (kWh/MWh werden automatisch umgerechnet).",
+          "b6": "Numerischer Batteriestatuscode (0: Ungültig, 1: Standby, 2: Thermisch, 3: Aktiviert, 4: Fehler, 5-9: Benutzerdefiniert)."
         }
       }
     }

@@ -10,6 +10,7 @@ from custom_components.pvoutput_publisher.const import (
     DOMAIN, CONF_API_KEY, CONF_SYSTEMS, CONF_NAME, CONF_SYSTEM_ID,
     CONF_FREQUENCY, CONF_NOTES, CONF_V1, CONF_V2, CONF_V3, CONF_V4,
     CONF_V5, CONF_V6, CONF_V7, CONF_V8, CONF_V9, CONF_V10, CONF_V11, CONF_V12,
+    CONF_B1, CONF_B2, CONF_B3, CONF_B4, CONF_B5, CONF_B6,
     CONF_C1, CONF_NET
 )
 
@@ -41,7 +42,7 @@ async def test_initial_setup_flow(hass):
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "add_system"
 
-    # Submit First Solar System with V2 fields, notes, and flags
+    # Submit First Solar System with V2 fields, notes, battery, and flags
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
         user_input={
@@ -52,6 +53,8 @@ async def test_initial_setup_flow(hass):
             CONF_V1: "sensor.inverter_energy",
             CONF_V2: "sensor.inverter_power",
             CONF_V6: "sensor.inverter_voltage",
+            CONF_B1: "sensor.battery_power",
+            CONF_B2: "sensor.battery_soc",
             CONF_C1: True,
             CONF_NET: False,
         }
@@ -78,6 +81,8 @@ async def test_initial_setup_flow(hass):
     assert sys[CONF_V1] == "sensor.inverter_energy"
     assert sys[CONF_V2] == "sensor.inverter_power"
     assert sys[CONF_V6] == "sensor.inverter_voltage"
+    assert sys[CONF_B1] == "sensor.battery_power"
+    assert sys[CONF_B2] == "sensor.battery_soc"
     assert sys[CONF_C1] is True
     assert sys[CONF_NET] is False
     assert len(mock_setup.mock_calls) == 1
@@ -150,6 +155,7 @@ async def test_options_flow_manage_systems(hass):
             CONF_V1: "sensor.energy_1",
             CONF_V2: "sensor.power_1",
             CONF_V6: "sensor.new_voltage",
+            CONF_B1: "sensor.battery_power",
             CONF_C1: True,
         }
     )
@@ -216,6 +222,12 @@ async def test_options_flow_edit_all_fields(hass):
         CONF_V10: "sensor.v10",
         CONF_V11: "sensor.v11",
         CONF_V12: "sensor.v12",
+        CONF_B1: "sensor.b1",
+        CONF_B2: "sensor.b2",
+        CONF_B3: "sensor.b3",
+        CONF_B4: "sensor.b4",
+        CONF_B5: "sensor.b5",
+        CONF_B6: "sensor.b6",
         CONF_C1: True,
         CONF_NET: True,
     }
