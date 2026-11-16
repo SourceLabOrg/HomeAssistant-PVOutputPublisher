@@ -695,5 +695,41 @@ async def test_battery_b6_range_validation_and_b1_mandatory(hass: HomeAssistant,
     assert "Battery parameters (b2-b6) were provided without b1" in caplog.text
 
 
+@pytest.mark.asyncio
+async def test_orphaned_sensor_entities_removed_on_system_removal(hass: HomeAssistant):
+    """Test that removing a system in OptionsFlow removes its orphaned sensor entity from the Entity Registry."""
+    sys1 = {CONF_NAME: "Array 1", CONF_SYSTEM_ID: "111", CONF_FREQUENCY: "5", CONF_V2: "sensor.p1"}
+    sys2 = {CONF_NAME: "Array 2", CONF_SYSTEM_ID: "222", CONF_FREQUENCY: "5", CONF_V2: "sensor.p2"}
+
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={CONF_API_KEY: MOCK_API_KEY, CONF_SYSTEMS: [sys1, sys2]},
+        version=2
+    )
+    entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    registry = er.async_get(hass)
+    assert registry.async_get_entity_id("sensor", DOMAIN, "pvoutput_last_upload_111") is not None
+    assert registry.async_get_entity_id("sensor", DOMAIN, "pvoutput_last_upload_222") is not None
+
+    # Remove Array 1 via OptionsFlow (triggers async_reload_entry via update_listener)
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input={"action": "remove_0"}
+    )
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input={"action": "finish"}
+    )
+    await hass.async_block_till_done()
+
+    # Array 1's entity should be removed from the Entity Registry; Array 2's should remain
+    assert registry.async_get_entity_id("sensor", DOMAIN, "pvoutput_last_upload_111") is None
+    assert registry.async_get_entity_id("sensor", DOMAIN, "pvoutput_last_upload_222") is not None
+
+
+
 
 
