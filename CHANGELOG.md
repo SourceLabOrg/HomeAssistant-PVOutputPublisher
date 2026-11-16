@@ -2,7 +2,7 @@
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## 2.1.0 (10/11/2026)
+## 2.1.0 (11/16/2026)
 
 ### Feature Changes
 - Added support for Battery parameters `b1` through `b6` (PVOutput donation features):
@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   - `b4`: Battery Lifetime Charge (Wh) with automatic kWh/MWh conversion.
   - `b5`: Battery Lifetime Discharge (Wh) with automatic kWh/MWh conversion.
   - `b6`: Battery State (0–9 numeric status code).
+- Reorganized the solar array configuration UI to group PVOutput donation parameters (`v7`–`v12` Extended Data and `b1`–`b6` Battery Data) into a collapsible section, separating them from standard free-tier parameters across all supported languages.
+
+### Bugfixes
+- Fixed an issue where clearing optional entity selectors or text fields when editing a system did not persist and reverted to the previously saved values. ([Issue#17](https://github.com/SourceLabOrg/HomeAssistant-PVOutputPublisher/issues/17))
+- Removed orphaned status sensor entities from the entity registry when a solar system is removed or its System ID changes.
+- Added validation and whitespace trimming for the PVOutput API key in both config and options flows.
 
 ## 2.0.0 (10/11/2026)
 
