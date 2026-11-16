@@ -1,0 +1,24 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Create release zip from git-tracked integration files
+        run: git archive --format=zip -o pvoutput_publisher.zip HEAD:custom_components/pvoutput_publisher
+
+      - name: Upload zip asset to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: pvoutput_publisher.zip

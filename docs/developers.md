@@ -108,9 +108,10 @@ To create a new release for users (via HACS and GitHub):
 
 ### Step 4: Publish GitHub Release (HACS Changelog)
 HACS pulls release changelogs directly from **GitHub Releases**:
-1. On GitHub, navigate to **Releases > Draft a new release** (or use `gh release create X.Y.Z`).
-2. Tag version: `X.Y.Z` (e.g. `2.0.0`).
-3. Title: `Release X.Y.Z`.
+1. On GitHub, navigate to **Releases > Draft a new release** (or use `gh release create vX.Y.Z`).
+2. Tag version: `vX.Y.Z` (e.g. `v2.1.0`).
+3. Title: `Release vX.Y.Z` (or `vX.Y.Z`).
 4. **Description:** Copy and paste the exact markdown section from `CHANGELOG.md` for this version into the GitHub release description.
 5. Click **Publish Release**.
-6. HACS will automatically detect the new release and display the release notes inside Home Assistant for updating users.
+6. Publishing the release automatically triggers [`.github/workflows/release.yaml`](file:///Users/spowis/Documents/code/HomeAssistant-PVOutputPublisher/.github/workflows/release.yaml), which builds `pvoutput_publisher.zip` from `custom_components/pvoutput_publisher` and attaches it to the release so HACS can track download counts.
+7. HACS will automatically detect the new release and display the release notes inside Home Assistant for updating users.
