@@ -10,7 +10,7 @@
       },
       "add_system": {
         "title": "配置太阳能发电系统",
-        "description": "将您的 Home Assistant 传感器映射到 PVOutput API 参数。不适用的可选传感器可留空。",
+        "description": "将您的 Home Assistant 传感器映射到 PVOutput API 参数（[API 文档](https://pvoutput.org/help/api_specification.html#id2)）。不适用的可选传感器可留空。",
         "data": {
           "name": "系统名称",
           "system_id": "系统 ID",
@@ -69,7 +69,7 @@
               "b3": "可用电池容量（瓦时，kWh/MWh自动转换）。",
               "b4": "全生命周期累计充电电量（瓦时，kWh/MWh自动转换）。",
               "b5": "全生命周期累计放电电量（瓦时，kWh/MWh自动转换）。",
-              "b6": "数字电池状态代码（0: 无效, 1: 待机, 2: 热管理, 3: 启用, 4: 故障, 5-9: 用户自定义）。"
+              "b6": "数字电池状态代码（0: 无效, 1: 待机, 2: 热管理, 3: 启用, 4: 故障, 5-9: 用户自定义）。支持 sensor、number 或 input_number 实体（例如使用模板传感器辅助工具将文本状态映射为 0-9）。"
             }
           }
         }
@@ -104,7 +104,7 @@
       },
       "add_system": {
         "title": "配置太阳能发电系统",
-        "description": "将您的 Home Assistant 传感器映射到 PVOutput API 参数。不适用的可选传感器可留空。",
+        "description": "将您的 Home Assistant 传感器映射到 PVOutput API 参数（[API 文档](https://pvoutput.org/help/api_specification.html#id2)）。不适用的可选传感器可留空。",
         "data": {
           "name": "系统名称",
           "system_id": "系统 ID",
@@ -163,7 +163,7 @@
               "b3": "可用电池容量（瓦时，kWh/MWh自动转换）。",
               "b4": "全生命周期累计充电电量（瓦时，kWh/MWh自动转换）。",
               "b5": "全生命周期累计放电电量（瓦时，kWh/MWh自动转换）。",
-              "b6": "数字电池状态代码（0: 无效, 1: 待机, 2: 热管理, 3: 启用, 4: 故障, 5-9: 用户自定义）。"
+              "b6": "数字电池状态代码（0: 无效, 1: 待机, 2: 热管理, 3: 启用, 4: 故障, 5-9: 用户自定义）。支持 sensor、number 或 input_number 实体（例如使用模板传感器辅助工具将文本状态映射为 0-9）。"
             }
           }
         }

@@ -112,7 +112,7 @@ def _get_system_schema(existing_data=None):
     # v7 through v12 (Extended Data - Donation Feature)
     for v_key in [CONF_V7, CONF_V8, CONF_V9, CONF_V10, CONF_V11, CONF_V12]:
         donation_schema[_optional_field(v_key, donation_data)] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor")
+            selector.EntitySelectorConfig(domain=["sensor", "number", "input_number"])
         )
 
     # b1 (Battery Power - W)
@@ -127,7 +127,7 @@ def _get_system_schema(existing_data=None):
 
     # b3 (Battery Size / Usable Capacity - Wh)
     donation_schema[_optional_field(CONF_B3, donation_data)] = selector.EntitySelector(
-        selector.EntitySelectorConfig(domain="sensor")
+        selector.EntitySelectorConfig(domain=["sensor", "number", "input_number"])
     )
 
     # b4 (Battery Lifetime Charge - Wh)
@@ -142,7 +142,7 @@ def _get_system_schema(existing_data=None):
 
     # b6 (Battery State - Code 0-9)
     donation_schema[_optional_field(CONF_B6, donation_data)] = selector.EntitySelector(
-        selector.EntitySelectorConfig(domain="sensor")
+        selector.EntitySelectorConfig(domain=["sensor", "number", "input_number"])
     )
 
     schema[vol.Optional(CONF_DONATION_FIELDS)] = section(

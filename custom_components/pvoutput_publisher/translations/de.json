@@ -10,7 +10,7 @@
       },
       "add_system": {
         "title": "Solaranlage konfigurieren",
-        "description": "Ordnen Sie Ihre Home Assistant-Sensoren den PVOutput-API-Parametern zu. Lassen Sie optionale Sensoren leer, falls nicht zutreffend.",
+        "description": "Ordnen Sie Ihre Home Assistant-Sensoren den PVOutput-API-Parametern zu ([API-Dokumentation](https://pvoutput.org/help/api_specification.html#id2)). Lassen Sie optionale Sensoren leer, falls nicht zutreffend.",
         "data": {
           "name": "Systemname",
           "system_id": "System-ID",
@@ -69,7 +69,7 @@
               "b3": "Nutzbare Batteriekapazität in Wattstunden (kWh/MWh werden automatisch umgerechnet).",
               "b4": "Kumulierte geladene Lebenszeit-Energie in Wattstunden (kWh/MWh werden automatisch umgerechnet).",
               "b5": "Kumulierte entladene Lebenszeit-Energie in Wattstunden (kWh/MWh werden automatisch umgerechnet).",
-              "b6": "Numerischer Batteriestatuscode (0: Ungültig, 1: Standby, 2: Thermisch, 3: Aktiviert, 4: Fehler, 5-9: Benutzerdefiniert)."
+              "b6": "Numerischer Batteriestatuscode (0: Ungültig, 1: Standby, 2: Thermisch, 3: Aktiviert, 4: Fehler, 5-9: Benutzerdefiniert). Unterstützt sensor-, number- oder input_number-Entitäten (z. B. einen Template-Sensor-Helfer zur Zuordnung von Textstatus zu 0-9)."
             }
           }
         }
@@ -104,7 +104,7 @@
       },
       "add_system": {
         "title": "Solaranlage konfigurieren",
-        "description": "Ordnen Sie Ihre Home Assistant-Sensoren den PVOutput-API-Parametern zu. Lassen Sie optionale Sensoren leer, falls nicht zutreffend.",
+        "description": "Ordnen Sie Ihre Home Assistant-Sensoren den PVOutput-API-Parametern zu ([API-Dokumentation](https://pvoutput.org/help/api_specification.html#id2)). Lassen Sie optionale Sensoren leer, falls nicht zutreffend.",
         "data": {
           "name": "Systemname",
           "system_id": "System-ID",
@@ -163,7 +163,7 @@
               "b3": "Nutzbare Batteriekapazität in Wattstunden (kWh/MWh werden automatisch umgerechnet).",
               "b4": "Kumulierte geladene Lebenszeit-Energie in Wattstunden (kWh/MWh werden automatisch umgerechnet).",
               "b5": "Kumulierte entladene Lebenszeit-Energie in Wattstunden (kWh/MWh werden automatisch umgerechnet).",
-              "b6": "Numerischer Batteriestatuscode (0: Ungültig, 1: Standby, 2: Thermisch, 3: Aktiviert, 4: Fehler, 5-9: Benutzerdefiniert)."
+              "b6": "Numerischer Batteriestatuscode (0: Ungültig, 1: Standby, 2: Thermisch, 3: Aktiviert, 4: Fehler, 5-9: Benutzerdefiniert). Unterstützt sensor-, number- oder input_number-Entitäten (z. B. einen Template-Sensor-Helfer zur Zuordnung von Textstatus zu 0-9)."
             }
           }
         }
