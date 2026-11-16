@@ -21,6 +21,19 @@ def _clean_system_input(user_input: dict) -> dict:
         cleaned.update(donation_data)
     return cleaned
 
+def _required_non_empty_str_field(key: str, val: str | None):
+    """Create a vol.Required marker with suggested_value if non-empty."""
+    if val:
+        return vol.Required(key, description={"suggested_value": val})
+    return vol.Required(key)
+
+def _optional_field(key: str, data: dict):
+    """Create a vol.Optional marker with suggested_value if present, allowing fields to be cleared."""
+    val = data.get(key)
+    if val:
+        return vol.Optional(key, description={"suggested_value": val})
+    return vol.Optional(key)
+
 def _get_system_schema(existing_data=None):
     frequency_options = {
         "5": "5 minutes", "10": "10 minutes", "15": "15 minutes",
@@ -28,82 +41,48 @@ def _get_system_schema(existing_data=None):
     }
 
     data = existing_data or {}
+    non_empty_str = vol.All(str, vol.Strip, vol.Length(min=1))
 
     schema = {
-        vol.Required(CONF_NAME, default=data.get(CONF_NAME, data.get(CONF_SYSTEM_ID, ""))): str,
-        vol.Required(CONF_SYSTEM_ID, default=data.get(CONF_SYSTEM_ID, "")): str,
+        _required_non_empty_str_field(CONF_NAME, data.get(CONF_NAME) or data.get(CONF_SYSTEM_ID)): non_empty_str,
+        _required_non_empty_str_field(CONF_SYSTEM_ID, data.get(CONF_SYSTEM_ID)): non_empty_str,
         vol.Required(CONF_FREQUENCY, default=str(data.get(CONF_FREQUENCY, DEFAULT_FREQUENCY))): vol.In(frequency_options),
     }
 
     # Internal Notes (Optional, not sent to API)
-    if data.get(CONF_NOTES):
-        schema[vol.Optional(CONF_NOTES, default=data.get(CONF_NOTES))] = selector.TextSelector(
-            selector.TextSelectorConfig(multiline=True)
-        )
-    else:
-        schema[vol.Optional(CONF_NOTES)] = selector.TextSelector(
-            selector.TextSelectorConfig(multiline=True)
-        )
+    schema[_optional_field(CONF_NOTES, data)] = selector.TextSelector(
+        selector.TextSelectorConfig(multiline=True)
+    )
 
     # v1 (Energy Generation - Wh)
-    if data.get(CONF_V1):
-        schema[vol.Optional(CONF_V1, default=data.get(CONF_V1))] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class=["energy"])
-        )
-    else:
-        schema[vol.Optional(CONF_V1)] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class=["energy"])
-        )
+    schema[_optional_field(CONF_V1, data)] = selector.EntitySelector(
+        selector.EntitySelectorConfig(domain="sensor", device_class=["energy"])
+    )
 
     # v2 (Power Generation - W)
-    if data.get(CONF_V2):
-        schema[vol.Optional(CONF_V2, default=data.get(CONF_V2))] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class=["power"])
-        )
-    else:
-        schema[vol.Optional(CONF_V2)] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class=["power"])
-        )
+    schema[_optional_field(CONF_V2, data)] = selector.EntitySelector(
+        selector.EntitySelectorConfig(domain="sensor", device_class=["power"])
+    )
 
     # v3 (Energy Consumption - Wh)
-    if data.get(CONF_V3):
-        schema[vol.Optional(CONF_V3, default=data.get(CONF_V3))] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class=["energy"])
-        )
-    else:
-        schema[vol.Optional(CONF_V3)] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class=["energy"])
-        )
+    schema[_optional_field(CONF_V3, data)] = selector.EntitySelector(
+        selector.EntitySelectorConfig(domain="sensor", device_class=["energy"])
+    )
 
     # v4 (Power Consumption - W)
-    if data.get(CONF_V4):
-        schema[vol.Optional(CONF_V4, default=data.get(CONF_V4))] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class=["power"])
-        )
-    else:
-        schema[vol.Optional(CONF_V4)] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class=["power"])
-        )
+    schema[_optional_field(CONF_V4, data)] = selector.EntitySelector(
+        selector.EntitySelectorConfig(domain="sensor", device_class=["power"])
+    )
 
     # v5 (Temperature - °C / °F)
-    if data.get(CONF_V5):
-        schema[vol.Optional(CONF_V5, default=data.get(CONF_V5))] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor")
-        )
-    else:
-        schema[vol.Optional(CONF_V5)] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor")
-        )
+    schema[_optional_field(CONF_V5, data)] = selector.EntitySelector(
+        selector.EntitySelectorConfig(domain="sensor")
+    )
 
     # v6 (Voltage - V)
-    if data.get(CONF_V6):
-        schema[vol.Optional(CONF_V6, default=data.get(CONF_V6))] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class=["voltage"])
-        )
-    else:
-        schema[vol.Optional(CONF_V6)] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class=["voltage"])
-        )
+    schema[_optional_field(CONF_V6, data)] = selector.EntitySelector(
+        selector.EntitySelectorConfig(domain="sensor", device_class=["voltage"])
+    )
 
     # Flags (Free / Standard)
     schema[vol.Optional(CONF_C1, default=data.get(CONF_C1, False))] = selector.BooleanSelector()
@@ -121,74 +100,39 @@ def _get_system_schema(existing_data=None):
 
     # v7 through v12 (Extended Data - Donation Feature)
     for v_key in [CONF_V7, CONF_V8, CONF_V9, CONF_V10, CONF_V11, CONF_V12]:
-        if donation_data.get(v_key):
-            donation_schema[vol.Optional(v_key, default=donation_data.get(v_key))] = selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="sensor")
-            )
-        else:
-            donation_schema[vol.Optional(v_key)] = selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="sensor")
-            )
+        donation_schema[_optional_field(v_key, donation_data)] = selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor")
+        )
 
     # b1 (Battery Power - W)
-    if donation_data.get(CONF_B1):
-        donation_schema[vol.Optional(CONF_B1, default=donation_data.get(CONF_B1))] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class=["power"])
-        )
-    else:
-        donation_schema[vol.Optional(CONF_B1)] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class=["power"])
-        )
+    donation_schema[_optional_field(CONF_B1, donation_data)] = selector.EntitySelector(
+        selector.EntitySelectorConfig(domain="sensor", device_class=["power"])
+    )
 
     # b2 (Battery State of Charge - %)
-    if donation_data.get(CONF_B2):
-        donation_schema[vol.Optional(CONF_B2, default=donation_data.get(CONF_B2))] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class=["battery"])
-        )
-    else:
-        donation_schema[vol.Optional(CONF_B2)] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class=["battery"])
-        )
+    donation_schema[_optional_field(CONF_B2, donation_data)] = selector.EntitySelector(
+        selector.EntitySelectorConfig(domain="sensor", device_class=["battery"])
+    )
 
     # b3 (Battery Size / Usable Capacity - Wh)
-    if donation_data.get(CONF_B3):
-        donation_schema[vol.Optional(CONF_B3, default=donation_data.get(CONF_B3))] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor")
-        )
-    else:
-        donation_schema[vol.Optional(CONF_B3)] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor")
-        )
+    donation_schema[_optional_field(CONF_B3, donation_data)] = selector.EntitySelector(
+        selector.EntitySelectorConfig(domain="sensor")
+    )
 
     # b4 (Battery Lifetime Charge - Wh)
-    if donation_data.get(CONF_B4):
-        donation_schema[vol.Optional(CONF_B4, default=donation_data.get(CONF_B4))] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class=["energy"])
-        )
-    else:
-        donation_schema[vol.Optional(CONF_B4)] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class=["energy"])
-        )
+    donation_schema[_optional_field(CONF_B4, donation_data)] = selector.EntitySelector(
+        selector.EntitySelectorConfig(domain="sensor", device_class=["energy"])
+    )
 
     # b5 (Battery Lifetime Discharge - Wh)
-    if donation_data.get(CONF_B5):
-        donation_schema[vol.Optional(CONF_B5, default=donation_data.get(CONF_B5))] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class=["energy"])
-        )
-    else:
-        donation_schema[vol.Optional(CONF_B5)] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor", device_class=["energy"])
-        )
+    donation_schema[_optional_field(CONF_B5, donation_data)] = selector.EntitySelector(
+        selector.EntitySelectorConfig(domain="sensor", device_class=["energy"])
+    )
 
     # b6 (Battery State - Code 0-9)
-    if donation_data.get(CONF_B6):
-        donation_schema[vol.Optional(CONF_B6, default=donation_data.get(CONF_B6))] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor")
-        )
-    else:
-        donation_schema[vol.Optional(CONF_B6)] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="sensor")
-        )
+    donation_schema[_optional_field(CONF_B6, donation_data)] = selector.EntitySelector(
+        selector.EntitySelectorConfig(domain="sensor")
+    )
 
     schema[vol.Optional(CONF_DONATION_FIELDS)] = section(
         vol.Schema(donation_schema),
