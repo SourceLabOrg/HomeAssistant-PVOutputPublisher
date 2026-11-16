@@ -10,7 +10,7 @@
       },
       "add_system": {
         "title": "Solaranlage konfigurieren",
-        "description": "Ordnen Sie Ihre Home Assistant-Sensoren den PVOutput-API-Parametern zu ([API-Dokumentation](https://pvoutput.org/help/api_specification.html#id2)). Lassen Sie optionale Sensoren leer, falls nicht zutreffend.",
+        "description": "Ordnen Sie Ihre Home Assistant-Sensoren den PVOutput-API-Parametern zu ([API-Dokumentation]({api_docs_url})). Lassen Sie optionale Sensoren leer, falls nicht zutreffend.",
         "data": {
           "name": "Systemname",
           "system_id": "System-ID",
@@ -104,7 +104,7 @@
       },
       "add_system": {
         "title": "Solaranlage konfigurieren",
-        "description": "Ordnen Sie Ihre Home Assistant-Sensoren den PVOutput-API-Parametern zu ([API-Dokumentation](https://pvoutput.org/help/api_specification.html#id2)). Lassen Sie optionale Sensoren leer, falls nicht zutreffend.",
+        "description": "Ordnen Sie Ihre Home Assistant-Sensoren den PVOutput-API-Parametern zu ([API-Dokumentation]({api_docs_url})). Lassen Sie optionale Sensoren leer, falls nicht zutreffend.",
         "data": {
           "name": "Systemname",
           "system_id": "System-ID",

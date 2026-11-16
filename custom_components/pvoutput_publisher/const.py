@@ -45,3 +45,4 @@ CONF_VOLTAGE_ENTITY_ID = "voltage_entity_id"
 
 DEFAULT_FREQUENCY = "5"
 PVOUTPUT_API_URL = "https://pvoutput.org/service/r2/addstatus.jsp"
+PVOUTPUT_API_DOCS_URL = "https://pvoutput.org/help/api_specification.html#id2"

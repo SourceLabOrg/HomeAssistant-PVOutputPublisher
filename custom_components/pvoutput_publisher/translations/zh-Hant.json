@@ -10,7 +10,7 @@
       },
       "add_system": {
         "title": "設定太陽能發電系統",
-        "description": "將您的 Home Assistant 感測器對應至 PVOutput API 參數（[API 文件](https://pvoutput.org/help/api_specification.html#id2)）。不適用的可選感測器可留空。",
+        "description": "將您的 Home Assistant 感測器對應至 PVOutput API 參數（[API 文件]({api_docs_url})）。不適用的可選感測器可留空。",
         "data": {
           "name": "系統名稱",
           "system_id": "系統 ID",
@@ -104,7 +104,7 @@
       },
       "add_system": {
         "title": "設定太陽能發電系統",
-        "description": "將您的 Home Assistant 感測器對應至 PVOutput API 參數（[API 文件](https://pvoutput.org/help/api_specification.html#id2)）。不適用的可選感測器可留空。",
+        "description": "將您的 Home Assistant 感測器對應至 PVOutput API 參數（[API 文件]({api_docs_url})）。不適用的可選感測器可留空。",
         "data": {
           "name": "系統名稱",
           "system_id": "系統 ID",

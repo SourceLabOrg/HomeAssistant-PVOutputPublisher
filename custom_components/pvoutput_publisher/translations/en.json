@@ -10,7 +10,7 @@
       },
       "add_system": {
         "title": "Configure Solar System",
-        "description": "Map your Home Assistant sensors to PVOutput API parameters ([API Documentation](https://pvoutput.org/help/api_specification.html#id2)). Leave any optional sensors blank if not applicable.",
+        "description": "Map your Home Assistant sensors to PVOutput API parameters ([API Documentation]({api_docs_url})). Leave any optional sensors blank if not applicable.",
         "data": {
           "name": "System Name",
           "system_id": "System ID",
@@ -104,7 +104,7 @@
       },
       "add_system": {
         "title": "Configure Solar System",
-        "description": "Map your Home Assistant sensors to PVOutput API parameters ([API Documentation](https://pvoutput.org/help/api_specification.html#id2)). Leave any optional sensors blank if not applicable.",
+        "description": "Map your Home Assistant sensors to PVOutput API parameters ([API Documentation]({api_docs_url})). Leave any optional sensors blank if not applicable.",
         "data": {
           "name": "System Name",
           "system_id": "System ID",

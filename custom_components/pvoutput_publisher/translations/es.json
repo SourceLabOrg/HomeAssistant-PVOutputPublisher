@@ -10,7 +10,7 @@
       },
       "add_system": {
         "title": "Configurar sistema solar",
-        "description": "Asigne sus sensores de Home Assistant a los parámetros de la API de PVOutput ([Documentación de la API](https://pvoutput.org/help/api_specification.html#id2)). Deje en blanco los sensores opcionales que no correspondan.",
+        "description": "Asigne sus sensores de Home Assistant a los parámetros de la API de PVOutput ([Documentación de la API]({api_docs_url})). Deje en blanco los sensores opcionales que no correspondan.",
         "data": {
           "name": "Nombre del sistema",
           "system_id": "ID del sistema",
@@ -104,7 +104,7 @@
       },
       "add_system": {
         "title": "Configurar sistema solar",
-        "description": "Asigne sus sensores de Home Assistant a los parámetros de la API de PVOutput ([Documentación de la API](https://pvoutput.org/help/api_specification.html#id2)). Deje en blanco los sensores opcionales que no correspondan.",
+        "description": "Asigne sus sensores de Home Assistant a los parámetros de la API de PVOutput ([Documentación de la API]({api_docs_url})). Deje en blanco los sensores opcionales que no correspondan.",
         "data": {
           "name": "Nombre del sistema",
           "system_id": "ID del sistema",

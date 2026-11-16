@@ -10,7 +10,7 @@
       },
       "add_system": {
         "title": "配置太阳能发电系统",
-        "description": "将您的 Home Assistant 传感器映射到 PVOutput API 参数（[API 文档](https://pvoutput.org/help/api_specification.html#id2)）。不适用的可选传感器可留空。",
+        "description": "将您的 Home Assistant 传感器映射到 PVOutput API 参数（[API 文档]({api_docs_url})）。不适用的可选传感器可留空。",
         "data": {
           "name": "系统名称",
           "system_id": "系统 ID",
@@ -104,7 +104,7 @@
       },
       "add_system": {
         "title": "配置太阳能发电系统",
-        "description": "将您的 Home Assistant 传感器映射到 PVOutput API 参数（[API 文档](https://pvoutput.org/help/api_specification.html#id2)）。不适用的可选传感器可留空。",
+        "description": "将您的 Home Assistant 传感器映射到 PVOutput API 参数（[API 文档]({api_docs_url})）。不适用的可选传感器可留空。",
         "data": {
           "name": "系统名称",
           "system_id": "系统 ID",

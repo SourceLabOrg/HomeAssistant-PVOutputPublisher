@@ -10,7 +10,7 @@ from .const import (
     CONF_V1, CONF_V2, CONF_V3, CONF_V4, CONF_V5, CONF_V6,
     CONF_V7, CONF_V8, CONF_V9, CONF_V10, CONF_V11, CONF_V12,
     CONF_B1, CONF_B2, CONF_B3, CONF_B4, CONF_B5, CONF_B6,
-    CONF_C1, CONF_NET, CONF_DONATION_FIELDS
+    CONF_C1, CONF_NET, CONF_DONATION_FIELDS, PVOUTPUT_API_DOCS_URL
 )
 
 def _clean_system_input(user_input: dict) -> dict:
@@ -184,7 +184,8 @@ class PVOutputPusherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         existing_data = self._systems[self._editing_index] if self._editing_index is not None else None
         return self.async_show_form(
             step_id="add_system",
-            data_schema=_get_system_schema(existing_data)
+            data_schema=_get_system_schema(existing_data),
+            description_placeholders={"api_docs_url": PVOUTPUT_API_DOCS_URL},
         )
 
     async def async_step_systems_manager(self, user_input=None):
@@ -258,7 +259,8 @@ class PVOutputPusherOptionsFlowHandler(config_entries.OptionsFlow):
         existing_data = self._systems[self._editing_index] if self._editing_index is not None else None
         return self.async_show_form(
             step_id="add_system",
-            data_schema=_get_system_schema(existing_data)
+            data_schema=_get_system_schema(existing_data),
+            description_placeholders={"api_docs_url": PVOUTPUT_API_DOCS_URL},
         )
 
     async def async_step_edit_api(self, user_input=None):

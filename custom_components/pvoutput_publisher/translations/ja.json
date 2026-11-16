@@ -10,7 +10,7 @@
       },
       "add_system": {
         "title": "システムの設定",
-        "description": "Home Assistant のセンサーを PVOutput API パラメータにマッピングします ([API ドキュメント](https://pvoutput.org/help/api_specification.html#id2))。該当しないセンサーは空欄のままで構いません。",
+        "description": "Home Assistant のセンサーを PVOutput API パラメータにマッピングします ([API ドキュメント]({api_docs_url}))。該当しないセンサーは空欄のままで構いません。",
         "data": {
           "name": "システム名",
           "system_id": "システム ID",
@@ -104,7 +104,7 @@
       },
       "add_system": {
         "title": "システムの設定",
-        "description": "Home Assistant のセンサーを PVOutput API パラメータにマッピングします ([API ドキュメント](https://pvoutput.org/help/api_specification.html#id2))。該当しないセンサーは空欄のままで構いません。",
+        "description": "Home Assistant のセンサーを PVOutput API パラメータにマッピングします ([API ドキュメント]({api_docs_url}))。該当しないセンサーは空欄のままで構いません。",
         "data": {
           "name": "システム名",
           "system_id": "システム ID",
