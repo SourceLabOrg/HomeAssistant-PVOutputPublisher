@@ -10,7 +10,7 @@
       },
       "add_system": {
         "title": "Configurar sistema solar",
-        "description": "Asigne sus sensores de Home Assistant a los parámetros de la API de PVOutput. Deje en blanco los sensores opcionales que no correspondan.",
+        "description": "Asigne sus sensores de Home Assistant a los parámetros de la API de PVOutput ([Documentación de la API]({api_docs_url})). Deje en blanco los sensores opcionales que no correspondan.",
         "data": {
           "name": "Nombre del sistema",
           "system_id": "ID del sistema",
@@ -69,7 +69,7 @@
               "b3": "Capacidad útil de la batería en vatios-hora (kWh/MWh se convierte automáticamente).",
               "b4": "Energía de carga acumulada en la vida útil en vatios-hora (kWh/MWh se convierte automáticamente).",
               "b5": "Energía de descarga acumulada en la vida útil en vatios-hora (kWh/MWh se convierte automáticamente).",
-              "b6": "Código numérico de estado de la batería (0: No válido, 1: En espera, 2: Térmico, 3: Habilitado, 4: Fallo, 5-9: Definido por usuario)."
+              "b6": "Código numérico de estado de la batería (0: No válido, 1: En espera, 2: Térmico, 3: Habilitado, 4: Fallo, 5-9: Definido por usuario). Admite entidades sensor, number o input_number (p. ej., un ayudante de sensor de plantilla para convertir estados de texto a 0-9)."
             }
           }
         }
@@ -104,7 +104,7 @@
       },
       "add_system": {
         "title": "Configurar sistema solar",
-        "description": "Asigne sus sensores de Home Assistant a los parámetros de la API de PVOutput. Deje en blanco los sensores opcionales que no correspondan.",
+        "description": "Asigne sus sensores de Home Assistant a los parámetros de la API de PVOutput ([Documentación de la API]({api_docs_url})). Deje en blanco los sensores opcionales que no correspondan.",
         "data": {
           "name": "Nombre del sistema",
           "system_id": "ID del sistema",
@@ -163,7 +163,7 @@
               "b3": "Capacidad útil de la batería en vatios-hora (kWh/MWh se convierte automáticamente).",
               "b4": "Energía de carga acumulada en la vida útil en vatios-hora (kWh/MWh se convierte automáticamente).",
               "b5": "Energía de descarga acumulada en la vida útil en vatios-hora (kWh/MWh se convierte automáticamente).",
-              "b6": "Código numérico de estado de la batería (0: No válido, 1: En espera, 2: Térmico, 3: Habilitado, 4: Fallo, 5-9: Definido por usuario)."
+              "b6": "Código numérico de estado de la batería (0: No válido, 1: En espera, 2: Térmico, 3: Habilitado, 4: Fallo, 5-9: Definido por usuario). Admite entidades sensor, number o input_number (p. ej., un ayudante de sensor de plantilla para convertir estados de texto a 0-9)."
             }
           }
         }

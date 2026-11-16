@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   - `b5`: Battery Lifetime Discharge (Wh) with automatic kWh/MWh conversion.
   - `b6`: Battery State (0–9 numeric status code).
 - Reorganized the solar array configuration UI to group PVOutput donation parameters (`v7`–`v12` Extended Data and `b1`–`b6` Battery Data) into a collapsible section, separating them from standard free-tier parameters across all supported languages.
+- Added support for `number` and `input_number` entities (in addition to `sensor`) on `v7`–`v12`, `b3`, and `b6`, and added a direct link to the PVOutput API Documentation in the configuration UI.
 
 ### Bugfixes
 - Fixed an issue where clearing optional entity selectors or text fields when editing a system did not persist and reverted to the previously saved values. ([Issue#17](https://github.com/SourceLabOrg/HomeAssistant-PVOutputPublisher/issues/17))

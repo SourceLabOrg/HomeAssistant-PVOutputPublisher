@@ -12,7 +12,7 @@ from custom_components.pvoutput_publisher.const import (
     CONF_FREQUENCY, CONF_NOTES, CONF_V1, CONF_V2, CONF_V3, CONF_V4,
     CONF_V5, CONF_V6, CONF_V7, CONF_V8, CONF_V9, CONF_V10, CONF_V11, CONF_V12,
     CONF_B1, CONF_B2, CONF_B3, CONF_B4, CONF_B5, CONF_B6,
-    CONF_C1, CONF_NET, CONF_DONATION_FIELDS
+    CONF_C1, CONF_NET, CONF_DONATION_FIELDS, PVOUTPUT_API_DOCS_URL
 )
 
 @pytest.mark.asyncio
@@ -677,6 +677,51 @@ async def test_api_key_whitespace_stripped_and_suggested_value(hass):
         )
 
     assert entry.data[CONF_API_KEY] == "updated_key_456"
+
+
+@pytest.mark.asyncio
+async def test_number_and_input_number_entities_allowed_for_donation_fields(hass):
+    """Test that v7-v12, b3, and b6 accept sensor, number, and input_number entities."""
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        user_input={CONF_API_KEY: "key123"}
+    )
+    assert result["step_id"] == "add_system"
+    assert result["description_placeholders"] == {"api_docs_url": PVOUTPUT_API_DOCS_URL}
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        user_input={
+            CONF_NAME: "Number Helper Array",
+            CONF_SYSTEM_ID: "55555",
+            CONF_FREQUENCY: "5",
+            CONF_V2: "sensor.solar_power",
+            CONF_DONATION_FIELDS: {
+                CONF_V7: "input_number.custom_metric_7",
+                CONF_V8: "number.inverter_limit",
+                CONF_B1: "sensor.battery_power",
+                CONF_B3: "input_number.battery_usable_capacity",
+                CONF_B6: "input_number.battery_state_code",
+            },
+        }
+    )
+    assert result["step_id"] == "systems_manager"
+
+    with patch("custom_components.pvoutput_publisher.async_setup_entry", return_value=True):
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"],
+            user_input={"action": "finish"}
+        )
+
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    sys = result["data"][CONF_SYSTEMS][0]
+    assert sys[CONF_V7] == "input_number.custom_metric_7"
+    assert sys[CONF_V8] == "number.inverter_limit"
+    assert sys[CONF_B3] == "input_number.battery_usable_capacity"
+    assert sys[CONF_B6] == "input_number.battery_state_code"
 
 
 

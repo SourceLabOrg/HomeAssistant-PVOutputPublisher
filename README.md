@@ -77,13 +77,35 @@ This integration is installed via [HACS](https://hacs.xyz/).
 
 ### Donation Features (PVOutput Donation Required)
 *Expand the **Donation Features** section in the UI to configure:*
-* **v7 – v12: Extended Data:** (Optional) Custom donation metrics.
+* **v7 – v12: Extended Data:** (Optional) Custom donation metrics (supports `sensor`, `number`, and `input_number` entities).
 * **b1: Battery Power (W):** (Optional) Instantaneous battery power (positive for charge, negative for discharge).
 * **b2: Battery State of Charge (%):** (Optional) Battery charge percentage (0–100%).
-* **b3: Battery Usable Capacity (Wh):** (Optional) Usable battery capacity.
+* **b3: Battery Usable Capacity (Wh):** (Optional) Usable battery capacity (supports `sensor`, `number`, and `input_number` entities).
 * **b4: Battery Lifetime Charge (Wh):** (Optional) Cumulative lifetime battery charge energy.
 * **b5: Battery Lifetime Discharge (Wh):** (Optional) Cumulative lifetime battery discharge energy.
-* **b6: Battery State (Code 0-9):** (Optional) Numeric battery status code.
+* **b6: Battery State (Code 0-9):** (Optional) Numeric battery status code (`0`: Invalid, `1`: Standby, `2`: Thermal, `3`: Enabled, `4`: Fault, `5–9`: User Defined; supports `sensor`, `number`, and `input_number` entities).
+
+#### Mapping Text Battery States to `b6` with a Template Sensor
+Many battery integrations report status as a text string (e.g., `"charging"`, `"discharging"`, `"standby"`, `"fault"`), whereas PVOutput expects a numeric code (`0–9`) for `b6`. You can easily bridge this using a Home Assistant **Template Sensor Helper**:
+
+1. Go to **Settings > Devices & Services > Helpers**.
+2. Click **Create Helper** → **Template** → **Template a sensor**.
+3. Give it a name (e.g., `PVOutput Battery State`) and paste a state template adapted to your battery sensor:
+   ```jinja2
+   {% set status = states('sensor.my_battery_status') | lower %}
+   {% if status in ['charging', 'discharging', 'active', 'enabled'] %}
+     3
+   {% elif status in ['standby', 'idle'] %}
+     1
+   {% elif status in ['thermal', 'cooling', 'heating'] %}
+     2
+   {% elif status in ['fault', 'error', 'alarm'] %}
+     4
+   {% else %}
+     0
+   {% endif %}
+   ```
+4. Select this new `sensor.pvoutput_battery_state` entity in the **b6: Battery State (Code 0-9)** field.
 
 ### Managing Multiple Systems
 You can add, edit, or remove systems at any time. Simply go to **Settings > Devices & Services**, find the **PVOutput Publisher** integration card, and click **Configure**.

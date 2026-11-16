@@ -10,7 +10,7 @@
       },
       "add_system": {
         "title": "Configure Solar System",
-        "description": "Map your Home Assistant sensors to PVOutput API parameters. Leave any optional sensors blank if not applicable.",
+        "description": "Map your Home Assistant sensors to PVOutput API parameters ([API Documentation]({api_docs_url})). Leave any optional sensors blank if not applicable.",
         "data": {
           "name": "System Name",
           "system_id": "System ID",
@@ -69,7 +69,7 @@
               "b3": "Usable battery capacity in Watt-hours (converts kWh/MWh automatically).",
               "b4": "Cumulative lifetime battery charge energy in Watt-hours (converts kWh/MWh automatically).",
               "b5": "Cumulative lifetime battery discharge energy in Watt-hours (converts kWh/MWh automatically).",
-              "b6": "Numeric battery state code (0: Invalid, 1: Standby, 2: Thermal, 3: Enabled, 4: Fault, 5-9: User Defined)."
+              "b6": "Numeric battery state code (0: Invalid, 1: Standby, 2: Thermal, 3: Enabled, 4: Fault, 5-9: User Defined). Supports sensor, number, or input_number entities (e.g. a Template Sensor helper to map text statuses to 0-9)."
             }
           }
         }
@@ -104,7 +104,7 @@
       },
       "add_system": {
         "title": "Configure Solar System",
-        "description": "Map your Home Assistant sensors to PVOutput API parameters. Leave any optional sensors blank if not applicable.",
+        "description": "Map your Home Assistant sensors to PVOutput API parameters ([API Documentation]({api_docs_url})). Leave any optional sensors blank if not applicable.",
         "data": {
           "name": "System Name",
           "system_id": "System ID",
@@ -163,7 +163,7 @@
               "b3": "Usable battery capacity in Watt-hours (converts kWh/MWh automatically).",
               "b4": "Cumulative lifetime battery charge energy in Watt-hours (converts kWh/MWh automatically).",
               "b5": "Cumulative lifetime battery discharge energy in Watt-hours (converts kWh/MWh automatically).",
-              "b6": "Numeric battery state code (0: Invalid, 1: Standby, 2: Thermal, 3: Enabled, 4: Fault, 5-9: User Defined)."
+              "b6": "Numeric battery state code (0: Invalid, 1: Standby, 2: Thermal, 3: Enabled, 4: Fault, 5-9: User Defined). Supports sensor, number, or input_number entities (e.g. a Template Sensor helper to map text statuses to 0-9)."
             }
           }
         }
