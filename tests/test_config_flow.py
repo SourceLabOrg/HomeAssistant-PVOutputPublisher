@@ -251,39 +251,71 @@ async def test_options_flow_edit_all_fields(hass):
     )
     assert result["step_id"] == "add_system"
 
-    # Submit with donation fields nested as frontend sends them
+    # Verify the form schema pre-populates every field with the existing values
+    schema_dict = result["data_schema"].schema
+    marker_by_name = {k.schema: k for k in schema_dict if isinstance(k, vol.Marker)}
+
+    for key in [CONF_NAME, CONF_SYSTEM_ID, CONF_NOTES, CONF_V1, CONF_V2, CONF_V3, CONF_V4, CONF_V5, CONF_V6]:
+        assert marker_by_name[key].description == {"suggested_value": full_system[key]}
+
+    donation_sec = schema_dict[vol.Optional(CONF_DONATION_FIELDS)]
+    donation_markers = {k.schema: k for k in donation_sec.schema.schema if isinstance(k, vol.Marker)}
+    for key in [CONF_V7, CONF_V8, CONF_V9, CONF_V10, CONF_V11, CONF_V12,
+                CONF_B1, CONF_B2, CONF_B3, CONF_B4, CONF_B5, CONF_B6]:
+        assert donation_markers[key].description == {"suggested_value": full_system[key]}
+
+    # Submit updated values for all fields with donation fields nested as frontend sends them
     frontend_submission = {
-        CONF_NAME: "Full System",
-        CONF_SYSTEM_ID: "999",
-        CONF_FREQUENCY: "15",
-        CONF_NOTES: "Full system notes",
-        CONF_V1: "sensor.v1",
-        CONF_V2: "sensor.v2",
-        CONF_V3: "sensor.v3",
-        CONF_V4: "sensor.v4",
-        CONF_V5: "sensor.v5",
-        CONF_V6: "sensor.v6",
+        CONF_NAME: "Full System Updated",
+        CONF_SYSTEM_ID: "9990",
+        CONF_FREQUENCY: "30",
+        CONF_NOTES: "Updated full system notes",
+        CONF_V1: "sensor.v1_new",
+        CONF_V2: "sensor.v2_new",
+        CONF_V3: "sensor.v3_new",
+        CONF_V4: "sensor.v4_new",
+        CONF_V5: "sensor.v5_new",
+        CONF_V6: "sensor.v6_new",
         CONF_DONATION_FIELDS: {
-            CONF_V7: "sensor.v7",
-            CONF_V8: "sensor.v8",
-            CONF_V9: "sensor.v9",
-            CONF_V10: "sensor.v10",
-            CONF_V11: "sensor.v11",
-            CONF_V12: "sensor.v12",
-            CONF_B1: "sensor.b1",
-            CONF_B2: "sensor.b2",
-            CONF_B3: "sensor.b3",
-            CONF_B4: "sensor.b4",
-            CONF_B5: "sensor.b5",
-            CONF_B6: "sensor.b6",
+            CONF_V7: "sensor.v7_new",
+            CONF_V8: "sensor.v8_new",
+            CONF_V9: "sensor.v9_new",
+            CONF_V10: "sensor.v10_new",
+            CONF_V11: "sensor.v11_new",
+            CONF_V12: "sensor.v12_new",
+            CONF_B1: "sensor.b1_new",
+            CONF_B2: "sensor.b2_new",
+            CONF_B3: "sensor.b3_new",
+            CONF_B4: "sensor.b4_new",
+            CONF_B5: "sensor.b5_new",
+            CONF_B6: "sensor.b6_new",
         },
-        CONF_C1: True,
-        CONF_NET: True,
+        CONF_C1: False,
+        CONF_NET: False,
     }
     result = await hass.config_entries.options.async_configure(
         result["flow_id"], user_input=frontend_submission
     )
     assert result["step_id"] == "systems_manager"
+
+    with patch("custom_components.pvoutput_publisher.async_setup_entry", return_value=True):
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"], user_input={"action": "finish"}
+        )
+
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    saved = entry.data[CONF_SYSTEMS][0]
+    assert saved[CONF_NAME] == "Full System Updated"
+    assert saved[CONF_SYSTEM_ID] == "9990"
+    assert saved[CONF_FREQUENCY] == "30"
+    assert saved[CONF_NOTES] == "Updated full system notes"
+    for key in [CONF_V1, CONF_V2, CONF_V3, CONF_V4, CONF_V5, CONF_V6]:
+        assert saved[key] == f"sensor.{key}_new"
+    for key in [CONF_V7, CONF_V8, CONF_V9, CONF_V10, CONF_V11, CONF_V12,
+                CONF_B1, CONF_B2, CONF_B3, CONF_B4, CONF_B5, CONF_B6]:
+        assert saved[key] == f"sensor.{key}_new"
+    assert saved[CONF_C1] is False
+    assert saved[CONF_NET] is False
 
 
 @pytest.mark.asyncio
@@ -394,6 +426,172 @@ def test_get_system_schema_with_none_donation_fields():
     from custom_components.pvoutput_publisher.config_flow import _get_system_schema
     schema = _get_system_schema({CONF_DONATION_FIELDS: None, CONF_NAME: "Test", CONF_SYSTEM_ID: "123"})
     assert schema is not None
+
+
+@pytest.mark.asyncio
+async def test_options_flow_clear_optional_fields(hass):
+    """Test that clearing previously configured optional sensors/notes removes them instead of reverting to old values."""
+    initial_system = {
+        CONF_NAME: "Test Array",
+        CONF_SYSTEM_ID: "12345",
+        CONF_FREQUENCY: "5",
+        CONF_NOTES: "Some notes to clear",
+        CONF_V1: "sensor.v1",
+        CONF_V2: "sensor.v2",
+        CONF_V3: "sensor.v3",
+        CONF_V4: "sensor.v4",
+        CONF_V5: "sensor.v5",
+        CONF_V6: "sensor.v6",
+        CONF_V12: "sensor.v12",
+        CONF_B1: "sensor.b1",
+        CONF_B2: "sensor.b2",
+        CONF_C1: True,
+        CONF_NET: False,
+    }
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={CONF_API_KEY: "key123", CONF_SYSTEMS: [initial_system]},
+        version=2
+    )
+    entry.add_to_hass(hass)
+
+    # Open options flow and select edit_0
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input={"action": "edit_0"}
+    )
+    assert result["step_id"] == "add_system"
+
+    # When a user clicks 'X' to clear EntitySelectors / TextSelectors in HA Frontend,
+    # the frontend omits those keys from the submitted user_input (keep only v2).
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        user_input={
+            CONF_NAME: "Test Array",
+            CONF_SYSTEM_ID: "12345",
+            CONF_FREQUENCY: "5",
+            CONF_V2: "sensor.v2",
+            CONF_DONATION_FIELDS: {},
+            CONF_C1: False,
+            CONF_NET: False,
+        }
+    )
+    assert result["step_id"] == "systems_manager"
+
+    with patch("custom_components.pvoutput_publisher.async_setup_entry", return_value=True):
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"], user_input={"action": "finish"}
+        )
+
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    updated_sys = entry.data[CONF_SYSTEMS][0]
+    assert updated_sys.get(CONF_V2) == "sensor.v2"
+    assert updated_sys.get(CONF_NOTES) is None
+    assert updated_sys.get(CONF_V1) is None
+    assert updated_sys.get(CONF_V3) is None
+    assert updated_sys.get(CONF_V4) is None
+    assert updated_sys.get(CONF_V5) is None
+    assert updated_sys.get(CONF_V6) is None
+    assert updated_sys.get(CONF_V12) is None
+    assert updated_sys.get(CONF_B1) is None
+    assert updated_sys.get(CONF_B2) is None
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("cleared_notes_value", ["", "   "])
+async def test_options_flow_clear_notes_with_empty_or_whitespace_string(hass, cleared_notes_value):
+    """Test that clearing notes via backspace (which sends '' or whitespace) removes notes cleanly."""
+    initial_system = {
+        CONF_NAME: "Test Array",
+        CONF_SYSTEM_ID: "12345",
+        CONF_FREQUENCY: "5",
+        CONF_NOTES: "Original notes",
+        CONF_V2: "sensor.v2",
+    }
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={CONF_API_KEY: "key123", CONF_SYSTEMS: [initial_system]},
+        version=2
+    )
+    entry.add_to_hass(hass)
+
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input={"action": "edit_0"}
+    )
+    assert result["step_id"] == "add_system"
+
+    # Deleting text in a multiline TextSelector submits "" (or whitespace if user typed spaces)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        user_input={
+            CONF_NAME: "Test Array",
+            CONF_SYSTEM_ID: "12345",
+            CONF_FREQUENCY: "5",
+            CONF_NOTES: cleared_notes_value,
+            CONF_V2: "sensor.v2",
+            CONF_DONATION_FIELDS: {},
+            CONF_C1: False,
+            CONF_NET: False,
+        }
+    )
+    assert result["step_id"] == "systems_manager"
+
+    # Immediately finish and verify CONF_NOTES is not persisted as "" or whitespace
+    with patch("custom_components.pvoutput_publisher.async_setup_entry", return_value=True):
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"], user_input={"action": "finish"}
+        )
+
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    updated_sys = entry.data[CONF_SYSTEMS][0]
+    assert CONF_NOTES not in updated_sys
+
+    # Also verify re-opening edit_0 has no suggested_value for notes
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input={"action": "edit_0"}
+    )
+    schema_dict = result["data_schema"].schema
+    marker_by_name = {k.schema: k for k in schema_dict if isinstance(k, vol.Marker)}
+    assert marker_by_name[CONF_NOTES].description is None
+
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "invalid_input",
+    [
+        # Missing name and system_id completely
+        {CONF_FREQUENCY: "5"},
+        # Empty string for name
+        {CONF_NAME: "", CONF_SYSTEM_ID: "12345", CONF_FREQUENCY: "5"},
+        # Whitespace-only string for name
+        {CONF_NAME: "   ", CONF_SYSTEM_ID: "12345", CONF_FREQUENCY: "5"},
+        # Empty string for system_id
+        {CONF_NAME: "Main Array", CONF_SYSTEM_ID: "", CONF_FREQUENCY: "5"},
+        # Whitespace-only string for system_id
+        {CONF_NAME: "Main Array", CONF_SYSTEM_ID: "   ", CONF_FREQUENCY: "5"},
+    ],
+)
+async def test_cannot_persist_empty_name_or_system_id(hass, invalid_input):
+    """Test that name and system_id cannot be omitted or submitted as empty/whitespace strings."""
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        user_input={CONF_API_KEY: "my_secret_key"}
+    )
+    assert result["step_id"] == "add_system"
+
+    with pytest.raises(vol.Invalid):
+        await hass.config_entries.flow.async_configure(
+            result["flow_id"],
+            user_input=invalid_input
+        )
+
+
 
 
 
