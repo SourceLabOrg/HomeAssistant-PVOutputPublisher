@@ -22,12 +22,6 @@
           "v4": "v4: Leistungsverbrauch (W)",
           "v5": "v5: Temperatursensor",
           "v6": "v6: Spannungssensor",
-          "v7": "v7: Erweiterte Daten 1",
-          "v8": "v8: Erweiterte Daten 2",
-          "v9": "v9: Erweiterte Daten 3",
-          "v10": "v10: Erweiterte Daten 4",
-          "v11": "v11: Erweiterte Daten 5",
-          "v12": "v12: Erweiterte Daten 6",
           "c1": "Kumulatives Energie-Flag (c1=1)",
           "n": "Netto-Leistungserzeugungs-Flag (n=1)"
         },
@@ -42,14 +36,42 @@
           "v4": "Momentaner Leistungsverbrauch in Watt (kW wird automatisch umgerechnet).",
           "v5": "Außentemperatur in °C oder °F (°F wird automatisch in °C umgerechnet).",
           "v6": "Netz-/Wechselrichterspannung in Volt.",
-          "v7": "Erweitertes Datenfeld 1 (erfordert PVOutput-Spendenkonto).",
-          "v8": "Erweitertes Datenfeld 2 (erfordert PVOutput-Spendenkonto).",
-          "v9": "Erweitertes Datenfeld 3 (erfordert PVOutput-Spendenkonto).",
-          "v10": "Erweitertes Datenfeld 4 (erfordert PVOutput-Spendenkonto).",
-          "v11": "Erweitertes Datenfeld 5 (erfordert PVOutput-Spendenkonto).",
-          "v12": "Erweitertes Datenfeld 6 (erfordert PVOutput-Spendenkonto).",
           "c1": "Aktivieren, wenn Ihre Energiesensoren (v1/v3) lebenslange Gesamtzählerstände liefern.",
           "n": "Aktivieren, wenn die Leistungserzeugung (v2) Netto-Einspeisung statt Bruttoerzeugung darstellt."
+        },
+        "sections": {
+          "donation_fields": {
+            "name": "Spenden-Funktionen",
+            "description": "Erfordert ein aktives PVOutput-Spendenkonto.",
+            "data": {
+              "v7": "v7: Erweiterte Daten 1",
+              "v8": "v8: Erweiterte Daten 2",
+              "v9": "v9: Erweiterte Daten 3",
+              "v10": "v10: Erweiterte Daten 4",
+              "v11": "v11: Erweiterte Daten 5",
+              "v12": "v12: Erweiterte Daten 6",
+              "b1": "b1: Batterieleistung (W)",
+              "b2": "b2: Batterieladezustand (%)",
+              "b3": "b3: Nutzkapazität der Batterie (Wh)",
+              "b4": "b4: Lebenszeit-Batterieladung (Wh)",
+              "b5": "b5: Lebenszeit-Batterieentladung (Wh)",
+              "b6": "b6: Batteriestatus (Code 0-9)"
+            },
+            "data_description": {
+              "v7": "Erweitertes Datenfeld 1 (erfordert PVOutput-Spendenkonto).",
+              "v8": "Erweitertes Datenfeld 2 (erfordert PVOutput-Spendenkonto).",
+              "v9": "Erweitertes Datenfeld 3 (erfordert PVOutput-Spendenkonto).",
+              "v10": "Erweitertes Datenfeld 4 (erfordert PVOutput-Spendenkonto).",
+              "v11": "Erweitertes Datenfeld 5 (erfordert PVOutput-Spendenkonto).",
+              "v12": "Erweitertes Datenfeld 6 (erfordert PVOutput-Spendenkonto).",
+              "b1": "Momentane Batterieleistung in Watt (kW wird automatisch umgerechnet). Positiv = Laden, negativ = Entladen.",
+              "b2": "Batterieladezustand in Prozent (0-100%).",
+              "b3": "Nutzbare Batteriekapazität in Wattstunden (kWh/MWh werden automatisch umgerechnet).",
+              "b4": "Kumulierte geladene Lebenszeit-Energie in Wattstunden (kWh/MWh werden automatisch umgerechnet).",
+              "b5": "Kumulierte entladene Lebenszeit-Energie in Wattstunden (kWh/MWh werden automatisch umgerechnet).",
+              "b6": "Numerischer Batteriestatuscode (0: Ungültig, 1: Standby, 2: Thermisch, 3: Aktiviert, 4: Fehler, 5-9: Benutzerdefiniert)."
+            }
+          }
         }
       },
       "systems_manager": {
@@ -94,12 +116,6 @@
           "v4": "v4: Leistungsverbrauch (W)",
           "v5": "v5: Temperatursensor",
           "v6": "v6: Spannungssensor",
-          "v7": "v7: Erweiterte Daten 1",
-          "v8": "v8: Erweiterte Daten 2",
-          "v9": "v9: Erweiterte Daten 3",
-          "v10": "v10: Erweiterte Daten 4",
-          "v11": "v11: Erweiterte Daten 5",
-          "v12": "v12: Erweiterte Daten 6",
           "c1": "Kumulatives Energie-Flag (c1=1)",
           "n": "Netto-Leistungserzeugungs-Flag (n=1)"
         },
@@ -114,14 +130,42 @@
           "v4": "Momentaner Leistungsverbrauch in Watt (kW wird automatisch umgerechnet).",
           "v5": "Außentemperatur in °C oder °F (°F wird automatisch in °C umgerechnet).",
           "v6": "Netz-/Wechselrichterspannung in Volt.",
-          "v7": "Erweitertes Datenfeld 1 (erfordert PVOutput-Spendenkonto).",
-          "v8": "Erweitertes Datenfeld 2 (erfordert PVOutput-Spendenkonto).",
-          "v9": "Erweitertes Datenfeld 3 (erfordert PVOutput-Spendenkonto).",
-          "v10": "Erweitertes Datenfeld 4 (erfordert PVOutput-Spendenkonto).",
-          "v11": "Erweitertes Datenfeld 5 (erfordert PVOutput-Spendenkonto).",
-          "v12": "Erweitertes Datenfeld 6 (erfordert PVOutput-Spendenkonto).",
           "c1": "Aktivieren, wenn Ihre Energiesensoren (v1/v3) lebenslange Gesamtzählerstände liefern.",
           "n": "Aktivieren, wenn die Leistungserzeugung (v2) Netto-Einspeisung statt Bruttoerzeugung darstellt."
+        },
+        "sections": {
+          "donation_fields": {
+            "name": "Spenden-Funktionen",
+            "description": "Erfordert ein aktives PVOutput-Spendenkonto.",
+            "data": {
+              "v7": "v7: Erweiterte Daten 1",
+              "v8": "v8: Erweiterte Daten 2",
+              "v9": "v9: Erweiterte Daten 3",
+              "v10": "v10: Erweiterte Daten 4",
+              "v11": "v11: Erweiterte Daten 5",
+              "v12": "v12: Erweiterte Daten 6",
+              "b1": "b1: Batterieleistung (W)",
+              "b2": "b2: Batterieladezustand (%)",
+              "b3": "b3: Nutzkapazität der Batterie (Wh)",
+              "b4": "b4: Lebenszeit-Batterieladung (Wh)",
+              "b5": "b5: Lebenszeit-Batterieentladung (Wh)",
+              "b6": "b6: Batteriestatus (Code 0-9)"
+            },
+            "data_description": {
+              "v7": "Erweitertes Datenfeld 1 (erfordert PVOutput-Spendenkonto).",
+              "v8": "Erweitertes Datenfeld 2 (erfordert PVOutput-Spendenkonto).",
+              "v9": "Erweitertes Datenfeld 3 (erfordert PVOutput-Spendenkonto).",
+              "v10": "Erweitertes Datenfeld 4 (erfordert PVOutput-Spendenkonto).",
+              "v11": "Erweitertes Datenfeld 5 (erfordert PVOutput-Spendenkonto).",
+              "v12": "Erweitertes Datenfeld 6 (erfordert PVOutput-Spendenkonto).",
+              "b1": "Momentane Batterieleistung in Watt (kW wird automatisch umgerechnet). Positiv = Laden, negativ = Entladen.",
+              "b2": "Batterieladezustand in Prozent (0-100%).",
+              "b3": "Nutzbare Batteriekapazität in Wattstunden (kWh/MWh werden automatisch umgerechnet).",
+              "b4": "Kumulierte geladene Lebenszeit-Energie in Wattstunden (kWh/MWh werden automatisch umgerechnet).",
+              "b5": "Kumulierte entladene Lebenszeit-Energie in Wattstunden (kWh/MWh werden automatisch umgerechnet).",
+              "b6": "Numerischer Batteriestatuscode (0: Ungültig, 1: Standby, 2: Thermisch, 3: Aktiviert, 4: Fehler, 5-9: Benutzerdefiniert)."
+            }
+          }
         }
       }
     }
