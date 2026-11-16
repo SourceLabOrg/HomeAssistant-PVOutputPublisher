@@ -59,7 +59,7 @@ pytest --cov=custom_components/pvoutput_publisher --cov-report=term-missing
 
 Since Home Assistant custom components are pure Python packages, there is **no build step**.
 
-1. Copy the [`custom_components/pvoutput_publisher/`](file:///Users/spowis/Documents/code/HomeAssistant-PVOutputPublisher/custom_components/pvoutput_publisher) folder into your Home Assistant installation:
+1. Copy the [`custom_components/pvoutput_publisher/`](../custom_components/pvoutput_publisher) folder into your Home Assistant installation:
    ```
    /config/custom_components/pvoutput_publisher/
    ```
@@ -70,7 +70,7 @@ Since Home Assistant custom components are pure Python packages, there is **no b
    * *Via Samba / Studio Code Server:* Drag and drop the folder into `/config/custom_components/`.
 
 2. **Restart Home Assistant:**
-   Navigate to **Settings > System > Restart**.
+   Navigate to **Settings > System > Restart** (and hard-refresh your browser with `Cmd+Shift+R` / `Ctrl+Shift+R` if translation files changed).
 
 3. Check logs in **Settings > System > Logs** to verify initialization, migration, and periodic upload payloads.
 
@@ -81,13 +81,13 @@ Since Home Assistant custom components are pure Python packages, there is **no b
 To create a new release for users (via HACS and GitHub):
 
 ### Step 1: Version Bumping
-1. Update `"version"` in [`custom_components/pvoutput_publisher/manifest.json`](file:///Users/spowis/Documents/code/HomeAssistant-PVOutputPublisher/custom_components/pvoutput_publisher/manifest.json):
+1. Update `"version"` in [`custom_components/pvoutput_publisher/manifest.json`](../custom_components/pvoutput_publisher/manifest.json):
    ```json
    {
      "version": "X.Y.Z"
    }
    ```
-2. Update [`CHANGELOG.md`](file:///Users/spowis/Documents/code/HomeAssistant-PVOutputPublisher/CHANGELOG.md):
+2. Update [`CHANGELOG.md`](../CHANGELOG.md):
    * Add a new section `## X.Y.Z (MM/DD/YYYY)`.
    * Document Breaking Changes, Feature Changes, Bug Fixes, and any specific Migration Notes.
 
@@ -96,7 +96,7 @@ To create a new release for users (via HACS and GitHub):
    ```bash
    pytest
    ```
-2. Verify all translation files in [`translations/`](file:///Users/spowis/Documents/code/HomeAssistant-PVOutputPublisher/custom_components/pvoutput_publisher/translations) match any schema changes made in `config_flow.py`.
+2. Verify all translation files in [`translations/`](../custom_components/pvoutput_publisher/translations) match any schema changes made in `config_flow.py` (and use `description_placeholders` rather than hardcoded URLs so `hassfest` passes).
 
 ### Step 3: Git Commit & Tag
 1. Commit all changes:
@@ -113,5 +113,5 @@ HACS pulls release changelogs directly from **GitHub Releases**:
 3. Title: `Release vX.Y.Z` (or `vX.Y.Z`).
 4. **Description:** Copy and paste the exact markdown section from `CHANGELOG.md` for this version into the GitHub release description.
 5. Click **Publish Release**.
-6. Publishing the release automatically triggers [`.github/workflows/release.yaml`](file:///Users/spowis/Documents/code/HomeAssistant-PVOutputPublisher/.github/workflows/release.yaml), which builds `pvoutput_publisher.zip` from `custom_components/pvoutput_publisher` and attaches it to the release so HACS can track download counts.
+6. Publishing the release automatically triggers [`.github/workflows/release.yaml`](../.github/workflows/release.yaml), which builds `pvoutput_publisher.zip` from `custom_components/pvoutput_publisher` and attaches it to the release so HACS can track download counts.
 7. HACS will automatically detect the new release and display the release notes inside Home Assistant for updating users.

@@ -5,14 +5,14 @@ The **HomeAssistant-PVOutputPublisher** integration is transitioning from its le
 
 ### Legacy (v1) Limitations:
 * **Ambiguous Heuristics:** Used generic "Primary" and "Secondary" solar sensor inputs and attempted runtime auto-detection of Power ($W$) vs. Energy ($Wh$).
-* **Limited Extensibility:** Could not support PVOutput extended parameters (`v7`–`v12`), explicit net flag (`n=1`), or manual cumulative flag overrides (`c1=1`).
+* **Limited Extensibility:** Could not support PVOutput extended parameters (`v7`–`v12`), battery metrics (`b1`–`b6`), explicit net flag (`n=1`), or manual cumulative flag overrides (`c1=1`).
 * **Lack of User Context:** No ability to save internal notes for multi-system setups.
 
 ### V2 Goals:
-* **Unified UI:** A single, clear configuration form directly aligned with PVOutput's `addstatus.jsp` API parameters (`v1` through `v12`, `c1`, `n`).
+* **Unified UI:** A single, clear configuration form directly aligned with PVOutput's `addstatus.jsp` API parameters (`v1` through `v12`, `b1` through `b6`, `c1`, `n`), with free-tier parameters presented first and donation-only parameters (`v7`–`v12`, `b1`–`b6`) grouped in a collapsible section.
 * **Zero Disruption via Migration:** Automated, robust migration from Schema v1 to v2 on install/startup (`async_migrate_entry`).
 * **Local Notes Field:** User-facing internal notes field stored per system, omitted from API payloads.
-* **Maintainable Architecture:** Single schema, single UI flow, single payload generator, and high test coverage.
+* **Maintainable Architecture:** Single schema, single UI flow, single payload generator, automatic cleanup of orphaned status sensor entities, and high test coverage.
 
 ---
 
@@ -57,8 +57,12 @@ CONF_B6 = "b6"    # Battery State (0-9)
 CONF_C1 = "c1"    # Cumulative Energy Flag (bool -> &c1=1)
 CONF_NET = "n"    # Net Power Flag (bool -> &n=1)
 
+# Section Keys
+CONF_DONATION_FIELDS = "donation_fields"
+
 DEFAULT_FREQUENCY = "5"
 PVOUTPUT_API_URL = "https://pvoutput.org/service/r2/addstatus.jsp"
+PVOUTPUT_API_DOCS_URL = "https://pvoutput.org/help/api_specification.html#id2"
 ```
 
 ---
@@ -77,19 +81,19 @@ When Home Assistant loads a ConfigEntry with `entry.version == 1`, `async_migrat
     1. Primary (entity_id) & Secondary (secondary_entity_id):
        - If unit in [Wh, kWh, MWh] or device_class == energy:
            -> Map to v1
-           -> If state_class in [total, total_increasing]: Set c1 = True
+           -> Set c1 = True (since inverter energy sensors typically report lifetime totals)
        - If unit in [W, kW] or device_class == power:
            -> Map to v2
        - If state/registry unavailable: Name fallback ("energy" in id -> v1, else v2)
     2. Consumption (consumption_entity_id):
        - If unit in [Wh, kWh, MWh] or device_class == energy:
-           -> Map to v3
+           -> Map to v3 (and set c1 = True if v1 is not set)
        - Else:
            -> Map to v4
     3. Temperature (temperature_entity_id) -> Map to v5
     4. Voltage (voltage_entity_id)         -> Map to v6
     5. Notes (notes)                       -> Initialize as "" (empty string)
-    6. Extended (v7..v12)                  -> Initialize as None / omitted
+    6. Extended (v7..v12) & Battery (b1..b6) -> Initialize as None
     7. Flags (c1, n)                       -> Default based on above or False
         │
         ▼
@@ -105,23 +109,36 @@ When Home Assistant loads a ConfigEntry with `entry.version == 1`, `async_migrat
 
 ## 4. UI & Form Schema (`config_flow.py`)
 
-Config flow and options flow use a single unified system schema `_get_system_schema(existing_data)`:
+Config flow and options flow use a single unified system schema `_get_system_schema(existing_data)`. Optional fields use `description={"suggested_value": ...}` rather than `default=...` so users can clear previously configured fields in the UI:
+
+### Standard Parameters (Top-Level)
+| Field | Type / Selector | Description |
+| :--- | :--- | :--- |
+| `name` | Text (Required, non-empty, stripped) | Friendly name of solar array |
+| `system_id` | Text (Required, non-empty, stripped) | PVOutput System ID |
+| `frequency` | Select (Required) | Push frequency (5m, 10m, 15m, 30m, 1h, 3h) |
+| `notes` | Multiline Text (Optional) | Internal reference notes (not sent to API) |
+| `v1` | Entity Selector (`sensor`, `device_class="energy"`) | **v1: Energy Generation** (Wh, converts kWh/MWh) |
+| `v2` | Entity Selector (`sensor`, `device_class="power"`) | **v2: Power Generation** (W, converts kW) |
+| `v3` | Entity Selector (`sensor`, `device_class="energy"`) | **v3: Energy Consumption** (Wh, converts kWh/MWh) |
+| `v4` | Entity Selector (`sensor`, `device_class="power"`) | **v4: Power Consumption** (W, converts kW) |
+| `v5` | Entity Selector (`sensor`, any device class) | **v5: Temperature** (°C / °F with auto-conversion) |
+| `v6` | Entity Selector (`sensor`, `device_class="voltage"`) | **v6: Voltage** (V) |
+| `c1` | Boolean Toggle | **Cumulative Flag (`c1=1`)**: Generation/Consumption is lifetime |
+| `n` | Boolean Toggle | **Net Flag (`n=1`)**: Power generation is net export |
+
+### Collapsible Donation Features Section (`donation_fields`)
+Automatically starts collapsed unless at least one donation field (`v7`–`v12`, `b1`–`b6`) is configured on the system:
 
 | Field | Type / Selector | Description |
 | :--- | :--- | :--- |
-| `name` | Text (Required) | Friendly name of solar array |
-| `system_id` | Text (Required) | PVOutput System ID |
-| `frequency` | Select (Required) | Push frequency (5m, 10m, 15m, 30m, 1h, 3h) |
-| `notes` | Text (Optional) | Internal reference notes (not sent to API) |
-| `v1` | Sensor Selector (`device_class="energy"`) | **v1: Energy Generation** (Wh, converts kWh/MWh) |
-| `v2` | Sensor Selector (`device_class="power"`) | **v2: Power Generation** (W, converts kW) |
-| `v3` | Sensor Selector (`device_class="energy"`) | **v3: Energy Consumption** (Wh, converts kWh/MWh) |
-| `v4` | Sensor Selector (`device_class="power"`) | **v4: Power Consumption** (W, converts kW) |
-| `v5` | Sensor Selector (`device_class="temperature"`) | **v5: Temperature** (°C / °F with auto-conversion) |
-| `v6` | Sensor Selector (`device_class="voltage"`) | **v6: Voltage** (V) |
-| `v7` – `v12` | Sensor Selector (Optional) | **v7 – v12: Extended Data** (Donation features) |
-| `c1` | Boolean Toggle | **Cumulative Flag (`c1=1`)**: Generation/Consumption is lifetime |
-| `n` | Boolean Toggle | **Net Flag (`n=1`)**: Power generation is net export |
+| `v7` – `v12` | Entity Selector (`sensor`, `number`, `input_number`) | **v7 – v12: Extended Data** (Donation features) |
+| `b1` | Entity Selector (`sensor`, `device_class="power"`) | **b1: Battery Power** (W, converts kW; + charge / - discharge) |
+| `b2` | Entity Selector (`sensor`, `device_class="battery"`) | **b2: Battery State of Charge** (0–100%) |
+| `b3` | Entity Selector (`sensor`, `number`, `input_number`) | **b3: Battery Usable Capacity** (Wh, converts kWh/MWh) |
+| `b4` | Entity Selector (`sensor`, `device_class="energy"`) | **b4: Battery Lifetime Charge** (Wh, converts kWh/MWh) |
+| `b5` | Entity Selector (`sensor`, `device_class="energy"`) | **b5: Battery Lifetime Discharge** (Wh, converts kWh/MWh) |
+| `b6` | Entity Selector (`sensor`, `number`, `input_number`) | **b6: Battery State** (Numeric code 0–9) |
 
 ---
 
@@ -129,14 +146,19 @@ Config flow and options flow use a single unified system schema `_get_system_sch
 
 At scheduled intervals, for each configured v2 system:
 1. Build timestamp: `d=YYYYMMDD&t=HH:MM`.
-2. Inspect each mapped parameter `v1` through `v12`:
+2. Inspect each mapped parameter (`v1`–`v12`, `b1`–`b6`):
    * Fetch entity state. Skip if `unknown`, `unavailable`, or invalid float.
    * Apply unit conversions:
      * `v1` / `v3`: `kwh` $\rightarrow \times 1000$, `mwh` $\rightarrow \times 10^6$. Output as integer.
      * `v2` / `v4`: `kw` / `kilowatt(s)` $\rightarrow \times 1000$. Output as integer.
      * `v5`: `°f` / `f` $\rightarrow (F - 32) \times \frac{5}{9}$. Output as float `%.1f`.
      * `v6`: Output as float `%.1f`.
-     * `v7`–`v12`: Output as formatted numeric value.
+     * `v7`–`v12`: Output as general float `f"{val:g}"`.
+     * `b1`: `kw` / `kilowatt(s)` $\rightarrow \times 1000$. Output as rounded integer (`int(round(val))`).
+     * `b2`: Output as general float `f"{val:g}"`.
+     * `b3` / `b4` / `b5`: `kwh` $\rightarrow \times 1000$, `mwh` $\rightarrow \times 10^6$. Output as rounded integer (`int(round(val))`).
+     * `b6`: Parse integer (`int(float(state))`), validate range `0 <= val <= 9` (log warning and omit if out of range).
+   * Log a warning if `b2`–`b6` are present without `b1` (since PVOutput requires `b1` when uploading battery data).
 3. Append flags:
    * If `c1` is `True`: Append `&c1=1`.
    * If `n` is `True`: Append `&n=1`.
@@ -179,4 +201,7 @@ At scheduled intervals, for each configured v2 system:
 - *2026-10-11:* English translation (`en.json`) updated first; other language files deferred to final phase per iterative development plan.
 - *2026-10-11:* Migration logic defaults `c1=True` for migrated Energy generation sensors because Home Assistant's Entity Registry does not persist `state_class` to disk at boot time. This ensures lifetime energy sensors display `[x] Cumulative Energy Flag` in the UI and prevent PVOutput 400 Bad Request errors.
 - *2026-10-11:* Migration logic refined to prevent duplicate sensor assignments (e.g. if a user configured two energy sensors in v1, secondary energy is safely ignored rather than mistakenly placed into `v2` Power).
+- *2026-11-16 (v2.1.0):* Added battery parameters (`b1`–`b6`) and reorganized `v7`–`v12` and `b1`–`b6` into a collapsible `donation_fields` section in the config/options UI.
+- *2026-11-16 (v2.1.0):* Switched optional fields in `_get_system_schema` from `default` to `suggested_value` and stripped empty strings in `_clean_system_input` so users can clear optional fields when editing a system.
+- *2026-11-16 (v2.1.0):* Added orphaned status sensor cleanup in `sensor.py` when a system is removed or its `system_id` changes, and expanded `v7`–`v12`, `b3`, and `b6` selectors to support `sensor`, `number`, and `input_number` entities.
 
