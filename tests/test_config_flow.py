@@ -498,6 +498,67 @@ async def test_options_flow_clear_optional_fields(hass):
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("cleared_notes_value", ["", "   "])
+async def test_options_flow_clear_notes_with_empty_or_whitespace_string(hass, cleared_notes_value):
+    """Test that clearing notes via backspace (which sends '' or whitespace) removes notes cleanly."""
+    initial_system = {
+        CONF_NAME: "Test Array",
+        CONF_SYSTEM_ID: "12345",
+        CONF_FREQUENCY: "5",
+        CONF_NOTES: "Original notes",
+        CONF_V2: "sensor.v2",
+    }
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={CONF_API_KEY: "key123", CONF_SYSTEMS: [initial_system]},
+        version=2
+    )
+    entry.add_to_hass(hass)
+
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input={"action": "edit_0"}
+    )
+    assert result["step_id"] == "add_system"
+
+    # Deleting text in a multiline TextSelector submits "" (or whitespace if user typed spaces)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        user_input={
+            CONF_NAME: "Test Array",
+            CONF_SYSTEM_ID: "12345",
+            CONF_FREQUENCY: "5",
+            CONF_NOTES: cleared_notes_value,
+            CONF_V2: "sensor.v2",
+            CONF_DONATION_FIELDS: {},
+            CONF_C1: False,
+            CONF_NET: False,
+        }
+    )
+    assert result["step_id"] == "systems_manager"
+
+    # Immediately finish and verify CONF_NOTES is not persisted as "" or whitespace
+    with patch("custom_components.pvoutput_publisher.async_setup_entry", return_value=True):
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"], user_input={"action": "finish"}
+        )
+
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    updated_sys = entry.data[CONF_SYSTEMS][0]
+    assert CONF_NOTES not in updated_sys
+
+    # Also verify re-opening edit_0 has no suggested_value for notes
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input={"action": "edit_0"}
+    )
+    schema_dict = result["data_schema"].schema
+    marker_by_name = {k.schema: k for k in schema_dict if isinstance(k, vol.Marker)}
+    assert marker_by_name[CONF_NOTES].description is None
+
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "invalid_input",
     [

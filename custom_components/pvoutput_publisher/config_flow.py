@@ -14,11 +14,21 @@ from .const import (
 )
 
 def _clean_system_input(user_input: dict) -> dict:
-    """Flatten donation section inputs into the main system dictionary."""
-    cleaned = {**user_input}
-    if CONF_DONATION_FIELDS in cleaned:
-        donation_data = cleaned.pop(CONF_DONATION_FIELDS) or {}
-        cleaned.update(donation_data)
+    """Flatten donation section inputs and strip empty/whitespace values from the system dictionary."""
+    raw = {**user_input}
+    if CONF_DONATION_FIELDS in raw:
+        donation_data = raw.pop(CONF_DONATION_FIELDS) or {}
+        raw.update(donation_data)
+
+    cleaned = {}
+    for k, v in raw.items():
+        if isinstance(v, str):
+            v = v.strip()
+            if not v:
+                continue
+        elif v is None:
+            continue
+        cleaned[k] = v
     return cleaned
 
 def _required_non_empty_str_field(key: str, val: str | None):
