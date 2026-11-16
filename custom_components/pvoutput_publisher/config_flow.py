@@ -31,7 +31,9 @@ def _clean_system_input(user_input: dict) -> dict:
         cleaned[k] = v
     return cleaned
 
-def _required_non_empty_str_field(key: str, val: str | None):
+NON_EMPTY_STR = vol.All(str, vol.Strip, vol.Length(min=1))
+
+def _required_non_empty_str_field(key: str, val: str | None = None):
     """Create a vol.Required marker with suggested_value if non-empty."""
     if val:
         return vol.Required(key, description={"suggested_value": val})
@@ -51,11 +53,10 @@ def _get_system_schema(existing_data=None):
     }
 
     data = existing_data or {}
-    non_empty_str = vol.All(str, vol.Strip, vol.Length(min=1))
 
     schema = {
-        _required_non_empty_str_field(CONF_NAME, data.get(CONF_NAME) or data.get(CONF_SYSTEM_ID)): non_empty_str,
-        _required_non_empty_str_field(CONF_SYSTEM_ID, data.get(CONF_SYSTEM_ID)): non_empty_str,
+        _required_non_empty_str_field(CONF_NAME, data.get(CONF_NAME) or data.get(CONF_SYSTEM_ID)): NON_EMPTY_STR,
+        _required_non_empty_str_field(CONF_SYSTEM_ID, data.get(CONF_SYSTEM_ID)): NON_EMPTY_STR,
         vol.Required(CONF_FREQUENCY, default=str(data.get(CONF_FREQUENCY, DEFAULT_FREQUENCY))): vol.In(frequency_options),
     }
 
@@ -166,7 +167,7 @@ class PVOutputPusherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema({vol.Required(CONF_API_KEY): str})
+            data_schema=vol.Schema({_required_non_empty_str_field(CONF_API_KEY): NON_EMPTY_STR})
         )
 
     async def async_step_add_system(self, user_input=None):
@@ -268,7 +269,7 @@ class PVOutputPusherOptionsFlowHandler(config_entries.OptionsFlow):
         return self.async_show_form(
             step_id="edit_api",
             data_schema=vol.Schema({
-                vol.Required(CONF_API_KEY, default=self._api_key): str,
+                _required_non_empty_str_field(CONF_API_KEY, self._api_key): NON_EMPTY_STR,
             })
         )
 

@@ -592,6 +592,94 @@ async def test_cannot_persist_empty_name_or_system_id(hass, invalid_input):
         )
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize("invalid_api_key", [{}, {CONF_API_KEY: ""}, {CONF_API_KEY: "   "}])
+async def test_cannot_persist_empty_api_key(hass, invalid_api_key):
+    """Test that api_key cannot be omitted or submitted as empty/whitespace in initial setup or edit_api."""
+    # 1. Initial user step
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+    assert result["step_id"] == "user"
+    with pytest.raises(vol.Invalid):
+        await hass.config_entries.flow.async_configure(
+            result["flow_id"],
+            user_input=invalid_api_key
+        )
+
+    # 2. Options flow edit_api step
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={CONF_API_KEY: "existing_valid_key", CONF_SYSTEMS: []},
+        version=2
+    )
+    entry.add_to_hass(hass)
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input={"action": "edit_api"}
+    )
+    assert result["step_id"] == "edit_api"
+    with pytest.raises(vol.Invalid):
+        await hass.config_entries.options.async_configure(
+            result["flow_id"],
+            user_input=invalid_api_key
+        )
+
+
+@pytest.mark.asyncio
+async def test_api_key_whitespace_stripped_and_suggested_value(hass):
+    """Test that leading/trailing whitespace on api_key is stripped and edit_api uses suggested_value."""
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        user_input={CONF_API_KEY: "  padded_key_123 \n "}
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        user_input={
+            CONF_NAME: "Main Array",
+            CONF_SYSTEM_ID: "12345",
+            CONF_FREQUENCY: "5",
+        }
+    )
+    with patch("custom_components.pvoutput_publisher.async_setup_entry", return_value=True):
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"],
+            user_input={"action": "finish"}
+        )
+
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    assert result["data"][CONF_API_KEY] == "padded_key_123"
+
+    # Also test edit_api in OptionsFlow
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={CONF_API_KEY: "initial_key", CONF_SYSTEMS: []},
+        version=2
+    )
+    entry.add_to_hass(hass)
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input={"action": "edit_api"}
+    )
+    schema_dict = result["data_schema"].schema
+    marker_by_name = {k.schema: k for k in schema_dict if isinstance(k, vol.Marker)}
+    assert marker_by_name[CONF_API_KEY].description == {"suggested_value": "initial_key"}
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input={CONF_API_KEY: "  updated_key_456  "}
+    )
+    with patch("custom_components.pvoutput_publisher.async_setup_entry", return_value=True):
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"], user_input={"action": "finish"}
+        )
+
+    assert entry.data[CONF_API_KEY] == "updated_key_456"
+
+
+
 
 
 

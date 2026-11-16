@@ -1,5 +1,6 @@
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
 from homeassistant.core import callback
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 
 from .const import DOMAIN, CONF_SYSTEMS, CONF_SYSTEM_ID, CONF_NAME
@@ -7,6 +8,13 @@ from .const import DOMAIN, CONF_SYSTEMS, CONF_SYSTEM_ID, CONF_NAME
 async def async_setup_entry(hass, entry, async_add_entities):
     """Set up the sensor platform."""
     systems = entry.data.get(CONF_SYSTEMS, [])
+    active_unique_ids = {f"pvoutput_last_upload_{sys[CONF_SYSTEM_ID]}" for sys in systems if CONF_SYSTEM_ID in sys}
+
+    registry = er.async_get(hass)
+    for reg_entry in er.async_entries_for_config_entry(registry, entry.entry_id):
+        if reg_entry.unique_id not in active_unique_ids:
+            registry.async_remove(reg_entry.entity_id)
+
     sensors = []
 
     for system in systems:
